@@ -178,8 +178,9 @@
     </div>
   </div>
 
-  <div class="pms-card-spacer" *ngIf="!showArrivingFooter" aria-hidden="true"></div>
+  <div class="pms-card-spacer" *ngIf="!showArrivingFooter && !hideCountdownStrip" aria-hidden="true"></div>
 
+  <ng-container *ngIf="!hideCountdownStrip">
   <div
     *ngIf="showBookingTypeRow; else pmsCountdownRow"
     class="pms-checkout-row pms-checkout-row--booking-type"
@@ -197,6 +198,7 @@
       <span class="pms-checkout-row-val">{{ cardCountdownText }}</span>
     </div>
   </ng-template>
+  </ng-container>
 
   <footer
     class="pms-card-actions"

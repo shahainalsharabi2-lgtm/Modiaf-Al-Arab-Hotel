@@ -519,9 +519,14 @@ export class BookingListComponent implements OnInit, AfterViewInit {
       return this.bookingsHubTabs;
     }
     if (this.isFrontDeskHub()) {
-      return this.frontDeskPmsTabs;
+      return [];
     }
     return [];
+  }
+
+  /** إخفاء شريط العدّاد (متبقي حتى الوصول) في بطاقات القادمون — المكاتب الأمامية */
+  get pmsCardHideCountdownStrip(): boolean {
+    return this.isFrontDeskHub() && this.pmsTab === 'arriving';
   }
 
   hubChromeTabLabel(tab: (typeof this.pmsTab)): string {

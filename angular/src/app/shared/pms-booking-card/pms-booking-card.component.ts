@@ -38,6 +38,8 @@ export class PmsBookingCardComponent {
   @Input() hideFooterActions = false;
   /** بطاقة hub (سجلات الحجز / المكاتب الأمامية) */
   @Input() hubCardChrome = false;
+  /** إخفاء شريط الوقت (متبقي حتى الوصول/المغادرة) أسفل البطاقة */
+  @Input() hideCountdownStrip = false;
   /** بطاقة بحجم ثابت (واجهة بطاقات الحجز) */
   @Input() uniformCardSize = false;
   /** القادمون: تسكين | المقيمون/المغادرون: قائمة إجراءات | غير ذلك: عرض التفاصيل */

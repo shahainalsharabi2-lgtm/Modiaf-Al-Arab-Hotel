@@ -426,7 +426,11 @@
                 <i class="fas fa-plus" aria-hidden="true"></i>
               </a>
             </div>
-            <nav class="bh-tabs" role="tablist" [attr.aria-label]="ui.screenText('bookings', 'bookingsHubTabsAria')">
+            <nav
+              class="bh-tabs"
+              role="tablist"
+              *ngIf="!isFrontDeskHub()"
+              [attr.aria-label]="ui.screenText('bookings', 'bookingsHubTabsAria')">
               <button
                 *ngFor="let tab of hubChromeTabs"
                 type="button"
@@ -734,6 +738,7 @@
                     [orderIndex]="idx"
                     [primaryAction]="pmsCardPrimaryAction()"
                     [hideFooterActions]="pmsCardHideFooter()"
+                    [hideCountdownStrip]="pmsCardHideCountdownStrip"
                     [hubCardChrome]="showBookingsHubChrome()"
                     [uniformCardSize]="bookingsCardLayout"
                     (viewDetails)="openGuestDetailModal($event)"
@@ -759,6 +764,7 @@
                   [orderIndex]="idx"
                   [primaryAction]="pmsCardPrimaryAction()"
                   [hideFooterActions]="pmsCardHideFooter()"
+                  [hideCountdownStrip]="pmsCardHideCountdownStrip"
                   [hubCardChrome]="showBookingsHubChrome()"
                   [uniformCardSize]="bookingsCardLayout"
                   (viewDetails)="openGuestDetailModal($event)"
