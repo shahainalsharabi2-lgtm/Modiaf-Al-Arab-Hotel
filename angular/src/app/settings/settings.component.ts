@@ -472,6 +472,8 @@ export class SettingsComponent implements OnInit {
   uiTranslationsOpenGroups = new Set<string>();
   uiTranslationsOpenSidebarSections = new Set<string>();
   uiTranslationsJumpGroupId = '';
+  /** قيمة قائمة «كل الصفحات» — مميزة عن عدم الاختيار (فارغ) */
+  readonly uiTranslationsAllPagesGroupId = 'all';
   uiTranslationsFormEpoch = 0;
   uiTranslationsPage = 1;
   readonly uiTranslationsPageSize = 10;
@@ -2667,7 +2669,7 @@ export class SettingsComponent implements OnInit {
     if (!groupId) {
       return false;
     }
-    if (groupId === 'systemMessages') {
+    if (groupId === this.uiTranslationsAllPagesGroupId || groupId === 'systemMessages') {
       return true;
     }
     if (groupId === 'sidebar') {
@@ -3449,7 +3451,11 @@ export class SettingsComponent implements OnInit {
       this.cdr.markForCheck();
       return;
     }
-    if (this.uiTranslationsJumpGroupId === 'sidebar' || this.uiTranslationsJumpGroupId.startsWith('screen:')) {
+    if (
+      this.uiTranslationsJumpGroupId === this.uiTranslationsAllPagesGroupId ||
+      this.uiTranslationsJumpGroupId === 'sidebar' ||
+      this.uiTranslationsJumpGroupId.startsWith('screen:')
+    ) {
       this.cdr.markForCheck();
       return;
     }

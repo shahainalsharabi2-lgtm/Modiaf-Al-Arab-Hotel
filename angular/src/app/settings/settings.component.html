@@ -1115,7 +1115,8 @@
                 [ngModel]="uiTranslationSystemPagePickerValue()"
                 (ngModelChange)="onUiTranslationsJumpGroupChange($event)"
                 aria-label="{{ uiTranslationsEditorChromeText('uiTranslationsShowAllPages') }}">
-                <option [ngValue]="''">{{ uiTranslationsEditorChromeText('uiTranslationsShowAllPages') }}</option>
+                <option [ngValue]="''">{{ uiTranslationsEditorChromeText('uiTranslationsPickPage') }}</option>
+                <option [ngValue]="uiTranslationsAllPagesGroupId">{{ uiTranslationsEditorChromeText('uiTranslationsShowAllPages') }}</option>
                 <option
                   *ngFor="let page of uiTranslationSystemPagePickerOptions(); trackBy: trackUiTranslationSystemPageOption"
                   [ngValue]="page.id">
