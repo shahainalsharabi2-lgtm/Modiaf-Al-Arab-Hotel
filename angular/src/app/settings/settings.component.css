@@ -155,6 +155,14 @@
   margin-inline-start: 4px;
 }
 
+.ui-tr-flat-result-meta {
+  display: block;
+  margin-top: 2px;
+  color: #7c3aed;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .ui-tr-flat-search {
   position: relative;
   flex: 1 1 auto;

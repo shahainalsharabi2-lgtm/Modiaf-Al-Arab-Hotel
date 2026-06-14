@@ -1151,14 +1151,14 @@
               class="ui-tr-toolbar-search-indicator"
               *ngIf="uiTranslationsToolbarCollapsed"
               (click)="openUiTranslationsToolbar()"
-              [attr.aria-label]="uiTranslations.screenText('settings', 'uiTranslationsSearchLabel')"
-              [title]="uiTranslations.screenText('settings', 'uiTranslationsSearchLabel')">
+              [attr.aria-label]="uiTranslationsEditorChromeText('uiTranslationsSearchLabel')"
+              [title]="uiTranslationsEditorChromeText('uiTranslationsSearchLabel')">
               <i class="fas fa-search" aria-hidden="true"></i>
             </button>
             <div class="ui-tr-toolbar-row" *ngIf="!uiTranslationsToolbarCollapsed">
               <div class="ui-tr-toolbar-field ui-tr-toolbar-field--grow">
                 <label class="ui-tr-toolbar-label" for="ui-tr-search">
-                  {{ uiTranslations.screenText('settings', 'uiTranslationsSearchLabel') }}
+                  {{ uiTranslationsEditorChromeText('uiTranslationsSearchLabel') }}
                 </label>
                 <div class="ui-tr-control">
                   <i class="fas fa-search" aria-hidden="true"></i>
@@ -1168,13 +1168,13 @@
                     type="search"
                     [(ngModel)]="uiTranslationsSearch"
                     (ngModelChange)="onUiTranslationsSearchChange()"
-                    [placeholder]="uiTranslations.screenText('settings', 'uiTranslationsSearchPh')" />
+                    [placeholder]="uiTranslationsEditorChromeText('uiTranslationsSearchPh')" />
                 </div>
               </div>
 
               <div class="ui-tr-toolbar-field">
                 <label class="ui-tr-toolbar-label" for="ui-tr-locale">
-                  {{ uiTranslations.screenText('settings', 'uiTranslationsLocale') }}
+                  {{ uiTranslationsEditorChromeText('uiTranslationsLocale') }}
                 </label>
                 <div class="ui-tr-control">
                   <i class="fas fa-language" aria-hidden="true"></i>
@@ -1182,7 +1182,7 @@
                     id="ui-tr-locale"
                     [ngModel]="uiTranslationsLocale"
                     (ngModelChange)="onUiTranslationsLocaleChange($event)"
-                    [title]="uiTranslations.screenText('settings', 'uiTranslationsColManualHint')">
+                    [title]="uiTranslationsEditorChromeText('uiTranslationsColManualHint')">
                     <option *ngFor="let locale of uiTranslationEditorLocales()" [ngValue]="locale">
                       {{ uiTranslationEditorLocaleLabel(locale) }}
                     </option>
@@ -1192,7 +1192,7 @@
 
               <div class="ui-tr-toolbar-field">
                 <label class="ui-tr-toolbar-label" for="ui-tr-section-filter">
-                  {{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilter') }}
+                  {{ uiTranslationsEditorChromeText('uiTranslationsSectionFilter') }}
                 </label>
                 <div class="ui-tr-control">
                   <i class="fas fa-filter" aria-hidden="true"></i>
@@ -1200,16 +1200,16 @@
                     id="ui-tr-section-filter"
                     [ngModel]="uiTranslationsSectionFilter"
                     (ngModelChange)="onUiTranslationsSectionFilterChange($event)">
-                    <option value="all">{{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilterAll') }}</option>
-                    <option value="translated">{{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilterTranslated') }}</option>
-                    <option value="untranslated">{{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilterUntranslated') }}</option>
+                    <option value="all">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterAll') }}</option>
+                    <option value="translated">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterTranslated') }}</option>
+                    <option value="untranslated">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterUntranslated') }}</option>
                   </select>
                 </div>
               </div>
 
               <div class="ui-tr-toolbar-field">
                 <label class="ui-tr-toolbar-label" for="ui-tr-jump-group">
-                  {{ uiTranslations.screenText('settings', 'uiTranslationsJumpToGroup') }}
+                  {{ uiTranslationsEditorChromeText('uiTranslationsJumpToGroup') }}
                 </label>
                 <div class="ui-tr-control">
                   <i class="fas fa-layer-group" aria-hidden="true"></i>
@@ -1217,8 +1217,8 @@
                     id="ui-tr-jump-group"
                     [ngModel]="uiTranslationsJumpGroupId"
                     (ngModelChange)="onUiTranslationsJumpGroupChange($event)"
-                    [title]="uiTranslations.screenText('settings', 'uiTranslationsJumpToGroup')">
-                    <option [ngValue]="''">{{ uiTranslations.screenText('settings', 'uiTranslationsJumpToGroupPh') }}</option>
+                    [title]="uiTranslationsEditorChromeText('uiTranslationsJumpToGroup')">
+                    <option [ngValue]="''">{{ uiTranslationsEditorChromeText('uiTranslationsJumpToGroupPh') }}</option>
                     <option
                       *ngFor="let group of uiTranslationEditorGroupsForJump(); trackBy: trackUiTranslationGroup"
                       [ngValue]="group.id">
@@ -1231,15 +1231,15 @@
               <div class="ui-tr-toolbar-actions">
                 <span class="ui-tr-filter-summary" *ngIf="uiTranslationsSectionFilterSummary() as summary">
                   <span class="ui-tr-filter-summary__item ui-tr-filter-summary__item--complete">
-                    {{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilterTranslated') }}: {{ summary.translatedFields }}
+                    {{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterTranslated') }}: {{ summary.translatedFields }}
                   </span>
                   <span class="ui-tr-filter-summary__item ui-tr-filter-summary__item--missing">
-                    {{ uiTranslations.screenText('settings', 'uiTranslationsSectionFilterUntranslated') }}: {{ summary.untranslatedFields }}
+                    {{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterUntranslated') }}: {{ summary.untranslatedFields }}
                   </span>
                 </span>
                 <span class="ui-tr-autosave-hint" *ngIf="uiTranslationsSaving" role="status">
                   <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-                  <ui-inline-text kind="screen" screen="settings" key="uiTranslationsSaving" />
+                  جاري الحفظ...
                 </span>
               </div>
             </div>
@@ -1249,11 +1249,11 @@
               (click)="toggleUiTranslationsToolbarCollapsed()"
               [attr.aria-expanded]="!uiTranslationsToolbarCollapsed"
               [attr.aria-label]="uiTranslationsToolbarCollapsed
-                ? uiTranslations.screenText('settings', 'uiTranslationsToolbarExpand')
-                : uiTranslations.screenText('settings', 'uiTranslationsToolbarCollapse')"
+                ? uiTranslationsEditorChromeText('uiTranslationsToolbarExpand')
+                : uiTranslationsEditorChromeText('uiTranslationsToolbarCollapse')"
               [title]="uiTranslationsToolbarCollapsed
-                ? uiTranslations.screenText('settings', 'uiTranslationsToolbarExpand')
-                : uiTranslations.screenText('settings', 'uiTranslationsToolbarCollapse')">
+                ? uiTranslationsEditorChromeText('uiTranslationsToolbarExpand')
+                : uiTranslationsEditorChromeText('uiTranslationsToolbarCollapse')">
               <i
                 class="fas"
                 [class.fa-chevron-up]="!uiTranslationsToolbarCollapsed"
@@ -1278,6 +1278,7 @@
                 <div class="ui-tr-flat-result-count">
                   {{ uiTranslationsFlatTotalRows() }}
                   <span>نتيجة</span>
+                  <span class="ui-tr-flat-result-meta">{{ uiTranslationsFlatResultSummary() }}</span>
                 </div>
                 <div class="ui-tr-flat-search">
                   <input
@@ -1294,7 +1295,8 @@
                   <label>اللغة</label>
                   <select
                     [ngModel]="uiTranslationsLocale"
-                    (ngModelChange)="onUiTranslationsLocaleChange($event)">
+                    (ngModelChange)="onUiTranslationsLocaleChange($event)"
+                    [title]="'مربوطة بشريط تغيير اللغة في أعلى النظام'">
                     <option *ngFor="let locale of uiTranslationEditorLocales()" [ngValue]="locale">
                       {{ uiTranslationEditorLocaleLabel(locale) }}
                     </option>
@@ -1314,8 +1316,14 @@
 
               <div class="ui-tr-flat-table" *ngIf="uiTranslationsFlatTotalRows() > 0; else uiTrFlatEmpty">
                 <div class="ui-tr-flat-head">
-                  <div>الترجمة العربية</div>
-                  <div class="ui-tr-flat-head--en">الترجمة الإنجليزية</div>
+                  <div>
+                    <strong>الترجمة العربية</strong>
+                    <small>مرجع ثابت</small>
+                  </div>
+                  <div class="ui-tr-flat-head--en">
+                    <strong>الترجمة الإنجليزية</strong>
+                    <small>مرجع ثابت</small>
+                  </div>
                   <div>
                     <strong>{{ uiTranslationsEditableColumnTitle() }}</strong>
                     <small>الترجمة التي يتم إدخالها يدويًا</small>
