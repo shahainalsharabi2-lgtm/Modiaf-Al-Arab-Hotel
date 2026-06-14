@@ -1960,22 +1960,49 @@ export class SettingsComponent implements OnInit {
   }
 
   uiTranslationsEditableColumnTitle(): string {
-    const titleByLocale: Record<UiExtraLocaleCode | 'ar', string> = {
-      ar: 'الترجمة العربية',
-      en: 'الترجمة الإنجليزية',
-      fr: 'الترجمة الفرنسية',
-      tr: 'الترجمة التركية',
+    const keyByLocale: Record<UiExtraLocaleCode | 'ar', string> = {
+      ar: 'uiTranslationsColEditableAr',
+      en: 'uiTranslationsColEditableEn',
+      fr: 'uiTranslationsColEditableFr',
+      tr: 'uiTranslationsColEditableTr',
     };
-    return titleByLocale[this.uiTranslationsLocale];
+    return this.uiTranslationsEditorChromeText(keyByLocale[this.uiTranslationsLocale]);
   }
 
-  /** نصوص واجهة محرر الترجمة — عربي ثابت (لا تتأثر بشريط اللغة) */
+  /** نصوص واجهة محرر الترجمة — تتبع لغة التحرير المختارة */
   uiTranslationsEditorChromeText(key: string): string {
-    const fromReference = this.uiTranslationsReferenceAr?.screenCopy?.settings?.[key]?.trim();
-    if (fromReference) {
-      return fromReference;
+    const locale = this.uiTranslationsLocale;
+    const read = (code: UiExtraLocaleCode | 'ar'): string =>
+      this.uiTranslations.screenTextForLocale(code, 'settings', key);
+    const isUsable = (value: string): boolean => {
+      const trimmed = value.trim();
+      return !!trimmed && trimmed !== key && !/^\d+$/.test(trimmed);
+    };
+    const primary = read(locale);
+    if (isUsable(primary)) {
+      return primary;
     }
-    return this.uiTranslations.arabicFieldText('screen', 'settings', key);
+    if (locale !== 'en') {
+      const en = read('en');
+      if (isUsable(en)) {
+        return en;
+      }
+    }
+    return read('ar');
+  }
+
+  uiTranslationSystemToolLabel(toolId: UiTranslationSystemToolId): string {
+    const keyByTool: Record<UiTranslationSystemToolId, string> = {
+      texts: 'uiTranslationsToolTexts',
+      buttons: 'uiTranslationsToolButtons',
+      inputs: 'uiTranslationsToolInputs',
+      selects: 'uiTranslationsToolSelects',
+      tables: 'uiTranslationsToolTables',
+      notifications: 'uiTranslationsToolNotifications',
+      tabs: 'uiTranslationsToolTabs',
+      modals: 'uiTranslationsToolModals',
+    };
+    return this.uiTranslationsEditorChromeText(keyByTool[toolId]);
   }
 
   uiTranslationEditorLocales(): readonly (UiExtraLocaleCode | 'ar')[] {
@@ -1983,13 +2010,23 @@ export class SettingsComponent implements OnInit {
   }
 
   uiTranslationEditorLocaleLabel(locale: UiExtraLocaleCode | 'ar'): string {
-    const labelByLocale: Record<UiExtraLocaleCode | 'ar', string> = {
+    const keyByLocale: Record<UiExtraLocaleCode | 'ar', string> = {
+      ar: 'localeAr',
+      en: 'localeEn',
+      fr: 'localeFr',
+      tr: 'localeTr',
+    };
+    const localized = this.uiTranslationsEditorChromeText(keyByLocale[locale]);
+    const fallback: Record<UiExtraLocaleCode | 'ar', string> = {
       ar: 'العربية',
       en: 'الإنجليزية',
       fr: 'الفرنسية',
       tr: 'التركية',
     };
-    return labelByLocale[locale];
+    if (/^\d+$/.test(localized.trim())) {
+      return fallback[locale];
+    }
+    return localized || fallback[locale];
   }
 
   uiTranslationEditorGroups(): readonly UiTranslationEditorGroup[] {
@@ -2593,7 +2630,7 @@ export class SettingsComponent implements OnInit {
 
   uiTranslationsFlatResultSummary(): string {
     const locale = this.uiTranslationEditorLocaleLabel(this.uiTranslationsLocale);
-    const section = this.activeUiTranslationSystemToolConfig().label;
+    const section = this.uiTranslationSystemToolLabel(this.activeUiTranslationSystemTool);
     return `${locale} · ${section}`;
   }
 

@@ -1104,7 +1104,7 @@
         <div class="settings-frame full-width ui-tr-editor">
           <div class="settings-tab-head settings-tab-head--with-actions">
             <h2>
-              ترجمة واجهة النظام
+              {{ uiTranslationsEditorChromeText('uiTranslationsTitle') }}
             </h2>
 
           </div>
@@ -1114,8 +1114,8 @@
                 class="ui-tr-system-page-select"
                 [ngModel]="uiTranslationSystemPagePickerValue()"
                 (ngModelChange)="onUiTranslationsJumpGroupChange($event)"
-                aria-label="اختيار صفحة من النظام">
-                <option [ngValue]="''">عرض جميع الصفحات</option>
+                aria-label="{{ uiTranslationsEditorChromeText('uiTranslationsShowAllPages') }}">
+                <option [ngValue]="''">{{ uiTranslationsEditorChromeText('uiTranslationsShowAllPages') }}</option>
                 <option
                   *ngFor="let page of uiTranslationSystemPagePickerOptions(); trackBy: trackUiTranslationSystemPageOption"
                   [ngValue]="page.id">
@@ -1123,7 +1123,7 @@
                 </option>
               </select>
             </div>
-            <div class="ui-tr-system-tools" role="tablist" aria-label="أقسام ترجمة واجهة النظام">
+            <div class="ui-tr-system-tools" role="tablist" [attr.aria-label]="uiTranslationsEditorChromeText('uiTranslationsSystemToolsAria')">
             <button
               type="button"
               class="ui-tr-system-tool"
@@ -1136,7 +1136,7 @@
                 {{ stats.translated }}/{{ stats.total }}
               </span>
               <i class="fas" [ngClass]="tool.icon" aria-hidden="true"></i>
-              <span>{{ tool.label }}</span>
+              <span>{{ uiTranslationSystemToolLabel(tool.id) }}</span>
             </button>
             </div>
           </div>
@@ -1239,7 +1239,7 @@
                 </span>
                 <span class="ui-tr-autosave-hint" *ngIf="uiTranslationsSaving" role="status">
                   <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-                  جاري الحفظ...
+                  {{ uiTranslationsEditorChromeText('uiTranslationsSaving') }}
                 </span>
               </div>
             </div>
@@ -1269,7 +1269,7 @@
           </div>
 
           <div *ngIf="uiTranslationsLoading" class="hint">
-            جاري التحميل...
+            {{ uiTranslationsEditorChromeText('uiTranslationsLoading') }}
           </div>
 
           <ng-container *ngIf="!uiTranslationsLoading && uiTranslationsForm && uiTranslationsReferenceAr && uiTranslationsReferenceEn">
@@ -1277,7 +1277,7 @@
               <div class="ui-tr-flat-toolbar">
                 <div class="ui-tr-flat-result-count">
                   {{ uiTranslationsFlatTotalRows() }}
-                  <span>نتيجة</span>
+                  <span>{{ uiTranslationsEditorChromeText('uiTranslationsResultUnit') }}</span>
                   <span class="ui-tr-flat-result-meta">{{ uiTranslationsFlatResultSummary() }}</span>
                 </div>
                 <div class="ui-tr-flat-search">
@@ -1285,14 +1285,14 @@
                     type="search"
                     [(ngModel)]="uiTranslationsSearch"
                     (ngModelChange)="onUiTranslationsSearchChange()"
-                    placeholder="ابحث بالمفتاح أو اسم الشاشة..." />
+                    [placeholder]="uiTranslationsEditorChromeText('uiTranslationsSearchPh')" />
                   <i class="fas fa-search" aria-hidden="true"></i>
                 </div>
               </div>
 
               <div class="ui-tr-flat-options">
                 <div class="ui-tr-flat-select">
-                  <label>اللغة</label>
+                  <label>{{ uiTranslationsEditorChromeText('uiTranslationsLocale') }}</label>
                   <select
                     [ngModel]="uiTranslationsLocale"
                     (ngModelChange)="onUiTranslationsLocaleChange($event)"
@@ -1303,13 +1303,13 @@
                   </select>
                 </div>
                 <div class="ui-tr-flat-select">
-                  <label>حالة الترجمة</label>
+                  <label>{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilter') }}</label>
                   <select
                     [ngModel]="uiTranslationsSectionFilter"
                     (ngModelChange)="onUiTranslationsSectionFilterChange($event)">
-                    <option value="all">الكل</option>
-                    <option value="translated">المترجمة</option>
-                    <option value="untranslated">غير المترجمة</option>
+                    <option value="all">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterAll') }}</option>
+                    <option value="translated">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterTranslated') }}</option>
+                    <option value="untranslated">{{ uiTranslationsEditorChromeText('uiTranslationsSectionFilterUntranslated') }}</option>
                   </select>
                 </div>
               </div>
@@ -1317,16 +1317,16 @@
               <div class="ui-tr-flat-table" *ngIf="uiTranslationsFlatTotalRows() > 0; else uiTrFlatEmpty">
                 <div class="ui-tr-flat-head">
                   <div>
-                    <strong>الترجمة العربية</strong>
-                    <small>مرجع ثابت</small>
+                    <strong>{{ uiTranslationsEditorChromeText('uiTranslationsColArabic') }}</strong>
+                    <small>{{ uiTranslationsEditorChromeText('uiTranslationsColFixedRef') }}</small>
                   </div>
                   <div class="ui-tr-flat-head--en">
-                    <strong>الترجمة الإنجليزية</strong>
-                    <small>مرجع ثابت</small>
+                    <strong>{{ uiTranslationsEditorChromeText('uiTranslationsColEnglish') }}</strong>
+                    <small>{{ uiTranslationsEditorChromeText('uiTranslationsColFixedRef') }}</small>
                   </div>
                   <div>
                     <strong>{{ uiTranslationsEditableColumnTitle() }}</strong>
-                    <small>الترجمة التي يتم إدخالها يدويًا</small>
+                    <small>{{ uiTranslationsEditorChromeText('uiTranslationsManualEntryHint') }}</small>
                   </div>
                 </div>
 
@@ -1348,7 +1348,7 @@
 
               <ng-template #uiTrFlatEmpty>
                 <p class="ui-tr-flat-empty">
-                  لا توجد نتائج مطابقة.
+                  {{ uiTranslationsEditorChromeText('uiTranslationsFlatEmpty') }}
                 </p>
               </ng-template>
 
@@ -1358,7 +1358,7 @@
                 <div class="ui-tr-flat-pager" *ngIf="uiTranslationsFlatTotalPages() > 1">
                   <button type="button" (click)="previousUiTranslationsPage()" [disabled]="uiTranslationsPage <= 1">
                     <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    السابق
+                    {{ uiTranslationsEditorChromeText('uiTranslationsPagerPrev') }}
                   </button>
                   <button
                     type="button"
@@ -1368,7 +1368,7 @@
                     {{ page }}
                   </button>
                   <button type="button" (click)="nextUiTranslationsPage()" [disabled]="uiTranslationsPage >= uiTranslationsFlatTotalPages()">
-                    التالي
+                    {{ uiTranslationsEditorChromeText('uiTranslationsPagerNext') }}
                     <i class="fas fa-chevron-left" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -1380,10 +1380,10 @@
                   (click)="saveUiTranslationsForm()">
                   <i class="fas fa-spinner fa-spin" *ngIf="uiTranslationsSaving" aria-hidden="true"></i>
                   <span *ngIf="uiTranslationsSaving; else uiTrSaveLabel">
-                    جاري الحفظ...
+                    {{ uiTranslationsEditorChromeText('uiTranslationsSaving') }}
                   </span>
                   <ng-template #uiTrSaveLabel>
-                    حفظ الترجمة
+                    {{ uiTranslationsEditorChromeText('uiTranslationsSave') }}
                   </ng-template>
                 </button>
               </div>
@@ -1393,14 +1393,14 @@
               <ng-template #uiTrColumnsHead>
                 <div class="ui-tr-table__head">
                   <div class="ui-tr-col-head">
-                    <strong><ui-inline-text kind="screen" screen="settings" key="uiTranslationsColArabic" /></strong>
+                    <strong>{{ uiTranslationsEditorChromeText('uiTranslationsColArabic') }}</strong>
                   </div>
                   <div class="ui-tr-col-head">
-                    <strong><ui-inline-text kind="screen" screen="settings" key="uiTranslationsColEnglish" /></strong>
+                    <strong>{{ uiTranslationsEditorChromeText('uiTranslationsColEnglish') }}</strong>
                   </div>
                   <div class="ui-tr-col-head">
                     <strong>{{ uiTranslationsEditableColumnTitle() }}</strong>
-                    <small class="ui-tr-col-head__hint ui-tr-col-head__hint--manual"><ui-inline-text kind="screen" screen="settings" key="uiTranslationsColManualHint" /></small>
+                    <small class="ui-tr-col-head__hint ui-tr-col-head__hint--manual">{{ uiTranslationsEditorChromeText('uiTranslationsColManualHint') }}</small>
                   </div>
                 </div>
               </ng-template>

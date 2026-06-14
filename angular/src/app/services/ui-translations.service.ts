@@ -498,6 +498,23 @@ export class UiTranslationsService {
     return this.resolveFieldText('screen', screenId, msgKey);
   }
 
+  /** نص شاشة بلغة محددة (لمحرر الترجمة وغيره) */
+  screenTextForLocale(
+    locale: UiExtraLocaleCode | 'ar',
+    screenId: string,
+    msgKey: string,
+  ): string {
+    const arabicResolved =
+      this.payload().screenCopy?.ar?.[screenId]?.[msgKey]?.trim() || msgKey;
+    return this.resolveLocalized(
+      locale,
+      () => arabicResolved,
+      () => this.payload().screenCopy?.[locale]?.[screenId]?.[msgKey],
+      msgKey,
+      `screen:${screenId}:${msgKey}`,
+    );
+  }
+
   /** وضع الترجمة المباشرة على الصفحة الحالية ولغة النظام المختارة */
   inlineWorkbenchActive(): boolean {
     return this.inlineTranslationMode() && this.displayLocale() !== 'ar';
