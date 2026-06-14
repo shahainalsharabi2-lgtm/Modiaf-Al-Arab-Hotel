@@ -204,15 +204,6 @@
                           <span class="bk-detail-icon-tooltip"><ui-inline-text kind="screen" screen="bookings" key="transferAmountBtn" /></span>
                         </button>
                         <button
-                          *ngIf="isCheckoutTodayBooking(booking)"
-                          type="button"
-                          class="bk-detail-icon-btn bk-detail-icon-btn--renew"
-                          (click)="renewBooking(booking)"
-                          [attr.aria-label]="ui.screenText('bookings', 'renewBooking')">
-                          <i class="fas fa-redo" aria-hidden="true"></i>
-                          <span class="bk-detail-icon-tooltip"><ui-inline-text kind="screen" screen="bookings" key="renewBooking" /></span>
-                        </button>
-                        <button
                           *ngIf="booking.status !== 'cancelled' && booking.status !== 'checked_out'"
                           type="button"
                           class="bk-detail-icon-btn bk-detail-icon-btn--add"
@@ -602,10 +593,8 @@
                     *ngFor="let booking of tabFilteredBookings; let idx = index"
                     [booking]="booking"
                     [orderIndex]="idx"
-                    [showRenew]="isCheckoutTodayBooking(booking)"
                     [uniformCardSize]="bookingsCardLayout"
-                    (viewDetails)="openGuestDetailModal($event)"
-                    (renew)="renewBooking($event)" />
+                    (viewDetails)="openGuestDetailModal($event)" />
                 </div>
               </section>
             </section>
@@ -743,7 +732,6 @@
                     *ngFor="let booking of group.bookings; let idx = index"
                     [booking]="booking"
                     [orderIndex]="idx"
-                    [showRenew]="isCheckoutTodayBooking(booking)"
                     [primaryAction]="pmsCardPrimaryAction()"
                     [hideFooterActions]="pmsCardHideFooter()"
                     [hubCardChrome]="showBookingsHubChrome()"
@@ -756,8 +744,7 @@
                     (extendStay)="extendStayBooking($event)"
                     (departGuest)="onDepartGuest($event)"
                     (cancelCheckIn)="cancelCheckIn($event)"
-                    (payFromAccount)="payRemaining($event)"
-                    (renew)="renewBooking($event)" />
+                    (payFromAccount)="payRemaining($event)" />
                 </div>
               </section>
             </div>
@@ -770,7 +757,6 @@
                   *ngFor="let booking of tabFilteredBookings; let idx = index"
                   [booking]="booking"
                   [orderIndex]="idx"
-                  [showRenew]="isCheckoutTodayBooking(booking)"
                   [primaryAction]="pmsCardPrimaryAction()"
                   [hideFooterActions]="pmsCardHideFooter()"
                   [hubCardChrome]="showBookingsHubChrome()"
@@ -783,8 +769,7 @@
                   (extendStay)="extendStayBooking($event)"
                   (departGuest)="onDepartGuest($event)"
                   (cancelCheckIn)="cancelCheckIn($event)"
-                  (payFromAccount)="payRemaining($event)"
-                  (renew)="renewBooking($event)" />
+                  (payFromAccount)="payRemaining($event)" />
               </div>
             </ng-template>
             </ng-template>
@@ -973,15 +958,6 @@
           [attr.aria-label]="ui.screenText('bookings', 'transferAmountBtn')">
           <i class="fas fa-hand-holding-usd" aria-hidden="true"></i>
           <span class="bk-detail-icon-tooltip"><ui-inline-text kind="screen" screen="bookings" key="transferAmountBtn" /></span>
-        </button>
-        <button
-          *ngIf="isCheckoutTodayBooking(b)"
-          type="button"
-          class="bk-detail-icon-btn bk-detail-icon-btn--renew"
-          (click)="renewBooking(b)"
-          [attr.aria-label]="ui.screenText('bookings', 'renewBooking')">
-          <i class="fas fa-redo" aria-hidden="true"></i>
-          <span class="bk-detail-icon-tooltip"><ui-inline-text kind="screen" screen="bookings" key="renewBooking" /></span>
         </button>
         <button
           *ngIf="b.status !== 'cancelled' && b.status !== 'checked_out'"

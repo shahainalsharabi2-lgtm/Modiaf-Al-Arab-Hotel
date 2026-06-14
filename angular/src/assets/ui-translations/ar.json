@@ -645,7 +645,8 @@
       "bookingsHubStatusDeparting": "مغادرة متوقعة",
       "bookingsHubStatusStaying": "مقيم",
       "bookingsHubPickRooms": "اختيار غرف",
-      "bookingsHubSearchPh": "بحث"
+      "bookingsHubSearchPh": "بحث",
+      "filterAll": "الكل"
     },
     "rooms": {
       "pageTitle": "مخطط التوافير",

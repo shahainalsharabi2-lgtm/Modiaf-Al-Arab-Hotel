@@ -645,7 +645,8 @@
       "bookingsHubStatusDeparting": "",
       "bookingsHubStatusStaying": "",
       "bookingsHubPickRooms": "",
-      "bookingsHubSearchPh": ""
+      "bookingsHubSearchPh": "Rechercher",
+      "filterAll": "Tous"
     },
     "rooms": {
       "pageTitle": "",

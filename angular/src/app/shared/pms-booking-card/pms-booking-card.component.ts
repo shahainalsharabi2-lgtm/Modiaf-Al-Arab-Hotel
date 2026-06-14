@@ -34,7 +34,6 @@ export class PmsBookingCardComponent {
 
   @Input({ required: true }) booking!: Booking;
   @Input() orderIndex = 0;
-  @Input() showRenew = false;
   /** إخفاء أزرار الطباعة والتفاصيل في تذييل البطاقة */
   @Input() hideFooterActions = false;
   /** بطاقة hub (سجلات الحجز / المكاتب الأمامية) */
@@ -60,7 +59,6 @@ export class PmsBookingCardComponent {
   @Output() cancelReservation = new EventEmitter<Booking>();
   @Output() markNoShow = new EventEmitter<Booking>();
   @Output() payFromAccount = new EventEmitter<Booking>();
-  @Output() renew = new EventEmitter<Booking>();
 
   actionsMenuOpen = false;
 
@@ -237,10 +235,6 @@ export class PmsBookingCardComponent {
 
   onCheckIn(): void {
     this.checkIn.emit(this.booking);
-  }
-
-  onRenew(): void {
-    this.renew.emit(this.booking);
   }
 
   printBookingCard(): void {

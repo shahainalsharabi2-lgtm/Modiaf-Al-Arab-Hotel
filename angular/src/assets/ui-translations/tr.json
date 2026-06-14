@@ -506,7 +506,8 @@
       "bookingsHubStatusDeparting": "",
       "bookingsHubStatusStaying": "",
       "bookingsHubPickRooms": "",
-      "bookingsHubSearchPh": ""
+      "bookingsHubSearchPh": "Ara",
+      "filterAll": "T\u00FCm\u00FC"
     },
     "dashboard": {
       "breakdownTitle": "",

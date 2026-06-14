@@ -203,7 +203,7 @@
     [class.pms-card-actions--departing]="isDepartingAction && !isDepartingMenu"
     [class.pms-card-actions--arriving]="showArrivingFooter"
     [class.pms-card-actions--arriving-split]="isArrivingActions"
-    *ngIf="(isDepartingAction && !isDepartingMenu) || showArrivingFooter || ((!hideFooterActions || showRenew) && !usesActionsMenu)">
+    *ngIf="(isDepartingAction && !isDepartingMenu) || showArrivingFooter || ((!hideFooterActions) && !usesActionsMenu)">
     <button
       type="button"
       class="pms-btn-print"
@@ -229,15 +229,6 @@
       <i class="fas fa-print"></i> <ui-inline-text kind="screen" screen="bookings" key="pmsPrint" />
     </button>
     <button
-      *ngIf="showRenew && !isDepartingAction"
-      type="button"
-      class="pms-btn-icon-action pms-btn-renew"
-      (click)="onRenew()"
-      [attr.aria-label]="ui.screenText('bookings', 'pmsRenew')">
-      <i class="fas fa-redo" aria-hidden="true"></i>
-      <span class="pms-btn-icon-action-tooltip"><ui-inline-text kind="screen" screen="bookings" key="pmsRenew" /></span>
-    </button>
-    <button
       type="button"
       class="pms-btn-view-details pms-btn-view-details--footer pms-btn-depart--footer"
       *ngIf="isDepartingAction && !isDepartingMenu"
@@ -256,7 +247,8 @@
       [title]="isCheckInAction ? ui.screenText('bookings', 'checkInBtn') : ui.screenText('bookings', 'pmsViewDetails')">
       <i class="fas" [ngClass]="isCheckInAction ? 'fa-door-open' : 'fa-id-card-alt'" aria-hidden="true"></i>
       <span class="pms-btn-view-details-label">
-        isCheckInAction ? <ui-inline-text kind="screen" screen="bookings" key="checkInBtn" /> : <ui-inline-text kind="screen" screen="bookings" key="pmsViewDetails" />
+        <ui-inline-text *ngIf="isCheckInAction" kind="screen" screen="bookings" key="checkInBtn" />
+        <ui-inline-text *ngIf="!isCheckInAction" kind="screen" screen="bookings" key="pmsViewDetails" />
       </span>
     </button>
   </footer>

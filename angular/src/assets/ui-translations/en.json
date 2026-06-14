@@ -687,7 +687,8 @@
       "bookingsHubStatusDeparting": "Expected departure",
       "bookingsHubStatusStaying": "In-house",
       "bookingsHubPickRooms": "Select rooms",
-      "bookingsHubSearchPh": "Search"
+      "bookingsHubSearchPh": "Search",
+      "filterAll": "All"
     },
     "rooms": {
       "pageTitle": "Savings chart",
