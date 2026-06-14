@@ -472,10 +472,7 @@
     "ar": {
       "dashboard": {
         "topbarKicker": "لوحة التحكم",
-        "viewTitleNormal": "العرض العادي",
-        "viewTitleAdvanced": "العرض المطور",
         "modeSwitchAria": "اختيار نوع لوحة التحكم",
-        "welcomePrefix": "مرحباً بك في",
         "welcomeSubtitle": "الصفحة الرئيسية",
         "quickBooking": "بيانات الحجز",
         "quickBookings": "سجلات الحجز",
@@ -1659,9 +1656,6 @@
         "statusOccupiedLbl": "",
         "statusVacant": "",
         "topbarKicker": "",
-        "viewTitleAdvanced": "",
-        "viewTitleNormal": "",
-        "welcomePrefix": "",
         "welcomeSubtitle": ""
       },
       "database": {
@@ -2493,9 +2487,6 @@
         "statusOccupiedLbl": "",
         "statusVacant": "",
         "topbarKicker": "",
-        "viewTitleAdvanced": "",
-        "viewTitleNormal": "",
-        "welcomePrefix": "",
         "welcomeSubtitle": ""
       },
       "database": {
@@ -3327,9 +3318,6 @@
         "statusOccupiedLbl": "Dolu",
         "statusVacant": "Boş",
         "topbarKicker": "Kontrol paneli",
-        "viewTitleAdvanced": "Geliştirilmiş görünüm",
-        "viewTitleNormal": "Standart görünüm",
-        "welcomePrefix": "Hoş geldiniz: ",
         "welcomeSubtitle": "Ana sayfa"
       },
       "database": {
@@ -4164,9 +4152,6 @@
         "statusOccupiedLbl": "占",
         "statusVacant": "空",
         "topbarKicker": "控制面板",
-        "viewTitleAdvanced": "进阶视图",
-        "viewTitleNormal": "普通视图",
-        "welcomePrefix": "欢迎莅临 ",
         "welcomeSubtitle": "主页"
       },
       "database": {

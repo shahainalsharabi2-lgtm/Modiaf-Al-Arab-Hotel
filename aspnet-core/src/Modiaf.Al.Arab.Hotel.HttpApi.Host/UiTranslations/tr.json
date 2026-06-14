@@ -56,6 +56,7 @@
     "navReportsTemplate": "",
     "navResidentGuestsData": "",
     "navResidents": "",
+    "navResidents": "",
     "navRevenueCard": "",
     "navRoomPlan": "",
     "navRoomRack": "",
@@ -507,7 +508,7 @@
       "bookingsHubStatusStaying": "",
       "bookingsHubPickRooms": "",
       "bookingsHubSearchPh": "Ara",
-      "filterAll": "T\u00FCm\u00FC"
+      "filterAll": "Tümü"
     },
     "dashboard": {
       "breakdownTitle": "",
@@ -532,9 +533,6 @@
       "statusOccupiedLbl": "",
       "statusVacant": "",
       "topbarKicker": "",
-      "viewTitleAdvanced": "",
-      "viewTitleNormal": "",
-      "welcomePrefix": "",
       "welcomeSubtitle": "",
       "metricMaintenanceShort": "",
       "metricDirtyShort": "",
@@ -565,7 +563,6 @@
       "colDeparture": "",
       "colReservationStatus": "",
       "colActions": "",
-      "viewReservation": "",
       "noReservations": "",
       "resStatusCancelled": "",
       "resStatusReserved": "",

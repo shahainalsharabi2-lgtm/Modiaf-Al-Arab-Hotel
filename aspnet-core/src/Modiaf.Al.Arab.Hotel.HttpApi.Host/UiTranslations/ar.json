@@ -313,10 +313,7 @@
   "screenCopy": {
     "dashboard": {
       "topbarKicker": "لوحة التحكم",
-      "viewTitleNormal": "العرض العادي",
-      "viewTitleAdvanced": "العرض المطور",
       "modeSwitchAria": "اختيار نوع لوحة التحكم",
-      "welcomePrefix": "مرحباً بك في",
       "welcomeSubtitle": "الصفحة الرئيسية",
       "quickBooking": "بيانات الحجز",
       "quickBookings": "سجلات الحجز",
@@ -366,7 +363,6 @@
       "colDeparture": "تاريخ المغادرة",
       "colReservationStatus": "حالة الحجز",
       "colActions": "إجراءات",
-      "viewReservation": "عرض الحجز",
       "noReservations": "لا توجد حجوزات حديثة",
       "resStatusCancelled": "ملغية",
       "resStatusReserved": "محجوز",

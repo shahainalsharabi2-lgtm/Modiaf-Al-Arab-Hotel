@@ -4228,8 +4228,6 @@ export class SettingsComponent implements OnInit {
       const preferred = [
         'pageTitle',
         'frontDeskPageTitle',
-        'viewTitleAdvanced',
-        'viewTitleNormal',
         'pageSubtitle',
       ];
       for (const k of preferred) {

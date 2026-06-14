@@ -313,10 +313,7 @@
   "screenCopy": {
     "dashboard": {
       "topbarKicker": "",
-      "viewTitleNormal": "",
-      "viewTitleAdvanced": "",
       "modeSwitchAria": "",
-      "welcomePrefix": "",
       "welcomeSubtitle": "",
       "quickBooking": "",
       "quickBookings": "",
@@ -367,7 +364,6 @@
       "colDeparture": "",
       "colReservationStatus": "",
       "colActions": "",
-      "viewReservation": "",
       "noReservations": "",
       "resStatusCancelled": "",
       "resStatusReserved": "",
