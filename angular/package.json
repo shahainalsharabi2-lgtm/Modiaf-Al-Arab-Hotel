@@ -11,7 +11,8 @@
     "lint": "ng lint",
     "ui-translations:split": "node scripts/split-ui-translations-locale-files.mjs",
     "ui-translations:merge": "node scripts/merge-ui-locale-files-to-default.mjs",
-    "ui-translations:sync": "node scripts/sync-ui-locale-structure.mjs && node scripts/merge-ui-locale-files-to-default.mjs"
+    "ui-translations:sync": "node scripts/sync-ui-locale-structure.mjs && node scripts/merge-ui-locale-files-to-default.mjs",
+    "ui-translations:sync-api-host": "node scripts/sync-ui-translations-from-api-host.mjs"
   },
   "private": true,
   "engines": {

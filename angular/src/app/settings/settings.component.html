@@ -1132,9 +1132,6 @@
               [attr.aria-selected]="activeUiTranslationSystemTool === tool.id"
               role="tab"
               (click)="setActiveUiTranslationSystemTool(tool.id)">
-              <span class="ui-tr-system-tool__count" *ngIf="uiTranslationsSystemToolStats(tool.id) as stats">
-                {{ stats.translated }}/{{ stats.total }}
-              </span>
               <i class="fas" [ngClass]="tool.icon" aria-hidden="true"></i>
               <span>{{ uiTranslationSystemToolLabel(tool.id) }}</span>
             </button>
@@ -1296,7 +1293,7 @@
                   <select
                     [ngModel]="uiTranslationsLocale"
                     (ngModelChange)="onUiTranslationsLocaleChange($event)"
-                    [title]="'مربوطة بشريط تغيير اللغة في أعلى النظام'">
+                    [title]="uiTranslationsEditorChromeText('uiTranslationsColManualHint')">
                     <option *ngFor="let locale of uiTranslationEditorLocales()" [ngValue]="locale">
                       {{ uiTranslationEditorLocaleLabel(locale) }}
                     </option>

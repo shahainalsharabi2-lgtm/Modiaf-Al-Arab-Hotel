@@ -44,7 +44,7 @@ export class UiTranslationsService {
   private readonly hotelCurrency = inject(HotelCurrencyService);
   private readonly injector = inject(Injector);
 
-  /** يُحمَّل من ملفات JSON على الخادم (UiTranslations/*.json) */
+  /** يُحمَّل من API مع إكمال النقص من ملفات assets المحلية */
   private readonly payload = signal<UiManualTranslationsPayload>({});
 
   /** false أثناء جلب/دمج الترجمات — يمنع الحفظ قبل اكتمال تحميل en/fr */
@@ -154,7 +154,7 @@ export class UiTranslationsService {
     });
   }
 
-  /** يكمّل ar/en من assets؛ الفرنسية يدوية فقط ولا تُملأ من assets */
+  /** يكمّل ar/en/tr من ملفات assets المحلية بعد استجابة API */
   private mergeMissingLocalesFromAssets(done?: () => void): void {
     const assetLocales: Array<UiExtraLocaleCode | 'ar'> = ['ar', 'en', 'tr'];
     forkJoin(
@@ -190,28 +190,11 @@ export class UiTranslationsService {
     return mergeLocaleFileIntoPayload(payload, locale, normalizeLocaleFileForSave(emptyForm));
   }
 
-  private localeHasSavedData(payload: UiManualTranslationsPayload, locale: string): boolean {
-    if (payload.brandSubtitle && locale in payload.brandSubtitle) {
-      return true;
-    }
-    if (payload.sidebarNav?.[locale] && Object.keys(payload.sidebarNav[locale]).length > 0) {
-      return true;
-    }
-    if (payload.chrome?.[locale] && Object.keys(payload.chrome[locale]).length > 0) {
-      return true;
-    }
-    if (payload.screenCopy?.[locale] && Object.keys(payload.screenCopy[locale]).length > 0) {
-      return true;
-    }
-    return false;
-  }
-
   private fillMissingLocaleFromAsset(
     payload: UiManualTranslationsPayload,
     locale: string,
     asset: UiLocaleFilePayload,
   ): UiManualTranslationsPayload {
-    // الفرنسية تُدخل يدوياً — لا نستبدل الفراغ من assets
     if (locale === 'fr') {
       return payload;
     }
@@ -333,7 +316,7 @@ export class UiTranslationsService {
       });
   }
 
-  /** When API is unavailable (e.g. Render down), use bundled locale JSON files. */
+  /** عند تعذّر API تُستخدم ملفات assets المحلية */
   private loadFallbackFromAssets(done?: () => void): void {
     const assetLocales: Array<UiExtraLocaleCode | 'ar'> = ['ar', 'en', 'tr'];
     forkJoin(
@@ -352,9 +335,24 @@ export class UiTranslationsService {
       });
       payload = this.ensureManualLocaleSkeleton(payload, 'fr');
       this.payload.set(payload);
-      window.dispatchEvent(new Event('hotelUiTranslationsUpdated'));
       this.mergeArabicSettingsScreenCopyFromAssets(done);
     });
+  }
+
+  private localeHasSavedData(payload: UiManualTranslationsPayload, locale: string): boolean {
+    if (payload.brandSubtitle && locale in payload.brandSubtitle) {
+      return true;
+    }
+    if (payload.sidebarNav?.[locale] && Object.keys(payload.sidebarNav[locale]).length > 0) {
+      return true;
+    }
+    if (payload.chrome?.[locale] && Object.keys(payload.chrome[locale]).length > 0) {
+      return true;
+    }
+    if (payload.screenCopy?.[locale] && Object.keys(payload.screenCopy[locale]).length > 0) {
+      return true;
+    }
+    return false;
   }
 
   private finishPayloadLoad(done?: () => void): void {

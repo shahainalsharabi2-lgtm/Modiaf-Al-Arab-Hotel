@@ -508,8 +508,6 @@ export class SettingsComponent implements OnInit {
   private uiTranslationsFormLocale: UiExtraLocaleCode | 'ar' = 'ar';
   /** انتظار حفظ اللغة الحالية قبل التبديل */
   private uiTranslationsPendingLocale: (UiExtraLocaleCode | 'ar') | null = null;
-  /** يمنع حلقة إعادة الدخول عند مزامنة لغة المحرر مع شريط اللغة */
-  private uiTranslationsSyncingFromDisplayLocale = false;
 
   constructor(
     private floorService: FloorService,
@@ -1135,10 +1133,9 @@ export class SettingsComponent implements OnInit {
     fromEvent(window, 'hotelUiLocaleChanged')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        if (this.activeTab !== 'uiTranslations' || this.uiTranslationsSyncingFromDisplayLocale) {
-          return;
+        if (this.activeTab === 'uiTranslations') {
+          this.cdr.markForCheck();
         }
-        this.syncUiTranslationsEditorFromDisplayLocale();
       });
     fromEvent(window, 'hotelUiTranslationsUpdated')
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1516,12 +1513,12 @@ export class SettingsComponent implements OnInit {
     if (!this.isAuthorized) {
       return;
     }
-    this.uiTranslationsLocale = this.uiTranslations.displayLocale();
-    this.persistUiTranslationsEditorLocale(this.uiTranslationsLocale);
+    const editLocale = this.uiTranslationsLocale || this.restoreUiTranslationsEditorLocale();
+    this.uiTranslationsLocale = editLocale;
     try {
       this.refreshUiTranslationsReferenceColumns();
-      this.uiTranslationsForm = this.uiTranslations.loadLocaleFileForForm(this.uiTranslationsLocale);
-      this.uiTranslationsFormLocale = this.uiTranslationsLocale;
+      this.uiTranslationsForm = this.uiTranslations.loadLocaleFileForForm(editLocale);
+      this.uiTranslationsFormLocale = editLocale;
       this.uiTranslationsError = '';
       this.rebuildUiTranslationEditorGroupsCache();
       this.uiTranslationsFormEpoch++;
@@ -1539,8 +1536,7 @@ export class SettingsComponent implements OnInit {
     if (!this.isAuthorized) {
       return;
     }
-    this.uiTranslationsLocale = this.uiTranslations.displayLocale();
-    this.persistUiTranslationsEditorLocale(this.uiTranslationsLocale);
+    this.uiTranslationsLocale = this.restoreUiTranslationsEditorLocale();
     this.uiTranslationsLoading = true;
     this.uiTranslationsError = '';
     this.uiTranslations.reloadFromBackend(() => {
@@ -1563,21 +1559,21 @@ export class SettingsComponent implements OnInit {
     this.openUiTranslationsEditor();
   }
 
-  private restoreUiTranslationsEditorLocale(): UiExtraLocaleCode | 'ar' {
-    return this.uiTranslations.displayLocale();
+  private isUiTranslationEditorLocale(value: string): value is UiExtraLocaleCode | 'ar' {
+    return value === 'ar' || value === 'en' || value === 'fr' || value === 'tr';
   }
 
-  /** مزامنة لغة محرر الترجمة مع شريط تغيير اللغة (بيانات العمود الثالث فقط) */
-  private syncUiTranslationsEditorFromDisplayLocale(): void {
-    const nextLocale = this.uiTranslations.displayLocale();
-    if (nextLocale === this.uiTranslationsFormLocale) {
-      this.uiTranslationsLocale = nextLocale;
-      this.persistUiTranslationsEditorLocale(nextLocale);
-      this.refreshUiTranslationsEditorForms();
-      this.cdr.markForCheck();
-      return;
+  /** لغة ملف JSON قيد التحرير — مستقلة عن شريط لغة الواجهة العلوي */
+  private restoreUiTranslationsEditorLocale(): UiExtraLocaleCode | 'ar' {
+    try {
+      const raw = sessionStorage.getItem(HOTEL_UI_TRANSLATIONS_EDITOR_LOCALE_KEY);
+      if (raw && this.isUiTranslationEditorLocale(raw)) {
+        return raw;
+      }
+    } catch {
+      /* ignore */
     }
-    this.onUiTranslationsLocaleChange(nextLocale, { fromDisplayLocale: true });
+    return 'ar';
   }
 
   private persistUiTranslationsEditorLocale(locale: UiExtraLocaleCode | 'ar'): void {
@@ -1881,10 +1877,7 @@ export class SettingsComponent implements OnInit {
     this.uiTranslationsToolbarCollapsed = true;
   }
 
-  onUiTranslationsLocaleChange(
-    nextLocale: UiExtraLocaleCode | 'ar',
-    options?: { fromDisplayLocale?: boolean },
-  ): void {
+  onUiTranslationsLocaleChange(nextLocale: UiExtraLocaleCode | 'ar'): void {
     this.uiTranslationsPage = 1;
     if (nextLocale === this.uiTranslationsFormLocale) {
       this.uiTranslationsLocale = nextLocale;
@@ -1908,17 +1901,6 @@ export class SettingsComponent implements OnInit {
     const applyLocaleSwitch = () => {
       this.uiTranslationsLocale = nextLocale;
       this.persistUiTranslationsEditorLocale(nextLocale);
-      if (
-        !options?.fromDisplayLocale &&
-        this.uiTranslations.displayLocale() !== nextLocale
-      ) {
-        this.uiTranslationsSyncingFromDisplayLocale = true;
-        try {
-          this.uiTranslations.setDisplayLocale(nextLocale, { skipToast: true });
-        } finally {
-          this.uiTranslationsSyncingFromDisplayLocale = false;
-        }
-      }
       if (!this.uiTranslationsForm) {
         this.cdr.markForCheck();
         return;
@@ -1951,7 +1933,7 @@ export class SettingsComponent implements OnInit {
         if (this.uiTranslationsPendingLocale) {
           const pending = this.uiTranslationsPendingLocale;
           this.uiTranslationsPendingLocale = null;
-          this.onUiTranslationsLocaleChange(pending, options);
+          this.onUiTranslationsLocaleChange(pending);
           return;
         }
         applyLocaleSwitch();
@@ -1969,9 +1951,15 @@ export class SettingsComponent implements OnInit {
     return this.uiTranslationsEditorChromeText(keyByLocale[this.uiTranslationsLocale]);
   }
 
-  /** نصوص واجهة محرر الترجمة — تتبع لغة التحرير المختارة */
+  /** واجهة المحرر: عربي عند اختيار العربية، وإنجليزي عند الإنجليزية أو التركية أو الفرنسية */
+  private uiTranslationsEditorChromeLocale(): UiExtraLocaleCode | 'ar' {
+    const locale = this.uiTranslations.displayLocale();
+    return locale === 'ar' ? 'ar' : 'en';
+  }
+
+  /** نصوص واجهة محرر الترجمة حسب الشريط العلوي؛ العمود الثالث فقط يتبع قائمة اللغة داخل الصفحة */
   uiTranslationsEditorChromeText(key: string): string {
-    const locale = this.uiTranslationsLocale;
+    const locale = this.uiTranslationsEditorChromeLocale();
     const read = (code: UiExtraLocaleCode | 'ar'): string =>
       this.uiTranslations.screenTextForLocale(code, 'settings', key);
     const isUsable = (value: string): boolean => {
@@ -2017,12 +2005,21 @@ export class SettingsComponent implements OnInit {
       tr: 'localeTr',
     };
     const localized = this.uiTranslationsEditorChromeText(keyByLocale[locale]);
-    const fallback: Record<UiExtraLocaleCode | 'ar', string> = {
-      ar: 'العربية',
-      en: 'الإنجليزية',
-      fr: 'الفرنسية',
-      tr: 'التركية',
-    };
+    const chromeLocale = this.uiTranslationsEditorChromeLocale();
+    const fallback: Record<UiExtraLocaleCode | 'ar', string> =
+      chromeLocale === 'ar'
+        ? {
+            ar: 'العربية',
+            en: 'الإنجليزية',
+            fr: 'الفرنسية',
+            tr: 'التركية',
+          }
+        : {
+            ar: 'Arabic',
+            en: 'English',
+            fr: 'French',
+            tr: 'Turkish',
+          };
     if (/^\d+$/.test(localized.trim())) {
       return fallback[locale];
     }

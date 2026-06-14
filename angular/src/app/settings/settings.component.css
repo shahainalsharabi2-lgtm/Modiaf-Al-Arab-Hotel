@@ -114,22 +114,6 @@
   background: #8b5cf6;
 }
 
-.ui-tr-system-tool__count {
-  min-width: 38px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #f3f4f6;
-  color: #6b7280;
-  font-size: 0.72rem;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.ui-tr-system-tool--active .ui-tr-system-tool__count {
-  background: #f3e8ff;
-  color: #7c3aed;
-}
-
 .ui-tr-flat-editor {
   display: flex;
   flex-direction: column;
