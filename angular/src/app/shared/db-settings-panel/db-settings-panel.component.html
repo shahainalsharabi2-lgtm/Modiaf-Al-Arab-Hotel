@@ -3,7 +3,7 @@
     class="db-modal"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="ui.chromeLabel('dbSettingsPanelAria')"
+    [attr.aria-label]="ui.chromeLabel('dbSettingsTitle')"
     (click)="onPanelClick($event)">
     <header class="db-modal__head">
       <h2 class="db-modal__title"><ui-inline-text kind="chrome" key="dbSettingsTitle" /></h2>
@@ -11,7 +11,7 @@
         type="button"
         class="db-modal__close"
         (click)="requestClose()"
-        [attr.aria-label]="ui.chromeLabel('dbPanelCloseAria')">
+        [attr.aria-label]="ui.chromeLabel('messageClose')">
         <i class="fas fa-times" aria-hidden="true"></i>
       </button>
     </header>

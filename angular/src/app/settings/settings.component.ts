@@ -3680,7 +3680,7 @@ export class SettingsComponent implements OnInit {
     'searchOverlayPlaceholder', 'searchOverlayAria', 'searchOverlayEsc',
     'searchOpenTitle', 'searchOpenAria',
     'settingsMenuHotel', 'settingsMenuUiTranslation', 'accountSettingsLink',
-    'helpMenuTitle', 'helpSettingsLink', 'helpSearchLink',
+    'helpSettingsLink', 'helpSearchLink',
     'searchTagSummary', 'searchTagPage', 'searchTagBookings',
     'searchTagFrontDesk', 'searchTagRooms', 'searchTagReports',
     'loadingDataHint', 'loadingSlowHint', 'loadingRefreshBtn',
@@ -3688,7 +3688,7 @@ export class SettingsComponent implements OnInit {
   ]);
 
   private static readonly CHROME_ACCOUNT_PANEL_KEYS = new Set<string>([
-    'accountPanelTitle', 'accountMenuTitle', 'accountPanelAria',
+    'accountPanelTitle', 'accountMenuTitle',
     'accountRailOpenTitle', 'accountRailOpenAria', 'accountRailCloseTitle', 'accountRailCloseAria',
     'accountLocaleJsonHint', 'accountJsonEditorOpen', 'accountJsonEditorTitle',
     'accountJsonEditorSave', 'accountJsonEditorCancel', 'accountJsonEditorInvalid', 'accountJsonEditorSaveFailed',
