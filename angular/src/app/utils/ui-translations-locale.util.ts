@@ -131,6 +131,42 @@ export function prepareLocaleFileForForm(
   };
 }
 
+/** يقيّد مفاتيح ملف اللغة بما هو موجود في ملف asset (يحذف المفاتيح اليتيمة من API القديم) */
+export function alignLocaleFileToAsset(
+  localeFile: UiLocaleFilePayload,
+  asset: UiLocaleFilePayload,
+): UiLocaleFilePayload {
+  const next = structuredClone(localeFile) as UiLocaleFilePayload;
+
+  if (asset.chrome) {
+    const chrome: Record<string, string> = {};
+    for (const key of Object.keys(asset.chrome)) {
+      chrome[key] = next.chrome?.[key] ?? asset.chrome[key] ?? '';
+    }
+    next.chrome = chrome;
+  }
+
+  if (asset.screenCopy) {
+    const screenCopy: Record<string, Record<string, string>> = {
+      ...(next.screenCopy ?? {}),
+    };
+    for (const [screenId, assetMsgs] of Object.entries(asset.screenCopy)) {
+      if (!assetMsgs || typeof assetMsgs !== 'object') {
+        continue;
+      }
+      const existingScreen = next.screenCopy?.[screenId] ?? {};
+      const alignedScreen: Record<string, string> = {};
+      for (const key of Object.keys(assetMsgs)) {
+        alignedScreen[key] = existingScreen[key] ?? assetMsgs[key] ?? '';
+      }
+      screenCopy[screenId] = alignedScreen;
+    }
+    next.screenCopy = screenCopy;
+  }
+
+  return next;
+}
+
 export function normalizeLocaleFileForSave(file: UiLocaleFilePayload): UiLocaleFilePayload {
   const sidebarNav: Record<string, string> = {};
   const activeNavKeys = new Set(collectActiveSidebarNavLabelKeys());

@@ -2,6 +2,7 @@ import { Injectable, Injector, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, forkJoin, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 import {
+  alignLocaleFileToAsset,
   extractLocaleFile,
   localeFileToJson,
   mergeLocaleFileIntoPayload,
@@ -168,7 +169,7 @@ export class UiTranslationsService {
       assetLocales.forEach((locale, index) => {
         const asset = files[index];
         if (asset) {
-          payload = this.fillMissingLocaleFromAsset(payload, locale, asset);
+          payload = this.syncLocaleFromAsset(payload, locale, asset);
         }
       });
       payload = this.ensureManualLocaleSkeleton(payload, 'fr');
@@ -273,44 +274,31 @@ export class UiTranslationsService {
     return next;
   }
 
+  /** يكمّل النقص من asset ثم يحذف المفاتيح غير الموجودة في asset */
+  private syncLocaleFromAsset(
+    payload: UiManualTranslationsPayload,
+    locale: string,
+    asset: UiLocaleFilePayload,
+  ): UiManualTranslationsPayload {
+    const filled = this.fillMissingLocaleFromAsset(payload, locale, asset);
+    const localeFile = extractLocaleFile(filled, locale);
+    const aligned = alignLocaleFileToAsset(localeFile, asset);
+    return mergeLocaleFileIntoPayload(filled, locale, aligned);
+  }
+
   /** يكمّل مفاتيح العربية الناقصة من ملف ar.json المحلي */
   private mergeArabicSettingsScreenCopyFromAssets(done?: () => void): void {
     this.http
       .get<UiLocaleFilePayload>('/assets/ui-translations/ar.json')
       .pipe(catchError(() => of(null)))
       .subscribe((file) => {
-        const fromAssets = file?.screenCopy;
-        if (fromAssets) {
+        if (file) {
           const current = this.payload();
-          const arScreen = { ...(current.screenCopy?.ar ?? {}) };
-          for (const [screenId, msgs] of Object.entries(fromAssets)) {
-            if (!msgs || typeof msgs !== 'object') {
-              continue;
-            }
-            const merged = { ...(arScreen[screenId] ?? {}) };
-            for (const [key, value] of Object.entries(msgs)) {
-              const trimmed = (value ?? '').trim();
-              if (!trimmed) {
-                continue;
-              }
-              const existing = (merged[key] ?? '').trim();
-              if (
-                !existing ||
-                existing === key ||
-                (
-                  isUiTranslationCorruptedNumericPlaceholder(existing) &&
-                  !isUiTranslationCorruptedNumericPlaceholder(trimmed)
-                )
-              ) {
-                merged[key] = trimmed;
-              }
-            }
-            arScreen[screenId] = merged;
-          }
-          this.payload.set({
-            ...current,
-            screenCopy: { ...current.screenCopy, ar: arScreen },
-          });
+          const alignedAr = alignLocaleFileToAsset(
+            extractLocaleFile(current, 'ar'),
+            file,
+          );
+          this.payload.set(mergeLocaleFileIntoPayload(current, 'ar', alignedAr));
         }
         this.finishPayloadLoad(done);
       });
