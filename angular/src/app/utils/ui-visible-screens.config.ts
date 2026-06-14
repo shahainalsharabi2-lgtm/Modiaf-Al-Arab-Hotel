@@ -61,7 +61,7 @@ export const UI_DISPLAYED_SCREEN_IDS = new Set<string>([
 ]);
 
 /** شاشات محذوفة من التطبيق — تُستبعد من المحرر وملفات الترجمة */
-export const UI_REMOVED_SCREEN_IDS = new Set<string>(['login', 'nav', 'database', 'booking']);
+export const UI_REMOVED_SCREEN_IDS = new Set<string>(['login', 'nav', 'database']);
 
 export function isUiTranslationScreenDisplayed(screenId: string): boolean {
   return UI_DISPLAYED_SCREEN_IDS.has(screenId) && !UI_REMOVED_SCREEN_IDS.has(screenId);
