@@ -6,6 +6,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RootNamespace>Modiaf.Al.Arab.Hotel</RootNamespace>
+    <!-- SqlServer = local dev; PostgreSql = Neon / Render production -->
+    <DatabaseProvider Condition="'$(DatabaseProvider)' == ''">SqlServer</DatabaseProvider>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,8 +27,18 @@
   <ItemGroup>
     <Compile Remove="Migrations\LegacySqlServer\**" />
     <None Include="Migrations\LegacySqlServer\**" />
+  </ItemGroup>
+
+  <!-- Local SQL Server migrations (default) -->
+  <ItemGroup Condition="'$(DatabaseProvider)' != 'PostgreSql'">
     <Compile Remove="Migrations\PostgreSql\**" />
     <None Include="Migrations\PostgreSql\**" />
+  </ItemGroup>
+
+  <!-- Production PostgreSQL migrations (Neon / Render) -->
+  <ItemGroup Condition="'$(DatabaseProvider)' == 'PostgreSql'">
+    <Compile Remove="Migrations\202*.cs" />
+    <Compile Remove="Migrations\HotelDbContextModelSnapshot.cs" />
   </ItemGroup>
 
   <ItemGroup>

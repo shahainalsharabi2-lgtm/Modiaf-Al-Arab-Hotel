@@ -5,7 +5,7 @@ WORKDIR /src
 COPY . .
 
 RUN dotnet restore "src/Modiaf.Al.Arab.Hotel.HttpApi.Host/Modiaf.Al.Arab.Hotel.HttpApi.Host.csproj"
-RUN dotnet publish "src/Modiaf.Al.Arab.Hotel.HttpApi.Host/Modiaf.Al.Arab.Hotel.HttpApi.Host.csproj" -c Release -o /app/publish
+RUN dotnet publish "src/Modiaf.Al.Arab.Hotel.HttpApi.Host/Modiaf.Al.Arab.Hotel.HttpApi.Host.csproj" -c Release -o /app/publish -p:DatabaseProvider=PostgreSql
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app

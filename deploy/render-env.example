@@ -1,0 +1,5 @@
+# Neon — انسخ هذه القيم إلى Render عند الخطوة 3
+# لا ترفع ملف neon.connection.json إلى GitHub
+
+Database__Provider=PostgreSql
+ConnectionStrings__Default=Host=YOUR_HOST;Port=5432;Database=hoteldb;Username=YOUR_USER;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true
