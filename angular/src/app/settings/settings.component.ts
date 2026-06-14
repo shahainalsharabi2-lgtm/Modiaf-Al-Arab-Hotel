@@ -2664,7 +2664,10 @@ export class SettingsComponent implements OnInit {
 
   private uiTranslationsFlatRowMatchesSelectedSystemPage(row: UiTranslationFlatEditorRow): boolean {
     const groupId = this.uiTranslationsJumpGroupId;
-    if (!groupId || groupId === 'systemMessages') {
+    if (!groupId) {
+      return false;
+    }
+    if (groupId === 'systemMessages') {
       return true;
     }
     if (groupId === 'sidebar') {
@@ -2945,11 +2948,9 @@ export class SettingsComponent implements OnInit {
     ) {
       this.uiTranslationsJumpGroupId = '';
     }
-    if (jumpGroups.length && (!this.uiTranslationsJumpGroupId || filter === 'translated')) {
-      const targetGroupId = this.uiTranslationsJumpGroupId || jumpGroups[0].id;
-      this.uiTranslationsJumpGroupId = targetGroupId;
-      this.uiTranslationsOpenGroups = new Set([targetGroupId]);
-      this.autoOpenScreensForGroup(targetGroupId);
+    if (this.uiTranslationsJumpGroupId) {
+      this.uiTranslationsOpenGroups = new Set([this.uiTranslationsJumpGroupId]);
+      this.autoOpenScreensForGroup(this.uiTranslationsJumpGroupId);
     }
     this.cdr.markForCheck();
   }
@@ -4066,10 +4067,8 @@ export class SettingsComponent implements OnInit {
   private resetUiTranslationEditorPanelsOpen(): void {
     this.uiTranslationsOpenScreens = new Set<string>();
     this.uiTranslationsOpenSidebarSections = new Set<string>();
-    const defaultGroupId = this.uiTranslationEditorGroupsForJump()[0]?.id ?? 'common';
-    this.uiTranslationsJumpGroupId = defaultGroupId;
-    this.uiTranslationsOpenGroups = new Set<string>([defaultGroupId]);
-    this.autoOpenScreensForGroup(defaultGroupId);
+    this.uiTranslationsJumpGroupId = '';
+    this.uiTranslationsOpenGroups = new Set<string>();
   }
 
   toggleUiTranslationsScreen(screenId: string): void {
