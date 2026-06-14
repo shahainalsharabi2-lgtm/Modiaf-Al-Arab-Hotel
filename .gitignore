@@ -11,6 +11,7 @@ node_modules/
 **/.angular/
 **/Logs/
 **/publish/
+**/tmp-build/
 
 # IDE / OS
 .vs/
