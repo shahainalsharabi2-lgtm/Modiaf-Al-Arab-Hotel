@@ -511,8 +511,6 @@
     },
     "dashboard": {
       "breakdownTitle": "",
-      "btnAdvancedHint": "",
-      "btnNormalHint": "",
       "metricAvailable": "",
       "metricCurrencyYR": "",
       "metricGuests": "",
@@ -600,7 +598,6 @@
       "eventsFilterStatusUnread": "",
       "eventsFilterNormal": "",
       "eventsFilterClear": "",
-      "btnAdvancedLabel": "",
       "metricFrontDeskStaying": "",
       "metricActiveBookings": "",
       "statsLoadError": ""

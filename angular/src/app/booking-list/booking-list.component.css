@@ -1553,6 +1553,13 @@ a.bookings-pms-new-link.rooms-dev-clear-filter {
   color: #d97706;
 }
 
+/* المكاتب الأمامية — بطاقة مضغوطة بدون شريط الوقت (نموذج القادمون) */
+.list-page.bookings-front-desk-hub-layout.bookings-pms-layout .pms-cards--uniform > app-pms-booking-card {
+  height: 420px;
+  min-height: 420px;
+  max-height: 420px;
+}
+
 .list-page.bookings-pms-layout .pms-cards--uniform .pms-card--uniform .pms-checkout-row-val {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3716,6 +3723,53 @@ a.bookings-pms-new-link.rooms-dev-clear-filter {
   color: var(--app-primary-mid);
 }
 
+.bh-top-bar--front-desk {
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+}
+
+.bh-top-bar--front-desk .bh-toolbar {
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bh-top-bar--front-desk .bh-filter-group {
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bh-top-bar--front-desk .bh-search {
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+
+.bh-tabs--front-desk {
+  flex-shrink: 0;
+  justify-content: flex-start;
+}
+
+.bh-tab--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.bh-tab--static .bh-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--app-bg-soft);
+  color: var(--app-text-muted);
+  opacity: 1;
+}
+
 .bh-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -4037,6 +4091,15 @@ a.bookings-pms-new-link.rooms-dev-clear-filter {
   .bh-top-bar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .bh-top-bar--front-desk {
+    flex-direction: column;
+  }
+
+  .bh-top-bar--front-desk .bh-toolbar {
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
   }
 
   .bh-tabs {

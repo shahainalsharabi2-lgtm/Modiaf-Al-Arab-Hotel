@@ -358,8 +358,6 @@
       "viewTitleNormal": "Regular display",
       "viewTitleAdvanced": "Developed offer",
       "modeSwitchAria": "Choose the type of control panel",
-      "btnNormalHint": "Short interface",
-      "btnAdvancedHint": "Complete statistics",
       "welcomePrefix": "Welcome to_",
       "welcomeSubtitle": "Home",
       "quickBooking": "Reservation information",
@@ -444,7 +442,6 @@
       "eventsFilterStatusUnread": "Unread",
       "eventsFilterNormal": "Normal",
       "eventsFilterClear": "Clear filters",
-      "btnAdvancedLabel": "Developer",
       "metricFrontDeskStaying": "Front Office — Assessors",
       "metricActiveBookings": "Active bookings",
       "statsLoadError": "Failed to load system data."

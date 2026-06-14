@@ -316,8 +316,6 @@
       "viewTitleNormal": "",
       "viewTitleAdvanced": "",
       "modeSwitchAria": "",
-      "btnNormalHint": "",
-      "btnAdvancedHint": "",
       "welcomePrefix": "",
       "welcomeSubtitle": "",
       "quickBooking": "",
@@ -402,7 +400,6 @@
       "eventsFilterStatusUnread": "",
       "eventsFilterNormal": "",
       "eventsFilterClear": "",
-      "btnAdvancedLabel": "",
       "metricFrontDeskStaying": "",
       "metricActiveBookings": "",
       "statsLoadError": ""

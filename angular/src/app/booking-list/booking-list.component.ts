@@ -524,9 +524,9 @@ export class BookingListComponent implements OnInit, AfterViewInit {
     return [];
   }
 
-  /** إخفاء شريط العدّاد (متبقي حتى الوصول) في بطاقات القادمون — المكاتب الأمامية */
+  /** إخفاء شريط وقت المغادرة/العدّاد في بطاقات المكاتب الأمامية (قادمون / مقيمون / مغادرون) */
   get pmsCardHideCountdownStrip(): boolean {
-    return this.isFrontDeskHub() && this.pmsTab === 'arriving';
+    return this.isFrontDeskHub();
   }
 
   hubChromeTabLabel(tab: (typeof this.pmsTab)): string {

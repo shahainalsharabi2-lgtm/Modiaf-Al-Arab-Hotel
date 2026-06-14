@@ -367,7 +367,7 @@
         class="rooms-dev-advanced-core"
         tabindex="-1">
         <div class="bh-chrome" *ngIf="showBookingsHubChrome()">
-          <div class="bh-top-bar">
+          <div class="bh-top-bar" [class.bh-top-bar--front-desk]="isFrontDeskHub()">
             <div class="bh-toolbar">
               <div class="bh-view-toggle" role="group" [attr.aria-label]="ui.screenText('bookings', 'bookingsHubViewToggleAria')">
                 <button
@@ -443,6 +443,15 @@
                 <span class="bh-tab-count">{{ hubChromeTabCount(tab) }}</span>
               </button>
             </nav>
+            <div
+              class="bh-tabs bh-tabs--front-desk"
+              *ngIf="isFrontDeskHub()"
+              role="presentation">
+              <div class="bh-tab bh-tab--active bh-tab--static">
+                <span class="bh-tab-label">{{ hubChromeTabLabel(pmsTab) }}</span>
+                <span class="bh-tab-count">{{ hubChromeTabCount(pmsTab) }}</span>
+              </div>
+            </div>
           </div>
           <div class="bh-filter-panel" *ngIf="pmsTopChromePanelOpen">
             <label class="bh-filter-panel-field" [class.bh-filter-panel-field--active]="pmsFilterRoomLocation">

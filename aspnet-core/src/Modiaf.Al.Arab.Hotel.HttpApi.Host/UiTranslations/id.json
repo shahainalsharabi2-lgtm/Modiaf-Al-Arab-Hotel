@@ -393,10 +393,6 @@
     },
     "dashboard": {
       "breakdownTitle": "",
-      "btnAdvancedHint": "",
-      "btnAdvancedLabel": "",
-      "btnNormalHint": "",
-      "btnNormalLabel": "",
       "metricActiveBookings": "",
       "metricAvailable": "",
       "metricCurrencyYR": "",
