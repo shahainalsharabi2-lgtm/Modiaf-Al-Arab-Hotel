@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>دليل أدوات Hotel Premio PMS</title>
+  <style>
+    @page { margin: 14mm 12mm; size: A4; }
+    body {
+      font-family: 'Segoe UI', Tahoma, 'Arabic Typesetting', Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.45;
+      color: #1a1a1a;
+      direction: rtl;
+      text-align: right;
+    }
+    h1 {
+      color: #1565c0;
+      font-size: 18pt;
+      border-bottom: 3px solid #1565c0;
+      padding-bottom: 8px;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      color: #0d47a1;
+      font-size: 13pt;
+      margin-top: 16px;
+      page-break-after: avoid;
+      border-right: 4px solid #1976d2;
+      padding-right: 10px;
+    }
+    h3 { color: #37474f; font-size: 11pt; page-break-after: avoid; }
+    code {
+      direction: ltr;
+      unicode-bidi: embed;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 8pt;
+      background: #e8f0fe;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0d47a1;
+    }
+    pre {
+      direction: ltr;
+      text-align: left;
+      background: #f5f7fa;
+      border: 1px solid #cfd8dc;
+      padding: 8px 10px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 7.5pt;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 12px;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #90a4ae;
+      padding: 4px 6px;
+      vertical-align: top;
+    }
+    th {
+      background: #1976d2;
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: #f5f9fc; }
+    ul { margin: 4px 0; padding-right: 18px; }
+    li { margin: 2px 0; }
+    hr { border: none; border-top: 1px solid #b0bec5; margin: 14px 0; }
+    strong { color: #0d47a1; }
+  </style>
+</head>
+<body>
+<h1>دليل أدوات مشروع Hotel Premio PMS</h1>
+
+<p><strong>نظام إدارة فندق — واجهة Angular 21 + خادم ABP / ASP.NET Core</strong></p>
+
+<table>
+<tr><th>البند</th><th>القيمة</th></tr>
+<tr><td>اسم المشروع</td><td>Hotel Premio PMS</td></tr>
+<tr><td>تاريخ التوثيق</td><td>2026-06-08</td></tr>
+<tr><td>ملف JSON المرافق</td><td><code>docs/project-tools.json</code></td></tr>
+</table>
+
+<hr/>
+
+<h2>1. نظرة عامة</h2>
+
+<p>المشروع نظام <strong>PMS</strong> (Property Management System) لإدارة الفندق يشمل:</p>
+
+<ul>
+<li>الحجوزات والتسكين والمغادرة</li>
+<li>الغرف والطوابق والمفاتيح</li>
+<li>الكاشير والفواتير</li>
+<li>CRM والمراجعة الليلية</li>
+<li>التقارير والإعدادات</li>
+<li><strong>ترجمة واجهة متعددة اللغات</strong> مع تحرير مباشر على الصفحات</li>
+</ul>
+
+<h3>هيكل المجلدات الرئيسي</h3>
+
+<pre><code>
+Modiaf.Al.Arab.Hotel/
+├── angular/          ← واجهة المستخدم (Angular)
+├── aspnet-core/      ← الخادم و API (ABP)
+└── docs/             ← التوثيق (هذا الملف + JSON + PDF)
+</code></pre>
+
+<hr/>
+
+<h2>2. أوامر npm (أدوات التشغيل والبناء)</h2>
+
+<table>
+<tr><th>الأمر</th><th>الوظيفة</th></tr>
+<tr><td><code>npm start</code></td><td>تشغيل التطوير على HTTPS مع بروكسي API</td></tr>
+<tr><td><code>npm run build</code></td><td>بناء التطبيق</td></tr>
+<tr><td><code>npm run build:prod</code></td><td>بناء الإنتاج</td></tr>
+<tr><td><code>npm test</code></td><td>اختبارات الوحدة</td></tr>
+<tr><td><code>npm run lint</code></td><td>فحص ESLint</td></tr>
+<tr><td><code>npm run ui-translations:split</code></td><td>تقسيم ملف الترجمات المدمج إلى ملفات لغة</td></tr>
+<tr><td><code>npm run ui-translations:merge</code></td><td>دمج ملفات اللغات في ملف واحد</td></tr>
+<tr><td><code>npm run ui-translations:sync</code></td><td>مزامنة هيكل الترجمة ثم الدمج</td></tr>
+</table>
+
+<p><strong>متطلبات:</strong> Node ≥ 20.19.0، npm ≥ 10.0.0</p>
+
+<hr/>
+
+<h2>3. سكربتات التطوير (<code>angular/scripts/</code>)</h2>
+
+<table>
+<tr><th>السكربت</th><th>الوظيفة</th></tr>
+<tr><td><code>migrate-ui-inline-text.mjs</code></td><td>تحويل <code>screenText</code> و <code>label</code> في القوالب إلى <code><ui-inline-text></code></td></tr>
+<tr><td><code>fix-ui-inline-imports.mjs</code></td><td>إضافة استيراد <code>UiInlineTextComponent</code> تلقائياً</td></tr>
+<tr><td><code>fix-inline-key-bindings.mjs</code></td><td>إصلاح ربط مفاتيح الترجمة في القوالب</td></tr>
+<tr><td><code>split-ui-translations-locale-files.mjs</code></td><td>تقسيم JSON المدمج إلى <code>ar.json</code>, <code>en.json</code>, …</td></tr>
+<tr><td><code>merge-ui-locale-files-to-default.mjs</code></td><td>دمج ملفات اللغة في <code>ui-translations-default.json</code></td></tr>
+<tr><td><code>sync-ui-locale-structure.mjs</code></td><td>توحيد مفاتيح ملفات الترجمة مع <code>ar.json</code></td></tr>
+<tr><td><code>bootstrap-fr-id-locales.mjs</code></td><td>إنشاء ملفات فرنسية/إندونيسية من الهيكل العربي</td></tr>
+<tr><td><code>simplify-translations-tab.mjs</code></td><td>تبسيط تبويب الترجمات في الإعدادات</td></tr>
+<tr><td><code>fix-light-theme-text.ps1</code></td><td>تصحيح ألوان النص في الثيم الفاتح (CSS)</td></tr>
+</table>
+
+<hr/>
+
+<h2>4. الحراس (Guards)</h2>
+
+<table>
+<tr><th>الحارس</th><th>الملف</th><th>الوظيفة</th></tr>
+<tr><td><code>authGuard</code></td><td><code>guards/auth.guard.ts</code></td><td>يمنع الصفحات المحمية بدون تسجيل دخول</td></tr>
+<tr><td><code>loginPageGuard</code></td><td><code>guards/auth.guard.ts</code></td><td>يمنع دخول <code>/login</code> للمستخدم المسجّل</td></tr>
+<tr><td><code>inlineTranslationNavGuard</code></td><td><code>guards/inline-translation-nav.guard.ts</code></td><td>يمنع التنقل أثناء وضع الترجمة المباشرة</td></tr>
+</table>
+
+<hr/>
+
+<h2>5. المعترضات (Interceptors)</h2>
+
+<table>
+<tr><th>المعترض</th><th>الوظيفة</th></tr>
+<tr><td><code>loadingInterceptor</code></td><td>يعرض مؤشر التحميل العام لطلبات <code>/api/</code></td></tr>
+<tr><td><code>apiTimeoutInterceptor</code></td><td>مهلة 60 ثانية لطلبات API</td></tr>
+</table>
+
+<hr/>
+
+<h2>6. الأنابيب (Pipes)</h2>
+
+<table>
+<tr><th>الأنبوب</th><th>الوظيفة</th><th>مثال</th></tr>
+<tr><td><code>HotelSymbolPipe</code></td><td>رمز العملة الحالي</td><td>`{{ '' \</td><td>hotelSymbol }}`</td></tr>
+<tr><td><code>LocaleNumberPipe</code></td><td>تنسيق أرقام/مال حسب اللغة</td><td>`{{ price \</td><td>localeNumber:'money' }}`</td></tr>
+</table>
+
+<hr/>
+
+<h2>7. خدمات الواجهة (<code>angular/src/app/services/</code>)</h2>
+
+<h3>7.1 الترجمة والواجهة</h3>
+
+<table>
+<tr><th>الخدمة</th><th>الوظيفة</th><th>دوال رئيسية</th></tr>
+<tr><td><strong>UiTranslationsService</strong></td><td>لغة العرض وترجمات القائمة والشاشات</td><td><code>screenText</code>, <code>sidebarLabel</code>, <code>chromeLabel</code>, <code>toggleInlineTranslationMode</code>, <code>patchLocaleField</code></td></tr>
+<tr><td><strong>UiMessageService</strong></td><td>رسائل Toast وتأكيد</td><td><code>show</code>, <code>success</code>, <code>error</code>, <code>confirm</code></td></tr>
+<tr><td><strong>AppLoadingService</strong></td><td>عداد تحميل API</td><td><code>begin</code>, <code>end</code></td></tr>
+<tr><td><strong>SystemNotificationsService</strong></td><td>إشعارات النظام</td><td><code>record</code>, <code>markAllRead</code></td></tr>
+</table>
+
+<h3>7.2 المصادقة</h3>
+
+<table>
+<tr><th>الخدمة</th><th>الوظيفة</th></tr>
+<tr><td><strong>HotelAuthService</strong></td><td>تسجيل دخول، جلسة، صلاحيات</td></tr>
+<tr><td><strong>HotelAppUserService</strong></td><td>CRUD مستخدمي التطبيق</td></tr>
+</table>
+
+<h3>7.3 العمليات الفندقية (PMS)</h3>
+
+<table>
+<tr><th>الخدمة</th><th>API</th><th>الوظيفة</th></tr>
+<tr><td><strong>BookingService</strong></td><td><code>/api/app/booking</code></td><td>الحجوزات</td></tr>
+<tr><td><strong>RoomService</strong></td><td><code>/api/app/room</code></td><td>الغرف</td></tr>
+<tr><td><strong>FloorService</strong></td><td><code>/api/app/floor</code></td><td>الطوابق</td></tr>
+<tr><td><strong>GuestRegistryService</strong></td><td><code>/api/app/guest-registry</code></td><td>سجل الضيوف</td></tr>
+<tr><td><strong>IdentityTypeService</strong></td><td><code>/api/app/identity-type</code></td><td>أنواع الهوية</td></tr>
+<tr><td><strong>PaymentMethodService</strong></td><td><code>/api/app/payment-method</code></td><td>طرق الدفع</td></tr>
+</table>
+
+<h3>7.4 الإعدادات والعملة</h3>
+
+<table>
+<tr><th>الخدمة</th><th>الوظيفة</th></tr>
+<tr><td><strong>HotelSettingsService</strong></td><td>إعدادات الفندق من API</td></tr>
+<tr><td><strong>HotelSystemSettingsLoader</strong></td><td>تحميل إعدادات النظام والعملة</td></tr>
+<tr><td><strong>HotelBrandingStoreService</strong></td><td>اسم الفندق والشعار</td></tr>
+<tr><td><strong>HotelCurrencyService</strong></td><td>رمز وكود العملة</td></tr>
+<tr><td><strong>ArabicPreferenceCategoryService</strong></td><td>فئات اللهجة العربية</td></tr>
+<tr><td><strong>ArabicCategoryPickerService</strong></td><td>ورقة اختيار الفئة العربية</td></tr>
+<tr><td><strong>GeneralCodesService</strong></td><td>الأكواد العامة (فئات غرف، مواقع…)</td></tr>
+<tr><td><strong>HotelDatabaseAdminService</strong></td><td>نسخ احتياطي وتحديث DB</td></tr>
+</table>
+
+<hr/>
+
+<h2>8. المكوّنات المشتركة (<code>shared/</code>)</h2>
+
+<table>
+<tr><th>المكوّن</th><th>الوظيفة</th></tr>
+<tr><td><strong>ui-inline-text</strong></td><td>ترجمة مباشرة على الصفحة (انقر النص العربي للتعديل)</td></tr>
+<tr><td><strong>app-top-bar</strong></td><td>الشريط العلوي: لغة، إشعارات، اختصارات</td></tr>
+<tr><td><strong>app-notifications-panel</strong></td><td>لوحة الإشعارات</td></tr>
+<tr><td><strong>account-hub-panel</strong></td><td>مركز الحساب</td></tr>
+<tr><td><strong>app-calculator-modal</strong></td><td>حاسبة</td></tr>
+<tr><td><strong>db-settings-panel</strong></td><td>إعدادات قاعدة البيانات</td></tr>
+<tr><td><strong>room-status-panel</strong></td><td>ملخص حالة الغرف</td></tr>
+<tr><td><strong>room-preview-sheet</strong></td><td>معاينة غرفة</td></tr>
+<tr><td><strong>pms-booking-card</strong></td><td>بطاقة حجز PMS</td></tr>
+<tr><td><strong>arabic-category-picker-sheet</strong></td><td>اختيار الفئة العربية</td></tr>
+<tr><td><strong>ui-messages</strong></td><td>رسائل Toast</td></tr>
+<tr><td><strong>app-loading-overlay</strong></td><td>طبقة التحميل</td></tr>
+<tr><td><strong>account-locale-editor</strong></td><td>محرر JSON للترجمات</td></tr>
+</table>
+
+<hr/>
+
+<h2>9. أدوات مساعدة (<code>utils/</code>)</h2>
+
+<h3>الترجمة</h3>
+<p><code>ui-translation.constants.ts</code>, <code>ui-translations-locale.util.ts</code>, <code>ui-translation-groups.config.ts</code>, <code>ui-screen-i18n.helper.ts</code></p>
+
+<h3>العملة واللغة</h3>
+<p><code>hotel-currency.presets.ts</code>, <code>locale-format.util.ts</code>, <code>locale-phone.ts</code>, <code>arabic-region-profile.util.ts</code></p>
+
+<h3>الحجز</h3>
+<p><code>booking-display.util.ts</code>, <code>booking-api-map.util.ts</code>, <code>booking-meta.options.ts</code>, <code>price-code.util.ts</code></p>
+
+<h3>الضيوف والغرف</h3>
+<p><code>guest-profile.util.ts</code>, <code>guest-picker.util.ts</code>, <code>room-features.util.ts</code>, <code>room-cleaning.util.ts</code></p>
+
+<h3>متفرقات</h3>
+<p><code>hotel-user-role.ts</code>, <code>date-only.ts</code>, <code>reports-filter.util.ts</code>, <code>dev-outlines.ts</code></p>
+
+<hr/>
+
+<h2>10. صفحات النظام (المسارات)</h2>
+
+<table>
+<tr><th>المسار</th><th>الشاشة</th></tr>
+<tr><td><code>/dashboard</code></td><td>لوحة التحكم</td></tr>
+<tr><td><code>/bookings</code></td><td>قائمة الحجوزات</td></tr>
+<tr><td><code>/booking</code></td><td>نموذج حجز/تسكين</td></tr>
+<tr><td><code>/front-desk/room-plan</code></td><td>خطة الغرف</td></tr>
+<tr><td><code>/front-desk/rooms-rack</code></td><td>رف الغرف</td></tr>
+<tr><td><code>/front-desk/keys</code></td><td>المفاتيح</td></tr>
+<tr><td><code>/front-desk/key-services</code></td><td>خدمات المفاتيح</td></tr>
+<tr><td><code>/front-desk/guest-valuables</code></td><td>الأمانات</td></tr>
+<tr><td><code>/cashier/*</code></td><td>الكاشير (ترحيل، فواتير، إشعارات)</td></tr>
+<tr><td><code>/crm/*</code></td><td>CRM (أفراد، شركات، وكلاء)</td></tr>
+<tr><td><code>/night-auditor/*</code></td><td>المراجعة الليلية</td></tr>
+<tr><td><code>/rooms</code></td><td>إدارة الغرف</td></tr>
+<tr><td><code>/database</code></td><td>قاعدة البيانات</td></tr>
+<tr><td><code>/reports</code></td><td>التقارير</td></tr>
+<tr><td><code>/settings</code></td><td>الإعدادات والترجمات</td></tr>
+<tr><td><code>/login</code></td><td>تسجيل الدخول</td></tr>
+</table>
+
+<hr/>
+
+<h2>11. الخادم (aspnet-core)</h2>
+
+<h3>طبقات ABP</h3>
+<ul>
+<li><strong>Domain</strong> — الكيانات</li>
+<li><strong>Application</strong> — خدمات التطبيق (AppServices)</li>
+<li><strong>HttpApi.Host</strong> — نقطة التشغيل + ملفات <code>UiTranslations/*.json</code></li>
+<li><strong>EntityFrameworkCore</strong> — قاعدة البيانات</li>
+</ul>
+
+<h3>خدمات API الرئيسية</h3>
+<table>
+<tr><th>الخدمة</th><th>الوظيفة</th></tr>
+<tr><td>HotelAuthAppService</td><td>تسجيل الدخول</td></tr>
+<tr><td>BookingAppService</td><td>الحجوزات</td></tr>
+<tr><td>RoomAppService / FloorAppService</td><td>الغرف والطوابق</td></tr>
+<tr><td>UiTranslationsBlobAppService</td><td>ترجمات الواجهة</td></tr>
+<tr><td>HotelSettingsAppService</td><td>إعدادات الفندق</td></tr>
+<tr><td>GeneralCodesAppService</td><td>الأكواد العامة</td></tr>
+<tr><td>HotelDatabaseAdminAppService</td><td>نسخ احتياطي DB</td></tr>
+</table>
+
+<hr/>
+
+<h2>12. ميزات رئيسية</h2>
+
+<h3>الترجمة المباشرة</h3>
+<p>1. اختر إنجليزية أو فرنسية من الشريط العلوي</p>
+<p>2. انقر زر الترجمة الجانبي (أيقونة اللغة)</p>
+<p>3. انقر النص العربي للتعديل — <strong>حفظ تلقائي</strong></p>
+<p>4. انقر أيقونة الحفظ 💾 للخروج والانتقال لصفحة أخرى</p>
+
+<h3>ترجمات الواجهة</h3>
+<ul>
+<li>أقسام: <code>sidebarNav</code>, <code>chrome</code>, <code>screenCopy</code>, <code>brandSubtitle</code></li>
+<li>ملفات: <code>HttpApi.Host/UiTranslations/ar.json</code>, <code>en.json</code>, <code>fr.json</code></li>
+<li>API: <code>/api/app/ui-translations-blob</code></li>
+</ul>
+
+<h3>أحداث النافذة المخصصة</h3>
+<p><code>hotelUiLocaleChanged</code>, <code>hotelUiTranslationsUpdated</code>, <code>hotelUiInlineTranslationModeChanged</code>, <code>hotelCurrencyUpdated</code></p>
+
+<hr/>
+
+<h2>13. ملف JSON</h2>
+
+<p>التفاصيل الكاملة بصيغة JSON في:</p>
+
+<p><strong><code>docs/project-tools.json</code></strong></p>
+
+<p>يمكن استيراده في أدوات أخرى أو قراءته برمجياً.</p>
+
+<hr/>
+
+<p>*تم إنشاء هذا الدليل تلقائياً — Hotel Premio PMS*</p>
+
+</body>
+</html>

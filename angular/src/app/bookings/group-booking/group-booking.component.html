@@ -1,0 +1,402 @@
+<div class="gb-page" dir="rtl">
+  <div class="gb-layout">
+    <aside class="gb-aside">
+      <div class="gb-aside__card">
+        <h2 class="gb-aside__title">
+          <ui-inline-text kind="screen" screen="groupBooking" key="expectedTotalTitle" />
+          <span class="gb-required" aria-hidden="true">*</span>
+        </h2>
+        <dl class="gb-summary">
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumRooms" /></dt>
+            <dd>{{ summaryRooms | localeNumber }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumGuests" /></dt>
+            <dd>{{ summaryGuests | localeNumber }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumNights" /></dt>
+            <dd>{{ summaryNights | localeNumber }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumRoomPrice" /></dt>
+            <dd>{{ formatMoney(summaryRoomPrice) }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumNightPrice" /></dt>
+            <dd>{{ formatMoney(summaryNightPrice) }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumAvgRoomPrice" /></dt>
+            <dd>{{ formatMoney(summaryAvgRoomPrice) }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumPackages" /></dt>
+            <dd>{{ formatMoney(summaryPackages) }}</dd>
+          </div>
+          <div class="gb-summary__row">
+            <dt><ui-inline-text kind="screen" screen="groupBooking" key="sumTaxes" /></dt>
+            <dd>{{ formatMoney(summaryTaxes) }}</dd>
+          </div>
+        </dl>
+        <div class="gb-summary__total">
+          <span><ui-inline-text kind="screen" screen="groupBooking" key="sumGrandTotal" /></span>
+          <strong>{{ formatMoney(summaryTotal) }}</strong>
+        </div>
+        <button type="button" class="gb-book-btn" (click)="submitBooking()">
+          <ui-inline-text kind="screen" screen="groupBooking" key="bookBtn" />
+        </button>
+      </div>
+    </aside>
+
+    <section class="gb-main" [formGroup]="form">
+      <!-- تفاصيل المجموعة -->
+      <div class="gb-form-card">
+        <header class="gb-form-head">
+          <h1><ui-inline-text kind="screen" screen="groupBooking" key="pageTitle" /></h1>
+        </header>
+        <div class="gb-grid">
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldHotel" /></label>
+            <select class="gb-control" formControlName="hotelId">
+              <option *ngFor="let h of hotelOptions()" [value]="h.id">{{ h.name }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label>
+              <ui-inline-text kind="screen" screen="groupBooking" key="fieldGroupName" />
+              <span class="gb-required">*</span>
+            </label>
+            <input type="text" class="gb-control" formControlName="groupName" [class.gb-control--error]="submitted && form.get('groupName')?.invalid" />
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldNationality" /></label>
+            <div class="gb-select-flag">
+              <span class="gb-select-flag__icon">{{ selectedNationalityFlag() }}</span>
+              <select class="gb-control gb-control--flat" formControlName="nationality">
+                <option *ngFor="let n of nationalityOptions" [value]="n.id">{{ n.flag }} {{ label(n.labelKey) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldFromDate" /></label>
+            <div class="gb-date-wrap">
+              <i class="fas fa-calendar-alt"></i>
+              <input type="date" class="gb-control gb-control--date" formControlName="fromDate" />
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldNights" /></label>
+            <div class="gb-stepper">
+              <button type="button" class="gb-stepper__btn" (click)="stepNights(-1)"><i class="fas fa-minus"></i></button>
+              <input type="number" class="gb-stepper__input" formControlName="nights" min="1" />
+              <button type="button" class="gb-stepper__btn" (click)="stepNights(1)"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldToDate" /></label>
+            <div class="gb-date-wrap">
+              <i class="fas fa-calendar-alt"></i>
+              <input type="date" class="gb-control gb-control--date" formControlName="toDate" />
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldBookingType" /></label>
+            <select class="gb-control" formControlName="bookingKind">
+              <option *ngFor="let opt of bookingKindOptions" [value]="opt.id">{{ kindLabel(opt.labelKey) }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldMarketCode" /></label>
+            <select class="gb-control" formControlName="marketCode">
+              <option *ngFor="let opt of marketCodeOptions" [value]="opt.id">{{ label(opt.labelKey) }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldBookingSource" /></label>
+            <select class="gb-control" formControlName="bookingSource">
+              <option *ngFor="let opt of bookingSourceOptions" [value]="opt.id">{{ sourceLabel(opt.labelKey) }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldPaymentMethod" /></label>
+            <select class="gb-control" formControlName="paymentMethod">
+              <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldCompany" /></label>
+            <div class="gb-composite">
+              <button type="button" class="gb-composite__add gb-composite__add--green"><i class="fas fa-plus"></i></button>
+              <input type="search" class="gb-control gb-control--flat" formControlName="company" [placeholder]="label('companyPh')" />
+              <button type="button" class="gb-composite__search"><i class="fas fa-chevron-down"></i></button>
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldRepresentatives" /></label>
+            <select class="gb-control" formControlName="representatives">
+              <option value="">{{ label('representativesPh') }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- الوكيل / الموظف / نسك -->
+      <div class="gb-form-card">
+        <div class="gb-grid gb-grid--3">
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldAgent" /></label>
+            <div class="gb-composite">
+              <button type="button" class="gb-composite__add gb-composite__add--green"><i class="fas fa-plus"></i></button>
+              <input type="search" class="gb-control gb-control--flat" formControlName="agentSearch" [placeholder]="label('agentPh')" />
+              <button type="button" class="gb-composite__search"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldEmployee" /></label>
+            <select class="gb-control" formControlName="employee">
+              <option value="tamer">{{ label('employeeTamer') }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldNusukAgreement" /></label>
+            <div class="gb-date-wrap">
+              <i class="fas fa-file-alt"></i>
+              <input type="text" class="gb-control gb-control--date" formControlName="nusukAgreement" [placeholder]="label('nusukPh')" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تفاصيل الغرف -->
+      <div class="gb-form-card">
+        <header class="gb-form-head">
+          <h2><ui-inline-text kind="screen" screen="groupBooking" key="roomDetailsTitle" /></h2>
+        </header>
+        <div class="gb-grid gb-grid--4">
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldPriceCode" /></label>
+            <div class="gb-composite">
+              <button type="button" class="gb-composite__search"><i class="fas fa-calendar-check"></i></button>
+              <select class="gb-control gb-control--flat" formControlName="priceCode">
+                <option value="">{{ label('priceCodePh') }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="gb-field">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="fieldSupplier" /></label>
+            <select class="gb-control" formControlName="supplier">
+              <option value="">{{ label('supplierPh') }}</option>
+            </select>
+          </div>
+          <div class="gb-field">
+            <label>
+              <ui-inline-text kind="screen" screen="groupBooking" key="fieldCurrency" />
+              <span class="gb-required">*</span>
+            </label>
+            <input type="text" class="gb-control" formControlName="currencyCode" dir="ltr" />
+          </div>
+          <div class="gb-field">
+            <label>
+              <ui-inline-text kind="screen" screen="groupBooking" key="fieldRoomCountMode" />
+              <span class="gb-required">*</span>
+            </label>
+            <div class="gb-radio-row">
+              <label class="gb-radio">
+                <input type="radio" name="roomCountModeUi" [checked]="form.get('roomCountMode')?.value === 'fixed'" (change)="setRoomCountMode('fixed')" />
+                <ui-inline-text kind="screen" screen="groupBooking" key="roomCountFixed" />
+              </label>
+              <label class="gb-radio">
+                <input type="radio" name="roomCountModeUi" [checked]="form.get('roomCountMode')?.value === 'flexible'" (change)="setRoomCountMode('flexible')" />
+                <ui-inline-text kind="screen" screen="groupBooking" key="roomCountFlexible" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- أنواع الغرف -->
+      <div class="gb-form-card">
+        <header class="gb-section-head">
+          <h2><ui-inline-text kind="screen" screen="groupBooking" key="roomTypesTitle" /></h2>
+          <button type="button" class="gb-add-btn" (click)="addRoomLine()">
+            <ui-inline-text kind="screen" screen="groupBooking" key="addByRoomTypes" />
+          </button>
+        </header>
+
+        <div class="gb-room-draft">
+          <div class="gb-field gb-field--compact">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="colRoomType" /></label>
+            <select class="gb-control" [(ngModel)]="draftRoomType" [ngModelOptions]="{ standalone: true }">
+              <option *ngFor="let t of roomTypeOptions" [value]="t">{{ roomTypeLabel(t) }}</option>
+            </select>
+          </div>
+          <div class="gb-field gb-field--compact">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="colCount" /></label>
+            <input type="number" class="gb-control" [(ngModel)]="draftRoomCount" [ngModelOptions]="{ standalone: true }" min="1" />
+          </div>
+          <div class="gb-field gb-field--compact">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="colAdults" /></label>
+            <input type="number" class="gb-control" [(ngModel)]="draftAdults" [ngModelOptions]="{ standalone: true }" min="1" />
+          </div>
+          <div class="gb-field gb-field--compact" *ngFor="let age of childAgeSlots">
+            <label>{{ age }}</label>
+            <input type="number" class="gb-control" [(ngModel)]="draftChildren[age]" [ngModelOptions]="{ standalone: true }" min="0" />
+          </div>
+          <div class="gb-field gb-field--compact">
+            <label><ui-inline-text kind="screen" screen="groupBooking" key="colExtra" /></label>
+            <input type="number" class="gb-control" [(ngModel)]="draftExtra" [ngModelOptions]="{ standalone: true }" min="0" />
+          </div>
+        </div>
+
+        <div class="gb-table-wrap">
+          <table class="gb-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colRoomType" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colCount" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colAdults" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colAvailable" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colNights" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="colTotalPerPerson" /></th>
+              </tr>
+              <tr class="gb-table__filter-row">
+                <th colspan="7">
+                  <input type="search" class="gb-table-search" [(ngModel)]="roomLineSearch" [ngModelOptions]="{ standalone: true }" [placeholder]="label('tableSearchPh')" />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredRoomLines; trackBy: trackById">
+                <td>
+                  <button type="button" class="gb-icon-btn" (click)="removeRoomLine(row.id)"><i class="fas fa-trash-alt"></i></button>
+                </td>
+                <td>{{ roomTypeLabel(row.roomType) }}</td>
+                <td>{{ row.count | localeNumber }}</td>
+                <td>{{ row.adults | localeNumber }}</td>
+                <td>{{ row.available | localeNumber }}</td>
+                <td>{{ row.nights | localeNumber }}</td>
+                <td>{{ formatMoney(row.totalPerPerson) }}</td>
+              </tr>
+              <tr *ngIf="!filteredRoomLines.length">
+                <td colspan="7" class="gb-table-empty"><ui-inline-text kind="screen" screen="groupBooking" key="noData" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- الباقات -->
+      <div class="gb-form-card">
+        <header class="gb-section-head">
+          <h2><ui-inline-text kind="screen" screen="groupBooking" key="packagesTitle" /></h2>
+          <button type="button" class="gb-add-btn gb-add-btn--gift" (click)="addPackageLine()">
+            <i class="fas fa-gift"></i>
+            <ui-inline-text kind="screen" screen="groupBooking" key="addBtn" />
+          </button>
+        </header>
+        <div class="gb-table-wrap">
+          <table class="gb-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgCode" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgName" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgQty" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgTotal" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgCalcMethod" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="pkgCalcBase" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of packageLines; trackBy: trackById">
+                <td><button type="button" class="gb-icon-btn" (click)="removePackageLine(row.id)"><i class="fas fa-trash-alt"></i></button></td>
+                <td>{{ row.code }}</td>
+                <td>{{ row.name }}</td>
+                <td>{{ row.quantity | localeNumber }}</td>
+                <td>{{ formatMoney(row.total) }}</td>
+                <td>{{ row.calcMethod }}</td>
+                <td>{{ row.calcBase }}</td>
+              </tr>
+              <tr *ngIf="!packageLines.length">
+                <td colspan="7" class="gb-table-empty"><ui-inline-text kind="screen" screen="groupBooking" key="noData" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- سياسات الدفع المقدم -->
+      <div class="gb-form-card">
+        <header class="gb-section-head">
+          <h2>
+            <ui-inline-text kind="screen" screen="groupBooking" key="advancePoliciesTitle" />
+            <i class="fas fa-info-circle gb-info-icon"></i>
+          </h2>
+          <button type="button" class="gb-add-btn" (click)="addAdvancePolicy()">
+            <i class="fas fa-plus"></i>
+            <ui-inline-text kind="screen" screen="groupBooking" key="addBtn" />
+          </button>
+        </header>
+        <div class="gb-table-wrap">
+          <table class="gb-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="advPolicy" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="advPercent" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="advAmount" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="advDueDate" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="advNotes" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of advancePolicies; trackBy: trackById">
+                <td><button type="button" class="gb-icon-btn" (click)="removeAdvancePolicy(row.id)"><i class="fas fa-trash-alt"></i></button></td>
+                <td>{{ row.policy }}</td>
+                <td>{{ row.percent | localeNumber }}%</td>
+                <td>{{ formatMoney(row.amount) }}</td>
+                <td>{{ row.dueDate }}</td>
+                <td>{{ row.notes || '—' }}</td>
+              </tr>
+              <tr *ngIf="!advancePolicies.length">
+                <td colspan="6" class="gb-table-empty"><ui-inline-text kind="screen" screen="groupBooking" key="noData" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- التوجيه -->
+      <div class="gb-form-card">
+        <header class="gb-form-head">
+          <h2><ui-inline-text kind="screen" screen="groupBooking" key="routingTitle" /></h2>
+        </header>
+        <div class="gb-table-wrap">
+          <table class="gb-table">
+            <thead>
+              <tr>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="routeType" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="routeTo" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="routeWindow" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="routePayment" /></th>
+                <th><ui-inline-text kind="screen" screen="groupBooking" key="routeNotes" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of routingLines; trackBy: trackById">
+                <td>{{ label(row.typeKey) }}</td>
+                <td>{{ label(row.routingToKey) }}</td>
+                <td>{{ row.windowNo | localeNumber }}</td>
+                <td>{{ row.paymentMethod }}</td>
+                <td>{{ row.notes || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

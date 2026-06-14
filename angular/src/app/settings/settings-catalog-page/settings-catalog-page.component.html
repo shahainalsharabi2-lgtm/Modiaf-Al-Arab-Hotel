@@ -1,0 +1,100 @@
+<section class="stg-catalog" dir="rtl">
+  <header class="stg-catalog__head">
+    <p class="stg-catalog__crumb">{{ breadcrumb() }}</p>
+    <div class="stg-catalog__title-row">
+      <div>
+        <h2 class="stg-catalog__title">{{ pageTitle() }}</h2>
+        <p class="stg-catalog__hint">
+          <ui-inline-text kind="screen" screen="settings" key="stgCatalogHint" />
+        </p>
+      </div>
+      <button type="button" class="stg-catalog__add-btn" *ngIf="canEdit" (click)="openCreate()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="stgCatalogAdd" />
+      </button>
+    </div>
+  </header>
+
+  <div class="stg-catalog__empty" *ngIf="!rows.length">
+    <i class="fas fa-inbox" aria-hidden="true"></i>
+    <p><ui-inline-text kind="screen" screen="settings" key="stgCatalogEmpty" /></p>
+    <button type="button" class="stg-catalog__ghost-btn" *ngIf="canEdit" (click)="openCreate()">
+      <ui-inline-text kind="screen" screen="settings" key="stgCatalogAddFirst" />
+    </button>
+  </div>
+
+  <div class="stg-catalog__table-wrap" *ngIf="rows.length">
+    <table class="stg-catalog__table">
+      <thead>
+        <tr>
+          <th><ui-inline-text kind="screen" screen="settings" key="stgCatalogColOrder" /></th>
+          <th><ui-inline-text kind="screen" screen="settings" key="stgCatalogColNameAr" /></th>
+          <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="stgCatalogColNameEn" /></th>
+          <th><ui-inline-text kind="screen" screen="settings" key="stgCatalogColDescription" /></th>
+          <th class="stg-catalog__actions-head" *ngIf="canEdit">
+            <ui-inline-text kind="screen" screen="settings" key="stgCatalogColActions" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.displayOrder }}</td>
+          <td>{{ row.nameAr }}</td>
+          <td dir="ltr">{{ row.nameEn || '—' }}</td>
+          <td>{{ row.description || '—' }}</td>
+          <td class="stg-catalog__actions" *ngIf="canEdit">
+            <button type="button" class="stg-catalog__icon-btn" (click)="openEdit(row)">
+              <i class="fas fa-pen" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="stg-catalog__icon-btn stg-catalog__icon-btn--danger" (click)="deleteRow(row)">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="stg-catalog-modal" *ngIf="modalOpen" role="dialog" aria-modal="true">
+  <div class="stg-catalog-modal__backdrop" (click)="closeModal()"></div>
+  <form class="stg-catalog-modal__card" (ngSubmit)="saveRow()">
+    <header class="stg-catalog-modal__head">
+      <h3>
+        <ui-inline-text
+          kind="screen"
+          screen="settings"
+          [key]="editingId ? 'stgCatalogEditTitle' : 'stgCatalogCreateTitle'" />
+      </h3>
+      <button type="button" class="stg-catalog-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="stg-catalog-modal__body">
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="stgCatalogColOrder" /></span>
+        <input type="number" min="0" [(ngModel)]="form.displayOrder" name="displayOrder" />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="stgCatalogColNameAr" /></span>
+        <input type="text" [(ngModel)]="form.nameAr" name="nameAr" required />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="stgCatalogColNameEn" /></span>
+        <input type="text" dir="ltr" [(ngModel)]="form.nameEn" name="nameEn" />
+      </label>
+      <label class="stg-catalog-modal__full">
+        <span><ui-inline-text kind="screen" screen="settings" key="stgCatalogColDescription" /></span>
+        <textarea rows="3" [(ngModel)]="form.description" name="description"></textarea>
+      </label>
+    </div>
+    <footer class="stg-catalog-modal__foot">
+      <button type="button" class="stg-catalog__ghost-btn" (click)="closeModal()">
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+      <button type="submit" class="stg-catalog__add-btn">
+        <ui-inline-text kind="screen" screen="settings" key="saveChanges" />
+      </button>
+    </footer>
+  </form>
+</div>

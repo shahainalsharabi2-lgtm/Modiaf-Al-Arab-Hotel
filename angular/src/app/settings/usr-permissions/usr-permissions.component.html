@@ -1,0 +1,108 @@
+<div class="up-page" dir="rtl">
+  <aside class="up-tree">
+    <header class="up-tree__head">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="settings" key="usrPermTreeTitle" />
+    </header>
+
+    <div class="up-tree__search">
+      <input
+        type="search"
+        [(ngModel)]="treeSearch"
+        [placeholder]="ui.screenText('settings', 'usrPermTreeSearchPh')" />
+      <i class="fas fa-search" aria-hidden="true"></i>
+    </div>
+
+    <div class="up-tree__list" role="tree">
+      <button
+        type="button"
+        class="up-tree__item"
+        role="treeitem"
+        *ngFor="let node of filteredTreeNodes()"
+        [class.up-tree__item--active]="selectedNodeId === node.id"
+        (click)="selectNode(node.id)">
+        <span class="up-tree__item-check" (click)="toggleNode(node, $event)">
+          <input
+            type="checkbox"
+            [checked]="isNodeFullyChecked(node)"
+            [indeterminate]="isNodePartiallyChecked(node)"
+            [disabled]="!canEdit || !node.entities.length"
+            (click)="$event.preventDefault()" />
+        </span>
+        <span class="up-tree__item-label">
+          <i class="fas fa-folder up-tree__folder" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" [key]="node.labelKey" />
+        </span>
+        <i class="fas fa-chevron-left up-tree__chevron" aria-hidden="true"></i>
+      </button>
+    </div>
+  </aside>
+
+  <section class="up-panel hc-page__panel">
+    <header class="up-panel__head">
+      <h2>
+        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" [key]="panelTitleKey()" />
+        <span class="up-panel__dash">-</span>
+        <ui-inline-text kind="screen" screen="settings" key="usrPermPanelSuffix" />
+      </h2>
+
+      <label class="up-grant-all" *ngIf="selectedNode().entities.length">
+        <input
+          type="checkbox"
+          [checked]="isGrantAllChecked()"
+          [indeterminate]="isGrantAllPartial()"
+          [disabled]="!canEdit"
+          (change)="toggleGrantAll()" />
+        <ui-inline-text kind="screen" screen="settings" key="usrPermGrantAll" />
+      </label>
+    </header>
+
+    <div class="up-panel__search" *ngIf="selectedNode().entities.length">
+      <input
+        type="search"
+        [(ngModel)]="entitySearch"
+        [placeholder]="ui.screenText('settings', 'usrPermEntitySearchPh')" />
+      <i class="fas fa-search" aria-hidden="true"></i>
+    </div>
+
+    <div class="up-panel__body">
+      <div class="up-panel__empty" *ngIf="!selectedNode().entities.length">
+        <i class="fas fa-lock" aria-hidden="true"></i>
+        <p><ui-inline-text kind="screen" screen="settings" key="usrPermEmptyNode" /></p>
+      </div>
+
+      <div class="up-panel__empty" *ngIf="selectedNode().entities.length && !filteredEntities().length">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <p><ui-inline-text kind="screen" screen="settings" key="usrPermEmptySearch" /></p>
+      </div>
+
+      <div class="up-perm-list" *ngIf="filteredEntities().length">
+      <div class="up-perm-row" *ngFor="let entity of filteredEntities(); let odd = odd" [class.up-perm-row--alt]="odd">
+        <div class="up-perm-row__name">
+          <label class="up-perm-row__master">
+            <input
+              type="checkbox"
+              [checked]="isEntityFullyChecked(entity)"
+              [indeterminate]="isEntityPartiallyChecked(entity)"
+              [disabled]="!canEdit"
+              (change)="toggleEntity(entity)" />
+            <span [attr.dir]="entity.name.startsWith('Permission.') ? 'ltr' : null">{{ entity.name }}</span>
+          </label>
+        </div>
+
+        <div class="up-perm-row__actions">
+          <label class="up-action-pill" *ngFor="let action of entity.actions">
+            <input
+              type="checkbox"
+              [checked]="isActionChecked(entity.id, action.id)"
+              [disabled]="!canEdit"
+              (change)="toggleAction(entity, action)" />
+            <span>{{ actionLabel(action) }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+</div>

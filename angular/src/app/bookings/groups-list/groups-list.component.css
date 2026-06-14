@@ -1,0 +1,472 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.gr-page {
+  min-height: 100%;
+  padding: 0.75rem 1rem 1.5rem;
+  background: linear-gradient(168deg, var(--app-bg-soft) 0%, var(--app-bg) 52%, #e8eef5 100%);
+  box-sizing: border-box;
+}
+
+.gr-chrome {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.gr-top-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.7rem 1rem;
+}
+
+.gr-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.15rem 0.35rem;
+  justify-self: start;
+  min-width: 0;
+}
+
+.gr-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.65rem 0.55rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: rgba(15, 23, 42, 0.62);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.gr-tab--active {
+  color: var(--app-primary-mid, #1976d2);
+  border-bottom-color: var(--app-primary-mid, #1976d2);
+}
+
+.gr-tab-count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.gr-tab--active .gr-tab-count {
+  color: var(--app-primary-mid, #1976d2);
+}
+
+.gr-new-btn {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.72);
+  border-radius: 8px;
+  background: #fff;
+  color: rgba(15, 23, 42, 0.88);
+  font-weight: 800;
+  font-size: 0.88rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gr-new-btn:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.gr-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.gr-view-toggle {
+  display: inline-flex;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.gr-view-btn {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: #fff;
+  color: rgba(15, 23, 42, 0.55);
+  cursor: pointer;
+}
+
+.gr-view-btn + .gr-view-btn {
+  border-inline-start: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.gr-view-btn--active {
+  background: #2f6f4f;
+  color: #fff;
+}
+
+.gr-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  flex: 1 1 220px;
+  max-width: 420px;
+}
+
+.gr-scope-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.gr-scope-select {
+  min-width: 72px;
+  min-height: 38px;
+  padding: 0.35rem 1.65rem 0.35rem 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.86rem;
+  appearance: none;
+}
+
+.gr-scope-chev {
+  position: absolute;
+  inset-inline-end: 0.5rem;
+  pointer-events: none;
+  color: rgba(15, 23, 42, 0.45);
+  font-size: 0.72rem;
+}
+
+.gr-search {
+  display: flex;
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.gr-search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 0.45rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+}
+
+.gr-search-submit {
+  width: 40px;
+  border: 0;
+  background: #2f6f4f;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.gr-content {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.gr-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.gr-card__ribbon {
+  position: absolute;
+  top: 12px;
+  inset-inline-start: -30px;
+  width: 118px;
+  padding: 0.24rem 0;
+  background: #a5d6a7;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+  transform: rotate(-45deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.gr-card__ribbon--finished {
+  background: #cfd8dc;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.gr-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.85rem 0.15rem;
+}
+
+.gr-card__menu {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+
+.gr-card__group-icon {
+  color: rgba(148, 163, 184, 0.62);
+  font-size: 1rem;
+}
+
+.gr-card__identity {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  padding: 0.1rem 0.85rem 0.65rem;
+}
+
+.gr-card__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #2f6f4f, #1b5e40);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.gr-card__title {
+  margin: 0;
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #1f7a74;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.gr-card__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  flex-shrink: 0;
+}
+
+.gr-card__id-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: #eceff1;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.68);
+}
+
+.gr-card__created {
+  font-size: 0.72rem;
+  color: rgba(15, 23, 42, 0.48);
+}
+
+.gr-card__stats-panel,
+.gr-card__dates-panel {
+  margin: 0 0.75rem 0.65rem;
+  padding: 0.55rem;
+  border-radius: 12px;
+  background: #f2f2f2;
+}
+
+.gr-card__dates-panel {
+  margin-bottom: 0.75rem;
+}
+
+.gr-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.gr-stat {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 10px;
+  padding: 0.55rem 0.5rem;
+  text-align: center;
+}
+
+.gr-stat__label {
+  display: block;
+  font-size: 0.74rem;
+  color: rgba(15, 23, 42, 0.55);
+  margin-bottom: 0.15rem;
+}
+
+.gr-stat__value {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.88);
+  line-height: 1.1;
+}
+
+.gr-card__dates {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.gr-card__date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.gr-card__date--departure {
+  text-align: end;
+}
+
+.gr-card__date small {
+  font-size: 0.7rem;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.gr-card__date strong {
+  font-size: 0.84rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.gr-card__arrow {
+  color: rgba(15, 23, 42, 0.35);
+  font-size: 0.85rem;
+}
+
+.gr-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(15, 23, 42, 0.45);
+  font-weight: 700;
+}
+
+.gr-table-wrap {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  overflow-x: auto;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.gr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.gr-table th,
+.gr-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.gr-table thead th {
+  background: rgba(248, 250, 252, 0.95);
+  font-weight: 800;
+}
+
+.gr-table-empty {
+  text-align: center !important;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+@media (max-width: 1280px) {
+  .gr-content {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .gr-top-bar {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .gr-tabs,
+  .gr-new-btn,
+  .gr-toolbar {
+    justify-self: stretch;
+  }
+
+  .gr-tabs {
+    order: 1;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+  }
+
+  .gr-new-btn {
+    order: 2;
+    justify-content: center;
+  }
+
+  .gr-toolbar {
+    order: 3;
+    justify-content: stretch;
+  }
+
+  .gr-filter-group {
+    max-width: none;
+    flex: 1;
+  }
+
+  .gr-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .gr-content {
+    grid-template-columns: 1fr;
+  }
+}

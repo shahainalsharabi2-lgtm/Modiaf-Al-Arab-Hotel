@@ -1,0 +1,343 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.cp-page {
+  padding: 1rem 1.25rem 1.5rem;
+  background: var(--app-bg-soft);
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.cp-field-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cp-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cp-field-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  background: var(--app-surface);
+  border: var(--app-card-border);
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-sm);
+  padding: 0.85rem 1rem;
+}
+
+.cp-field-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  max-width: 5.5rem;
+}
+
+.cp-expand-btn {
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  padding: 0.15rem;
+  font-size: 0.85rem;
+}
+
+.cp-sub-count {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 4.5rem;
+}
+
+.cp-sub-panel {
+  margin-top: -0.35rem;
+  margin-inline: 0.5rem;
+  padding: 0.65rem 1rem 0.75rem;
+  background: var(--app-bg-soft);
+  border: 1px solid var(--app-border);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+}
+
+.cp-sub-panel__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.cp-field-block:has(.cp-sub-panel) .cp-field-row {
+  border-radius: 12px 12px 0 0;
+}
+
+.cp-edit-btn {
+  align-self: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.cp-edit-btn:hover {
+  border-color: var(--app-primary-light);
+  color: var(--app-primary-mid);
+}
+
+.cp-field-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.cp-field-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.95rem;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text);
+}
+
+.cp-field-title__icon {
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.cp-used {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+}
+
+.cp-used__label {
+  font-size: 0.86rem;
+  color: var(--app-text-muted);
+}
+
+.cp-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.cp-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.cp-switch__track {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.15s ease;
+}
+
+.cp-switch__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--app-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.cp-switch--on .cp-switch__track {
+  background: var(--app-primary-mid);
+}
+
+.cp-switch--on .cp-switch__track::after {
+  transform: translateX(20px);
+}
+
+[dir='rtl'] .cp-switch--on .cp-switch__track::after {
+  transform: translateX(-20px);
+}
+
+.cp-reqs {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.cp-req {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cp-req--disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.cp-req__label {
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.cp-req__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 0.62rem;
+}
+
+.cp-req__icon--on {
+  background: #2e7d32;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .cp-field-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cp-reqs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .cp-pager {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .cp-pager__summary {
+    text-align: center;
+  }
+
+  .cp-pager__nav {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.cp-pager {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--app-surface);
+  border: var(--app-card-border);
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.cp-pager__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.cp-pager__size select {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  background: var(--app-surface);
+  color: var(--app-text);
+}
+
+.cp-pager__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.cp-page-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.cp-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cp-page-num {
+  min-width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.cp-page-num--active {
+  background: var(--app-primary-mid);
+  color: var(--app-on-primary);
+  font-weight: var(--fw-semibold, 700);
+}
+
+.cp-pager__summary {
+  margin: 0;
+  text-align: end;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}

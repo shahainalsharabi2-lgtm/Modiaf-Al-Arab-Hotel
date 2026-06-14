@@ -1,0 +1,102 @@
+<div class="hkrii-page" dir="rtl">
+  <header class="hkrii-page-head">
+    <div class="hkrii-page-head__icon" aria-hidden="true">
+      <i class="fas fa-list"></i>
+    </div>
+    <div class="hkrii-page-head__text">
+      <h1 class="hkrii-page-head__title"><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="pageTitle" /></h1>
+      <p class="hkrii-page-head__desc"><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <section class="hkrii-chrome">
+    <div class="hkrii-toolbar">
+      <label class="hkrii-search">
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="label('searchPlaceholder')"
+          [attr.aria-label]="label('searchPlaceholder')" />
+        <i class="fas fa-search" aria-hidden="true"></i>
+      </label>
+
+      <button type="button" class="hkrii-btn hkrii-btn--new" (click)="addNew()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="newBtn" />
+      </button>
+    </div>
+  </section>
+
+  <section class="hkrii-table-card">
+    <div class="hkrii-table-wrap">
+      <table class="hkrii-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('rowNo')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colRowNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('rowNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('itemName')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colItemName" /></span>
+                <i class="fas" [ngClass]="sortIcon('itemName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('foreignName')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colForeignName" /></span>
+                <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('category')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colCategory" /></span>
+                <i class="fas" [ngClass]="sortIcon('category')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('fineAmount')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colFineAmount" /></span>
+                <i class="fas" [ngClass]="sortIcon('fineAmount')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('defaultQuantity')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colDefaultQuantity" /></span>
+                <i class="fas" [ngClass]="sortIcon('defaultQuantity')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrii-sort" (click)="toggleSort('displayOrder')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colDisplayOrder" /></span>
+                <i class="fas" [ngClass]="sortIcon('displayOrder')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="hkrii-col-actions"><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.rowNo | localeNumber }}</td>
+            <td class="hkrii-name">{{ cellValue(row.itemName) }}</td>
+            <td>{{ cellValue(row.foreignName) }}</td>
+            <td>{{ cellValue(row.category) }}</td>
+            <td>{{ row.fineAmount | localeNumber }}</td>
+            <td>{{ row.defaultQuantity | localeNumber }}</td>
+            <td>{{ row.displayOrder | localeNumber }}</td>
+            <td class="hkrii-col-actions">
+              <button type="button" class="hkrii-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="8" class="hkrii-empty"><ui-inline-text kind="screen" screen="hkRoomInspectionItems" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

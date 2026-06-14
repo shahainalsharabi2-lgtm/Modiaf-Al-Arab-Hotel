@@ -1,0 +1,224 @@
+<div class="tt-page" dir="rtl">
+  <section class="tt-page__panel">
+    <header class="tt-hero">
+      <div class="tt-hero__text">
+        <h2><ui-inline-text kind="screen" screen="settings" key="taxTypesTitle" /></h2>
+        <p><ui-inline-text kind="screen" screen="settings" key="taxTypesSubtitle" /></p>
+      </div>
+      <div class="tt-hero__icon" aria-hidden="true">
+        <i class="fas fa-receipt"></i>
+      </div>
+    </header>
+  </section>
+
+  <div class="tt-page__top">
+    <button type="button" class="tt-new-card" *ngIf="canEdit" (click)="openCreate()">
+      <span class="tt-new-card__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesNew" /></span>
+      <span class="tt-new-card__btn" aria-hidden="true">
+        <i class="fas fa-plus"></i>
+      </span>
+      <span class="tt-new-card__hint"><ui-inline-text kind="screen" screen="settings" key="taxTypesNewItem" /></span>
+    </button>
+  </div>
+
+  <section class="tt-page__panel tt-page__panel--table">
+    <header class="tt-section-head">
+      <i class="fas fa-th" aria-hidden="true"></i>
+      <h3><ui-inline-text kind="screen" screen="settings" key="taxTypesTitle" /></h3>
+    </header>
+
+    <div class="tt-table-wrap">
+      <table class="hc-page__table tt-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('id')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColSerial" />
+              <i class="fas" [ngClass]="sortIcon('id')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('valueLabel')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColValue" />
+              <i class="fas" [ngClass]="sortIcon('valueLabel')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('typeLabel')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColType" />
+              <i class="fas" [ngClass]="sortIcon('typeLabel')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('account')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColAccount" />
+              <i class="fas" [ngClass]="sortIcon('account')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('percentageLevel')">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColPctLevel" />
+              <i class="fas" [ngClass]="sortIcon('percentageLevel')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!filteredRows().length">
+            <td class="tt-empty" [attr.colspan]="canEdit ? 7 : 6">
+              <ui-inline-text kind="screen" screen="settings" key="taxTypesEmpty" />
+            </td>
+          </tr>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.valueLabel }}</td>
+            <td>{{ row.typeLabel }}</td>
+            <td dir="ltr">{{ row.account }}</td>
+            <td>{{ row.percentageLevel }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'taxTypesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="taxTypesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="taxTypesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div
+  class="tt-modal"
+  *ngIf="modalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', modalTitleKey())">
+  <div class="tt-modal__backdrop" (click)="closeModal()"></div>
+  <form class="tt-modal__card" (ngSubmit)="saveForm()">
+    <header class="tt-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" [key]="modalTitleKey()" /></h3>
+      <button type="button" class="tt-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="tt-modal__body">
+      <div class="tt-modal__grid">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesColName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.name" name="name" [placeholder]="ui.screenText('settings', 'taxTypesColName')" />
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormForeignName" /></span>
+          <div class="rt-field__control">
+            <input
+              type="text"
+              dir="ltr"
+              [(ngModel)]="form.foreignName"
+              name="foreignName"
+              [placeholder]="ui.screenText('settings', 'taxTypesFormForeignName')" />
+            <i class="fas fa-font rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormTaxBracket" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.taxBracketType" name="taxBracketType">
+              <option value="vat"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptVat" /></option>
+              <option value="lodging"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptLodging" /></option>
+            </select>
+            <i class="fas fa-list rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormApplicationType" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.taxApplicationType" name="taxApplicationType">
+              <option value="sales"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptSalesTax" /></option>
+            </select>
+            <i class="fas fa-filter rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesColAccount" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.account" name="account">
+              <option value="">-</option>
+              <option value="7001">7001</option>
+              <option value="7101">7101</option>
+            </select>
+            <i class="fas fa-code rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormCurrency" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.currency" name="currency">
+              <option value="sar"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptSar" /></option>
+            </select>
+            <i class="fas fa-coins rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormValueType" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.valueType" name="valueType">
+              <option value="percentage"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptPercentage" /></option>
+            </select>
+            <i class="fas fa-calculator rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormPercentage" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.percentage" name="percentage" placeholder="." />
+            <i class="fas fa-percent rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormRounding" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.roundingType" name="roundingType">
+              <option value="none"><ui-inline-text kind="screen" screen="settings" key="taxTypesOptNone" /></option>
+            </select>
+            <i class="fas fa-sort-numeric-down rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxTypesFormDecimals" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.decimalPlaces" name="decimalPlaces" placeholder="1" />
+            <i class="fas fa-hashtag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <footer class="tt-modal__foot">
+      <button type="button" class="tt-modal__cancel" (click)="closeModal()">
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+      <button type="submit" class="tt-modal__save">
+        <ui-inline-text kind="screen" screen="settings" key="taxTypesFormSave" />
+      </button>
+    </footer>
+  </form>
+</div>

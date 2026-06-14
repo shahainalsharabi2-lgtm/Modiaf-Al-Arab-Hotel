@@ -1,0 +1,477 @@
+<div class="pc-page rt-page" dir="rtl">
+  <section class="hc-page__panel" *ngIf="screenMode === 'list'">
+    <div class="hc-page__toolbar pc-list-toolbar">
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceCodeNew" />
+        </button>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="priceCodeEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="filteredRows().length">
+      <table class="hc-page__table pc-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('number')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColNumber" />
+              <i class="fas" [ngClass]="sortIcon('number')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('currency')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColCurrency" />
+              <i class="fas" [ngClass]="sortIcon('currency')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('pricingStartDate')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColStartDate" />
+              <i class="fas" [ngClass]="sortIcon('pricingStartDate')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('pricingEndDate')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColEndDate" />
+              <i class="fas" [ngClass]="sortIcon('pricingEndDate')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable pc-flag-col" (click)="toggleSort('negotiable')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColNegotiable" />
+              <i class="fas" [ngClass]="sortIcon('negotiable')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable pc-flag-col" (click)="toggleSort('hospitality')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColHospitality" />
+              <i class="fas" [ngClass]="sortIcon('hospitality')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable pc-active-col" (click)="toggleSort('active')">
+              <ui-inline-text kind="screen" screen="settings" key="priceCodeColActive" />
+              <i class="fas" [ngClass]="sortIcon('active')" aria-hidden="true"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.number }}</td>
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>
+              <button type="button" class="pc-name-link" (click)="openEdit(row)">{{ row.name }}</button>
+            </td>
+            <td dir="ltr">{{ row.currency }}</td>
+            <td dir="ltr">{{ formatPriceCodeDate(row.pricingStartDate) }}</td>
+            <td dir="ltr">{{ formatPriceCodeDate(row.pricingEndDate) }}</td>
+            <td class="pc-flag-col">
+              <span class="pc-flag" [class.pc-flag--yes]="row.negotiable" [class.pc-flag--no]="!row.negotiable">
+                <i class="fas" [ngClass]="row.negotiable ? 'fa-check' : 'fa-times'" aria-hidden="true"></i>
+              </span>
+            </td>
+            <td class="pc-flag-col">
+              <span class="pc-flag" [class.pc-flag--yes]="row.hospitality" [class.pc-flag--no]="!row.hospitality">
+                <i class="fas" [ngClass]="row.hospitality ? 'fa-check' : 'fa-times'" aria-hidden="true"></i>
+              </span>
+            </td>
+            <td class="pc-active-col">
+              <div class="pc-active-cell">
+                <label class="pc-switch" (click)="$event.stopPropagation()">
+                  <input type="checkbox" [checked]="row.active" [disabled]="!canEdit" (change)="toggleRowActive(row, $event)" />
+                  <span class="pc-switch__track" aria-hidden="true"></span>
+                </label>
+                <div class="hc-page__actions" *ngIf="canEdit">
+                  <button
+                    type="button"
+                    class="hc-page__actions-btn"
+                    (click)="toggleActionsMenu(row.id, $event)"
+                    [attr.aria-expanded]="openActionsId === row.id">
+                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                  </button>
+                  <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                    <button type="button" (click)="openEdit(row)">
+                      <i class="fas fa-pen" aria-hidden="true"></i>
+                      <ui-inline-text kind="screen" screen="settings" key="priceCodeActionEdit" />
+                    </button>
+                    <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
+                      <ui-inline-text kind="screen" screen="settings" key="priceCodeActionDelete" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rt-page__panel" *ngIf="screenMode === 'form'">
+    <div class="rt-page__actions">
+      <button type="button" class="rt-action rt-action--undo" (click)="undoChanges()" [disabled]="!canEdit">
+        <i class="fas fa-undo" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionUndo" />
+      </button>
+      <button type="button" class="rt-action rt-action--print" (click)="printForm()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionPrint" />
+      </button>
+      <button type="button" class="rt-action rt-action--list" (click)="openList()">
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionList" />
+      </button>
+      <button type="button" class="rt-action rt-action--save" (click)="saveForm()" [disabled]="!canEdit">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionSave" />
+      </button>
+      <button type="button" class="rt-action rt-action--delete" (click)="deleteForm()" [disabled]="!canEdit">
+        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionDelete" />
+      </button>
+      <button type="button" class="rt-action rt-action--new" (click)="openCreate()" [disabled]="!canEdit">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeActionNew" />
+      </button>
+    </div>
+
+    <div class="pc-form-body">
+      <div class="pc-form-row pc-form-row--6">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormRateCode" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.code" [disabled]="!canEdit" />
+            <i class="fas fa-key rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.name" [disabled]="!canEdit" />
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormForeignName" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.foreignName" [disabled]="!canEdit" />
+            <i class="fas fa-id-card rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormCategory" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.category" [disabled]="!canEdit">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-list rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormMarketCode" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.marketCode" [disabled]="!canEdit">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-globe rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormSourceCode" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.sourceCode" [disabled]="!canEdit">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-database rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+
+      <div class="pc-form-row pc-form-row--6">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColStartDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="form.pricingStartDate" [disabled]="!canEdit" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColEndDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="form.pricingEndDate" [disabled]="!canEdit" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColCurrency" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.currency" [disabled]="!canEdit">
+              <option value="SAR"><ui-inline-text kind="screen" screen="settings" key="priceCodeCurrencySar" /></option>
+            </select>
+            <i class="fas fa-money-bill-wave rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormScheduling" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.schedulingMechanism" [disabled]="!canEdit">
+              <option value="period"><ui-inline-text kind="screen" screen="settings" key="priceCodeSchedulingPeriod" /></option>
+            </select>
+            <i class="fas fa-clock rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormDescription" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.description" [disabled]="!canEdit" />
+            <i class="fas fa-align-left rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-check-field pc-status-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColActive" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.active" [disabled]="!canEdit" />
+          </div>
+        </label>
+      </div>
+
+      <div class="pc-form-toggles">
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColNegotiable" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.negotiable" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColHospitality" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.hospitality" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormInternalUse" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.internalUse" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormElectronicHajj" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.electronicPathHajj" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormIncludesPackages" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.priceIncludesPackages" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeFormDayUse" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.dayUse" [disabled]="!canEdit" />
+          </div>
+        </label>
+      </div>
+
+      <label class="pc-tax-check">
+        <input type="checkbox" [(ngModel)]="form.priceIncludesTax" [disabled]="!canEdit" />
+        <ui-inline-text kind="screen" screen="settings" key="priceCodeFormIncludesTax" />
+      </label>
+
+      <nav class="pc-tabs" role="tablist">
+        <button
+          type="button"
+          class="pc-tabs__btn"
+          *ngFor="let tab of formTabs"
+          role="tab"
+          [class.pc-tabs__btn--active]="activeFormTab === tab"
+          (click)="setFormTab(tab)">
+          <i class="fas" [ngClass]="formTabIcon(tab)" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" [key]="formTabKey(tab)" />
+        </button>
+      </nav>
+
+      <div class="pc-tab-panel" *ngIf="activeFormTab === 'schedule'">
+        <div class="hc-page__table-wrap">
+          <table class="hc-page__table pc-schedule-table">
+            <thead>
+              <tr>
+                <th rowspan="2"><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColSeasons" /></th>
+                <th rowspan="2"><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColRoomTypes" /></th>
+                <th rowspan="2" dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodeColStartDate" /></th>
+                <th rowspan="2" dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodeColEndDate" /></th>
+                <th colspan="5"><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColPersons" /></th>
+                <th rowspan="2"><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColAgeCategory" /></th>
+              </tr>
+              <tr>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColOnePerson" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColTwoPersons" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColThreePersons" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColFourPersons" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleColFivePersons" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pc-schedule-empty" colspan="10">
+                  <ui-inline-text kind="screen" screen="settings" key="priceCodeScheduleEmpty" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pc-tab-panel pc-tab-panel--packages" *ngIf="activeFormTab === 'packages'">
+        <div class="pc-tab-panel__toolbar">
+          <button type="button" class="pc-tab-panel__add" *ngIf="canEdit" (click)="openPickPackage()">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="priceCodePackagesSelect" />
+          </button>
+        </div>
+
+        <div class="pc-packages-empty" *ngIf="!form.includedPackages.length">
+          <p><ui-inline-text kind="screen" screen="settings" key="priceCodeEmpty" /></p>
+        </div>
+
+        <div class="hc-page__table-wrap" *ngIf="form.includedPackages.length">
+          <table class="hc-page__table pc-packages-table">
+            <thead>
+              <tr>
+                <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodeColCode" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="priceCodeColName" /></th>
+                <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodePackagesColPrice" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcRule" /></th>
+                <th><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcMethod" /></th>
+                <th *ngIf="canEdit"><ui-inline-text kind="screen" screen="settings" key="priceCodeColActions" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of form.includedPackages">
+                <td dir="ltr">{{ item.code }}</td>
+                <td>{{ item.name }}</td>
+                <td dir="ltr">{{ item.price || '' }}</td>
+                <td>{{ calcRuleLabel(item.calculationRuleKey) }}</td>
+                <td>{{ calcMethodLabel(item.calculationMethodKey) }}</td>
+                <td *ngIf="canEdit">
+                  <button type="button" class="pc-packages-table__remove" (click)="removeIncludedPackage(item)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pc-tab-panel pc-tab-panel--posting" *ngIf="activeFormTab === 'posting'">
+        <div class="pc-posting-grid">
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodePostingRoomAccount" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.roomRevenueAccount" [disabled]="!canEdit">
+                <option value=""></option>
+              </select>
+              <i class="fas fa-bed rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodePostingPackageAccount" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.packageRevenueAccount" [disabled]="!canEdit">
+                <option value=""></option>
+              </select>
+              <i class="fas fa-box rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field rt-field--textarea pc-folio-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodePostingFolioDescription" /></span>
+            <textarea rows="5" [(ngModel)]="form.folioDescription" [disabled]="!canEdit"></textarea>
+          </label>
+          <label class="rt-check-field pc-discount-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormDiscountable" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.discountable" [disabled]="!canEdit" />
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="pc-tab-panel pc-tab-panel--promotions" *ngIf="activeFormTab === 'promotions'">
+        <div class="pc-promotions-banner" *ngIf="isUnsavedForm()" role="status">
+          <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceCodePromotionsSaveFirst" />
+        </div>
+        <div class="pc-tab-empty" *ngIf="!isUnsavedForm()">
+          <i class="fas fa-inbox" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="settings" key="priceCodeEmpty" /></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div
+  class="pc-pick-modal"
+  *ngIf="pickPackageOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', 'priceCodePackagesPickTitle')">
+  <div class="pc-pick-modal__backdrop" (click)="closePickPackage()"></div>
+  <div class="pc-pick-modal__card">
+    <header class="pc-pick-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" key="priceCodePackagesPickTitle" /></h3>
+      <button type="button" class="pc-pick-modal__close" (click)="closePickPackage()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="pc-pick-modal__body">
+      <div class="pc-pick-search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" [(ngModel)]="pickPackageSearch" [placeholder]="ui.screenText('settings', 'priceInquirySearch')" />
+      </div>
+
+      <div class="pc-pick-table-wrap">
+        <table class="pc-pick-table">
+          <thead>
+            <tr>
+              <th class="pc-pick-check-col">
+                <input type="checkbox" [checked]="pickPackageAllSelected()" (change)="togglePickPackageAll()" />
+              </th>
+              <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodeColCode" /></th>
+              <th><ui-inline-text kind="screen" screen="settings" key="priceCodeColName" /></th>
+              <th><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcMethod" /></th>
+              <th><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcRule" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredPackageCatalog()">
+              <td class="pc-pick-check-col">
+                <input type="checkbox" [checked]="isPickPackageSelected(item.code)" (change)="togglePickPackage(item.code)" />
+              </td>
+              <td dir="ltr">{{ item.code }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ calcMethodLabel(item.calculationMethodKey) }}</td>
+              <td>{{ calcRuleLabel(item.calculationRuleKey) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="pc-pick-modal__foot">
+      <button type="button" class="pc-pick-modal__select" (click)="confirmPickPackage()" [disabled]="!pickPackageSelected.size">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackageGroupsPickConfirm" />
+      </button>
+      <button type="button" class="pc-pick-modal__cancel" (click)="closePickPackage()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </div>
+</div>

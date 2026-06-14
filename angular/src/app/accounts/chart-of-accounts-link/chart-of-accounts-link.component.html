@@ -1,0 +1,177 @@
+<div class="hc-page coa-page" dir="rtl">
+  <section class="coa-hero">
+    <div class="coa-hero__main">
+      <div class="coa-hero__icon" aria-hidden="true">
+        <i class="fas fa-code"></i>
+      </div>
+      <div>
+        <h1><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="pageTitle" /></h1>
+        <p><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="pageSubtitle" /></p>
+      </div>
+    </div>
+    <div class="coa-hero__stat">
+      <strong>{{ totalAccounts() | localeNumber:'int' }}</strong>
+      <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="totalAccounts" /></span>
+    </div>
+  </section>
+
+  <section class="coa-new-card">
+    <button type="button" class="coa-new-card__btn" (click)="openCreate()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+    </button>
+    <div>
+      <strong><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="newLabel" /></strong>
+      <p><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="newHint" /></p>
+    </div>
+  </section>
+
+  <section class="hc-page__panel coa-panel">
+    <header class="coa-panel__head">
+      <h2>
+        <i class="fas fa-th" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="listTitle" />
+      </h2>
+      <div class="hc-page__search coa-panel__search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="label('searchPh')" />
+      </div>
+    </header>
+
+    <div class="hc-page__empty coa-empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-inbox" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="emptyTitle" /></p>
+      <small><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="emptyHint" /></small>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="filteredRows().length">
+      <table class="hc-page__table coa-table">
+        <thead>
+          <tr>
+            <th class="coa-col-serial">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colSerial" />
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('accountNumber')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colAccountNumber" />
+              <i class="fas" [ngClass]="sortIcon('accountNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('accountName')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colAccountName" />
+              <i class="fas" [ngClass]="sortIcon('accountName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('accountReference')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colAccountReference" />
+              <i class="fas" [ngClass]="sortIcon('accountReference')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('operationCode')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colOperationCode" />
+              <i class="fas" [ngClass]="sortIcon('operationCode')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('costCenter')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colCostCenter" />
+              <i class="fas" [ngClass]="sortIcon('costCenter')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('subAccount')">
+              <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="colSubAccount" />
+              <i class="fas" [ngClass]="sortIcon('subAccount')" aria-hidden="true"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows(); let i = index">
+            <td class="coa-col-serial">{{ i + 1 }}</td>
+            <td dir="ltr">{{ row.accountNumber }}</td>
+            <td>{{ row.accountName }}</td>
+            <td>{{ displayValue(row.accountReference) }}</td>
+            <td dir="ltr">{{ displayValue(row.operationCode) }}</td>
+            <td>{{ displayValue(row.costCenter) }}</td>
+            <td>{{ displayValue(row.subAccount) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="hc-modal coa-modal" *ngIf="modalOpen" role="dialog" aria-modal="true">
+  <div class="hc-modal__backdrop" (click)="closeModal()"></div>
+  <form class="hc-modal__card coa-modal__card" (ngSubmit)="saveLink()">
+    <header class="hc-modal__head coa-modal__head">
+      <h3><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="modalTitle" /></h3>
+      <button type="button" class="hc-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="hc-modal__body coa-modal__form">
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldAccountReference" /></span>
+        <div class="coa-field">
+          <i class="fas fa-sitemap" aria-hidden="true"></i>
+          <select [(ngModel)]="form.accountReference" name="accountReference">
+            <option value=""></option>
+            <option *ngFor="let opt of accountReferenceOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldOperationCode" /></span>
+        <div class="coa-field">
+          <i class="fas fa-barcode" aria-hidden="true"></i>
+          <select [(ngModel)]="form.operationCode" name="operationCode">
+            <option value=""></option>
+            <option *ngFor="let opt of operationCodeOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldAccountNumber" /></span>
+        <div class="coa-field">
+          <i class="fas fa-hashtag" aria-hidden="true"></i>
+          <select [(ngModel)]="form.accountNumber" name="accountNumber">
+            <option value=""></option>
+            <option *ngFor="let opt of accountNumberOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldSubAccount" /></span>
+        <div class="coa-field">
+          <i class="fas fa-list" aria-hidden="true"></i>
+          <select [(ngModel)]="form.subAccount" name="subAccount">
+            <option value=""></option>
+            <option *ngFor="let opt of subAccountOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldAccountName" /></span>
+        <div class="coa-field">
+          <i class="fas fa-font" aria-hidden="true"></i>
+          <input type="text" [(ngModel)]="form.accountName" name="accountName" />
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="chartOfAccountsLink" key="fieldCostCenter" /></span>
+        <div class="coa-field">
+          <i class="fas fa-building" aria-hidden="true"></i>
+          <select [(ngModel)]="form.costCenter" name="costCenter">
+            <option value=""></option>
+            <option *ngFor="let opt of costCenterOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+    </div>
+    <footer class="hc-modal__foot coa-modal__foot">
+      <button type="button" class="coa-btn coa-btn--outline" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="cancelBtn" />
+      </button>
+      <button type="submit" class="coa-btn coa-btn--primary" [disabled]="saving">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="chartOfAccountsLink" key="saveBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,26 @@
+<div class="hkrc-page" dir="rtl">
+  <header class="hkrc-page-head">
+    <div class="hkrc-page-head__icon" aria-hidden="true">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="hkrc-page-head__text">
+      <h1 class="hkrc-page-head__title"><ui-inline-text kind="screen" screen="hkRoomConflicts" key="pageTitle" /></h1>
+      <p class="hkrc-page-head__desc"><ui-inline-text kind="screen" screen="hkRoomConflicts" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <section class="hkrc-content" *ngIf="!hasConflicts; else conflictsList">
+    <div class="hkrc-empty">
+      <div class="hkrc-empty__icon" aria-hidden="true">
+        <i class="fas fa-check"></i>
+      </div>
+      <p class="hkrc-empty__text"><ui-inline-text kind="screen" screen="hkRoomConflicts" key="emptyMessage" /></p>
+    </div>
+  </section>
+
+  <ng-template #conflictsList>
+    <section class="hkrc-content">
+      <p class="hkrc-placeholder"><ui-inline-text kind="screen" screen="hkRoomConflicts" key="listPlaceholder" /></p>
+    </section>
+  </ng-template>
+</div>

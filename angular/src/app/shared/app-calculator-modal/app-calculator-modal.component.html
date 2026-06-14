@@ -1,0 +1,25 @@
+<div class="calc-modal" role="dialog" [attr.aria-label]="ui.chromeLabel('calculatorTitle')">
+  <header class="calc-modal__head">
+    <h2 class="calc-modal__title"><ui-inline-text kind="chrome" key="calculatorTitle" /></h2>
+    <button type="button" class="calc-modal__close" (click)="close()" [attr.aria-label]="ui.chromeLabel('calculatorCloseAria')">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <div class="calc-modal__body">
+    <output class="calc-modal__display" dir="ltr">{{ display }}</output>
+    <div class="calc-modal__keys">
+      <button
+        type="button"
+        class="calc-modal__key"
+        *ngFor="let btn of buttons"
+        [class.calc-modal__key--wide]="btn.wide"
+        [class.calc-modal__key--operator]="btn.type === 'operator'"
+        [class.calc-modal__key--equals]="btn.type === 'equals'"
+        [class.calc-modal__key--action]="btn.type === 'action'"
+        (click)="onButton(btn)">
+        {{ btn.label }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,139 @@
+<div class="ac-page" dir="rtl">
+  <section class="ac-page__panel">
+    <header class="ac-page__hero">
+      <div class="ac-page__hero-text">
+        <h2><ui-inline-text kind="screen" screen="settings" key="agentCommissionsTitle" /></h2>
+        <p><ui-inline-text kind="screen" screen="settings" key="agentCommissionsSubtitle" /></p>
+      </div>
+      <div class="ac-page__hero-icon" aria-hidden="true">
+        <i class="fas fa-percent"></i>
+      </div>
+    </header>
+
+    <div class="ac-page__toolbar">
+      <button type="button" class="ac-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="agentCommissionsAdd" />
+      </button>
+
+      <label class="ac-page__search">
+        <span><ui-inline-text kind="screen" screen="settings" key="agentCommissionsSearchLabel" /></span>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="ui.screenText('settings', 'agentCommissionsSearchPh')" />
+      </label>
+    </div>
+
+    <div class="ac-page__table-wrap">
+      <table class="ac-page__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColSerial" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColPlanName" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColCode" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColDescription" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColAmountType" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColAmount" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColPercentage" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColPerNight" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColPerStay" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="agentCommissionsColAccount" /></th>
+            <th class="ac-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="agentCommissionsColActions" />
+            </th>
+          </tr>
+          <tr class="ac-page__filters">
+            <th></th>
+            <th></th>
+            <th>
+              <div class="ac-page__filter-field">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterCode" />
+              </div>
+            </th>
+            <th>
+              <div class="ac-page__filter-field">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterDescription" />
+              </div>
+            </th>
+            <th>
+              <select [(ngModel)]="filterAmountType">
+                <option value="all"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterAll" /></option>
+                <option value="Percentage">Percentage</option>
+              </select>
+            </th>
+            <th>
+              <div class="ac-page__filter-field">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterAmount" />
+              </div>
+            </th>
+            <th>
+              <div class="ac-page__filter-field">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterPercentage" />
+              </div>
+            </th>
+            <th>
+              <select [(ngModel)]="filterPerNight">
+                <option value="all"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterAllParen" /></option>
+                <option value="yes"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterYes" /></option>
+                <option value="no"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterNo" /></option>
+              </select>
+            </th>
+            <th>
+              <select [(ngModel)]="filterPerStay">
+                <option value="all"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterAllParen" /></option>
+                <option value="yes"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterYes" /></option>
+                <option value="no"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterNo" /></option>
+              </select>
+            </th>
+            <th>
+              <select [(ngModel)]="filterAccount">
+                <option value="all"><ui-inline-text kind="screen" screen="settings" key="agentCommissionsFilterAllParen" /></option>
+              </select>
+            </th>
+            <th *ngIf="canEdit"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!filteredRows().length">
+            <td class="ac-page__empty" [attr.colspan]="canEdit ? 11 : 10">
+              <ui-inline-text kind="screen" screen="settings" key="agentCommissionsEmpty" />
+            </td>
+          </tr>
+          <tr *ngFor="let row of filteredRows()">
+            <td>{{ row.serial }}</td>
+            <td>{{ row.planName }}</td>
+            <td dir="ltr">{{ row.code }}</td>
+            <td>{{ row.description }}</td>
+            <td dir="ltr">{{ row.amountType }}</td>
+            <td>{{ row.amount }}</td>
+            <td>{{ row.percentage }}</td>
+            <td class="ac-page__check">
+              <input type="checkbox" [checked]="row.perNight" disabled />
+            </td>
+            <td class="ac-page__check">
+              <input type="checkbox" [checked]="row.perStay" disabled />
+            </td>
+            <td>{{ row.account || '' }}</td>
+            <td class="ac-page__col-actions" *ngIf="canEdit">
+              <div class="ac-page__actions">
+                <button
+                  type="button"
+                  class="ac-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'agentCommissionsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

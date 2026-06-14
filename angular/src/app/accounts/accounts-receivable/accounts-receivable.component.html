@@ -1,0 +1,191 @@
+<div class="hc-page ara-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="label('searchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="accountsReceivable" key="filterType" /></span>
+          <select [(ngModel)]="typeFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="accountsReceivable" key="filterAll" /></option>
+            <option value="guest"><ui-inline-text kind="screen" screen="accountsReceivable" key="accountTypeGuest" /></option>
+            <option value="company"><ui-inline-text kind="screen" screen="accountsReceivable" key="accountTypeCompany" /></option>
+            <option value="agent"><ui-inline-text kind="screen" screen="accountsReceivable" key="accountTypeAgent" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="label('viewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="label('viewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="label('viewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-coins" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="accountsReceivable" key="empty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap ara-table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table ara-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('accountNumber')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colAccountNumber" />
+              <i class="fas" [ngClass]="sortIcon('accountNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('countryCode')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colCountryCode" />
+              <i class="fas" [ngClass]="sortIcon('countryCode')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('cityCode')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colCityCode" />
+              <i class="fas" [ngClass]="sortIcon('cityCode')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('mobile')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colMobile" />
+              <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+            </th>
+            <th class="ara-check">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colMain" />
+            </th>
+            <th class="ara-check">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colActive" />
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('accountType')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colAccountType" />
+              <i class="fas" [ngClass]="sortIcon('accountType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ara-balance-col" (click)="toggleSort('balance')">
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="colBalance" />
+              <i class="fas" [ngClass]="sortIcon('balance')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" aria-hidden="true"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ displayValue(row.foreignName) }}</td>
+            <td dir="ltr">{{ row.accountNumber }}</td>
+            <td dir="ltr">{{ displayValue(row.countryCode) }}</td>
+            <td dir="ltr">{{ displayValue(row.cityCode) }}</td>
+            <td dir="ltr">{{ displayValue(row.mobile) }}</td>
+            <td class="ara-check">
+              <input type="checkbox" [checked]="row.isMain" disabled />
+            </td>
+            <td class="ara-check">
+              <input type="checkbox" [checked]="row.isActive" disabled />
+            </td>
+            <td>{{ accountTypeLabel(row.accountType) }}</td>
+            <td class="ara-balance-col">
+              <span [ngClass]="balanceClass(row.balance)">{{ row.balance | localeNumber:'int' }}</span>
+            </td>
+            <td class="hc-page__col-actions">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="label('menuAria')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="accountsReceivable" key="actionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="accountsReceivable" key="actionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hc-page__grid" *ngIf="viewMode === 'grid' && filteredRows().length">
+      <article class="hc-page__card ara-card" *ngFor="let row of filteredRows()">
+        <div class="hc-page__card-head">
+          <strong class="hc-page__card-code" dir="ltr">{{ row.code }}</strong>
+          <button
+            type="button"
+            class="hc-page__actions-btn"
+            (click)="toggleActionsMenu(row.id, $event)"
+            [attr.aria-expanded]="openActionsId === row.id"
+            [attr.aria-label]="label('menuAria')">
+            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+          </button>
+          <div class="hc-page__menu hc-page__menu--card" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+            <button type="button">
+              <i class="fas fa-pen" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="actionEdit" />
+            </button>
+            <button type="button" class="hc-page__menu-danger">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="accountsReceivable" key="actionDelete" />
+            </button>
+          </div>
+        </div>
+        <h3>{{ row.name }}</h3>
+        <p dir="ltr" *ngIf="row.foreignName">{{ row.foreignName }}</p>
+        <dl class="ara-card__meta">
+          <div>
+            <dt><ui-inline-text kind="screen" screen="accountsReceivable" key="colAccountNumber" /></dt>
+            <dd dir="ltr">{{ row.accountNumber }}</dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="accountsReceivable" key="colCityCode" /></dt>
+            <dd dir="ltr">{{ displayValue(row.cityCode) }}</dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="accountsReceivable" key="colAccountType" /></dt>
+            <dd>{{ accountTypeLabel(row.accountType) }}</dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="accountsReceivable" key="colBalance" /></dt>
+            <dd><span [ngClass]="balanceClass(row.balance)">{{ row.balance | localeNumber:'int' }}</span></dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+</div>

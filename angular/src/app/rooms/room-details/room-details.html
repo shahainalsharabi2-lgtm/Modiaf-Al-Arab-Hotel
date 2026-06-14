@@ -1,0 +1,88 @@
+<div class="details-page glass-card" *ngIf="room">
+  <div class="details-header">
+    <div class="back-link" (click)="goBack()">
+      <i class="fas fa-arrow-right"></i> <ui-inline-text kind="screen" screen="roomDetails" key="backToRooms" />
+    </div>
+    <h1><ui-inline-text kind="screen" screen="roomDetails" key="pageTitle" /> {{ room?.roomNumber }}</h1>
+    <span class="status-badge" [ngClass]="room!.status">{{ getStatusText(room!.status) }}</span>
+  </div>
+
+  <div class="details-content">
+    <div class="info-grid">
+      <div class="info-item">
+        <label><ui-inline-text kind="screen" screen="roomDetails" key="typeLabel" /></label>
+        <div class="value">{{ room?.type }}</div>
+      </div>
+      <div class="info-item">
+        <label><ui-inline-text kind="screen" screen="roomDetails" key="floorLabel" /></label>
+        <div class="value">{{ room?.floor }}</div>
+      </div>
+      <div class="info-item">
+        <label><ui-inline-text kind="screen" screen="roomDetails" key="priceLabel" /></label>
+        <div class="value highlight">{{ room?.price }} {{ priceSymbol() }}</div>
+      </div>
+      <div class="info-item">
+        <label><ui-inline-text kind="screen" screen="roomDetails" key="idLabel" /></label>
+        <div class="value">#{{ room?.id }}</div>
+      </div>
+    </div>
+
+    <div class="status-box" [ngClass]="room!.status">
+      <div class="status-icon">
+        <i class="fas" [ngClass]="{
+          'fa-broom': room?.status === 'available',
+          'fa-user-tag': room?.status === 'occupied',
+          'fa-spray-can': room?.status === 'dirty',
+          'fa-screwdriver-wrench': room?.status === 'maintenance',
+          'fa-hand-paper': room?.status === 'suspended'
+        }"></i>
+      </div>
+      <div class="status-info">
+        <h3>هذه الغرفة حالياً {{ getStatusText(room!.status) }}</h3>
+        <p *ngIf="room?.status === 'available'"><ui-inline-text kind="screen" screen="roomDetails" key="statusAvailableDesc" /></p>
+        <p *ngIf="room?.status === 'dirty'"><ui-inline-text kind="screen" screen="roomDetails" key="statusDirtyDesc" /></p>
+        <p *ngIf="room?.status === 'occupied'"><ui-inline-text kind="screen" screen="roomDetails" key="statusOccupiedDesc" /></p>
+        <p *ngIf="room?.status === 'maintenance'"><ui-inline-text kind="screen" screen="roomDetails" key="statusMaintenanceDesc" /></p>
+        <p *ngIf="room?.status === 'suspended'"><ui-inline-text kind="screen" screen="roomDetails" key="statusSuspendedDesc" /></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-actions">
+    <!-- ── Status Quick-Change Panel ── -->
+    <div class="status-controls">
+      <span class="controls-label"><i class="fas fa-exchange-alt"></i> <ui-inline-text kind="screen" screen="roomDetails" key="changeStatusLabel" /></span>
+      <button class="status-btn available" [class.active]="room?.status === 'available'"
+        [disabled]="isSaving || room?.status === 'available'" (click)="changeStatus('available')">
+        <i class="fas fa-broom"></i> <ui-inline-text kind="screen" screen="roomDetails" key="btnClean" />
+      </button>
+      <button class="status-btn dirty" [class.active]="room?.status === 'dirty'"
+        [disabled]="isSaving || room?.status === 'dirty'" (click)="changeStatus('dirty')">
+        <i class="fas fa-spray-can"></i> <ui-inline-text kind="screen" screen="roomDetails" key="btnDirty" />
+      </button>
+      <button class="status-btn maintenance" [class.active]="room?.status === 'maintenance'"
+        [disabled]="isSaving || room?.status === 'maintenance'" (click)="changeStatus('maintenance')">
+        <i class="fas fa-screwdriver-wrench"></i> <ui-inline-text kind="screen" screen="roomDetails" key="btnMaintenance" />
+      </button>
+      <button class="status-btn suspended" [class.active]="room?.status === 'suspended'"
+        [disabled]="isSaving || room?.status === 'suspended'" (click)="changeStatus('suspended')">
+        <i class="fas fa-hand-paper"></i> <ui-inline-text kind="screen" screen="roomDetails" key="btnSuspended" />
+      </button>
+      <span *ngIf="isSaving" class="saving-indicator">
+        <i class="fas fa-spinner fa-spin"></i> <ui-inline-text kind="screen" screen="roomDetails" key="saving" />
+      </span>
+    </div>
+
+    <button class="edit-btn" (click)="goToEdit()">
+      <i class="fas fa-edit"></i> <ui-inline-text kind="screen" screen="roomDetails" key="editData" />
+    </button>
+    <button class="booking-btn" *ngIf="room?.status === 'available'" (click)="goToBooking()">
+      <i class="fas fa-calendar-plus"></i> <ui-inline-text kind="screen" screen="roomDetails" key="newBooking" />
+    </button>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-state">
+  <div class="spinner"></div>
+  <p><ui-inline-text kind="screen" screen="roomDetails" key="loading" /></p>
+</div>

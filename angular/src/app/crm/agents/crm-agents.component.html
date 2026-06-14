@@ -1,0 +1,113 @@
+<div class="ca-page">
+  <div *ngIf="loading" class="ca-state ca-state--loading">
+    <div class="ca-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="crmAgents" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="ca-state ca-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="ca-btn ca-btn--outline" (click)="loadRows()"><ui-inline-text kind="screen" screen="crmAgents" key="retryLoad" /></button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <header class="ca-toolbar">
+      <div class="ca-toolbar__actions">
+        <button type="button" class="ca-btn ca-btn--outline" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmAgents" key="importExport" />
+        </button>
+        <button type="button" class="ca-btn ca-btn--outline" (click)="addAgent()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmAgents" key="addAgent" />
+        </button>
+
+        <label class="ca-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="crmAgents" key="filterAll" /></option>
+            <option value="withMobile"><ui-inline-text kind="screen" screen="crmAgents" key="filterWithMobile" /></option>
+            <option value="withForeignName"><ui-inline-text kind="screen" screen="crmAgents" key="filterWithForeignName" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="ca-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </div>
+
+      <div class="ca-toolbar__views">
+        <button type="button" class="ca-view-btn" [class.ca-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.title]="label('viewGrid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="ca-view-btn" [class.ca-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.title]="label('viewTable')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <section *ngIf="viewMode === 'table'" class="ca-table-card">
+      <div class="ca-table-wrap">
+        <table class="ca-table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="ca-sort" (click)="toggleSort('name')">
+                  <span><ui-inline-text kind="screen" screen="crmAgents" key="colName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ca-sort" (click)="toggleSort('foreignName')">
+                  <span><ui-inline-text kind="screen" screen="crmAgents" key="colForeignName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ca-sort" (click)="toggleSort('mobile')">
+                  <span><ui-inline-text kind="screen" screen="crmAgents" key="colMobile" /></span>
+                  <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ca-sort" (click)="toggleSort('email')">
+                  <span><ui-inline-text kind="screen" screen="crmAgents" key="colEmail" /></span>
+                  <i class="fas" [ngClass]="sortIcon('email')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th class="ca-col-actions"><ui-inline-text kind="screen" screen="crmAgents" key="colActions" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+              <td>{{ cellValue(row.name) }}</td>
+              <td>{{ cellValue(row.foreignName) }}</td>
+              <td dir="ltr">{{ cellValue(row.mobile) | localeNumber }}</td>
+              <td>{{ cellValue(row.email) }}</td>
+              <td class="ca-col-actions">
+                <button type="button" class="ca-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredRows.length === 0">
+              <td colspan="5" class="ca-empty"><ui-inline-text kind="screen" screen="crmAgents" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section *ngIf="viewMode === 'grid'" class="ca-grid">
+      <article *ngFor="let row of filteredRows; trackBy: trackRow" class="ca-grid-card">
+        <h3>{{ cellValue(row.name) }}</h3>
+        <dl>
+          <div><dt><ui-inline-text kind="screen" screen="crmAgents" key="colForeignName" /></dt><dd>{{ cellValue(row.foreignName) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmAgents" key="colMobile" /></dt><dd dir="ltr">{{ cellValue(row.mobile) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmAgents" key="colEmail" /></dt><dd>{{ cellValue(row.email) }}</dd></div>
+        </dl>
+      </article>
+      <p *ngIf="filteredRows.length === 0" class="ca-grid-empty"><ui-inline-text kind="screen" screen="crmAgents" key="emptyRows" /></p>
+    </section>
+  </ng-container>
+</div>

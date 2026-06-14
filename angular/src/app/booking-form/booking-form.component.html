@@ -1,0 +1,1367 @@
+<div class="booking-page" [class.booking-page--reservation]="reservationMode">
+  <div class="stars-container">
+    <div class="star" *ngFor="let s of stars" [style.top.%]="s.top" [style.left.%]="s.left"
+      [style.animation-delay.s]="s.delay"></div>
+  </div>
+
+  <div class="glass-card" [class.glass-card--walkin]="walkInCheckInMode" [class.glass-card--reservation]="reservationMode">
+    <form
+      [formGroup]="bookingForm"
+      (ngSubmit)="onSubmit()"
+      class="modern-form"
+      [class.modern-form--walkin]="walkInCheckInMode"
+      [class.modern-form--reservation]="reservationMode">
+
+      <ng-container *ngIf="reservationMode">
+<div class="nb-reservation">
+  <section class="nb-section">
+    <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="guestPaneTitle" /></h2>
+    <div class="nb-grid nb-grid--4">
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbAccountType" /></label>
+        <select class="nb-control" formControlName="account_Type">
+          <option value="personal"><ui-inline-text kind="screen" screen="booking" key="nbAccountPersonal" /></option>
+          <option value="company"><ui-inline-text kind="screen" screen="booking" key="nbAccountCompany" /></option>
+        </select>
+      </div>
+
+      <div class="nb-field nb-field--span-2 guest-name-picker-wrap" (click)="$event.stopPropagation()">
+        <label><ui-inline-text kind="screen" screen="booking" key="guestFullNameLabel" /></label>
+        <div
+          class="nb-composite"
+          [class.nb-composite--open]="guestPickerOpen"
+          [class.nb-composite--error]="submitted && bookingForm.get('guest_Full_Name')?.invalid">
+          <button
+            type="button"
+            class="nb-btn nb-btn--add"
+            (click)="openGuestProfileModal($event)"
+            [attr.aria-label]="ui.screenText('booking', 'guestAddPlusAria')">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+          </button>
+          <input
+            type="search"
+            class="nb-control nb-control--flat"
+            formControlName="guest_Full_Name"
+            [placeholder]="ui.screenText('booking', 'nbSearchGuestPh')"
+            (focus)="onGuestNameFieldFocus()"
+            (input)="onGuestNameFieldInput()" />
+          <button
+            type="button"
+            class="nb-btn nb-btn--search"
+            (click)="toggleGuestPicker($event)"
+            [attr.aria-label]="ui.screenText('booking', 'guestPickAria')">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="guest-picker-panel" *ngIf="guestPickerOpen" (click)="$event.stopPropagation()">
+          <p class="guest-picker-hint" *ngIf="guestPickerLoading"><ui-inline-text kind="screen" screen="booking" key="guestPickLoading" /></p>
+          <p class="guest-picker-hint" *ngIf="!guestPickerLoading && !filteredKnownGuests.length"><ui-inline-text kind="screen" screen="booking" key="guestPickEmpty" /></p>
+          <ul class="guest-picker-list" *ngIf="!guestPickerLoading && filteredKnownGuests.length">
+            <li *ngFor="let g of filteredKnownGuests">
+              <button type="button" class="guest-picker-item" (click)="selectKnownGuest(g)">
+                <span class="guest-picker-item-name">{{ g.fullName }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="field-error" *ngIf="submitted && bookingForm.get('guest_Full_Name')?.invalid">
+          <i class="fas fa-exclamation-circle"></i>
+          <span><ui-inline-text kind="screen" screen="booking" key="guestFullNameRequired" /></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="bookingTypeLabel" /></label>
+        <div class="nb-composite nb-composite--select">
+          <select class="nb-control nb-control--flat" formControlName="booking_Kind" (change)="onReservationBookingKindChange()">
+            <option *ngFor="let opt of bookingKindOptions" [value]="opt.id">
+              <ui-inline-text kind="screen" screen="booking" [key]="opt.labelKey" />
+            </option>
+          </select>
+          <button type="button" class="nb-btn nb-btn--clear" (click)="clearBookingKind($event)" *ngIf="selectedBookingKindLabel">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="priceCodeLabel" /></label>
+        <div class="nb-composite">
+          <button type="button" class="nb-btn nb-btn--calendar" [attr.aria-label]="ui.screenText('booking', 'nbPriceCalendarAria')">
+            <i class="fas fa-calendar-check" aria-hidden="true"></i>
+          </button>
+          <select class="nb-control nb-control--flat" formControlName="price_Code">
+            <option value=""><ui-inline-text kind="screen" screen="booking" key="nbChoosePricePlan" /></option>
+            <option *ngFor="let item of priceCodeOptions" [value]="item.name">{{ item.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbSeason" /></label>
+        <select class="nb-control" formControlName="season">
+          <option value=""><ui-inline-text kind="screen" screen="booking" key="optionalField" /></option>
+        </select>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbMarketCode" /></label>
+        <div class="nb-composite nb-composite--select">
+          <select class="nb-control nb-control--flat" formControlName="market_Code">
+            <option value=""><ui-inline-text kind="screen" screen="booking" key="optionalField" /></option>
+          </select>
+          <button type="button" class="nb-btn nb-btn--clear" *ngIf="bookingForm.get('market_Code')?.value" (click)="clearReservationField('market_Code')">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="bookingSourceLabel" /></label>
+        <select class="nb-control" formControlName="booking_Source">
+          <option *ngFor="let opt of bookingSourceOptions" [value]="opt.id">
+            <ui-inline-text kind="screen" screen="booking" [key]="opt.labelKey" />
+          </option>
+        </select>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="purposeOfStayLabel" /></label>
+        <select class="nb-control" formControlName="purpose_Of_Stay">
+          <option value=""><ui-inline-text kind="screen" screen="booking" key="optionalField" /></option>
+          <option *ngFor="let item of purposeOfStayOptions" [value]="item.name">{{ item.name }}</option>
+        </select>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbRepresentatives" /></label>
+        <select class="nb-control" formControlName="representatives">
+          <option value=""><ui-inline-text kind="screen" screen="booking" key="nbRepresentatives" /></option>
+        </select>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="walkInEmployeeLabel" /></label>
+        <select class="nb-control" disabled>
+          <option>{{ reservationEmployeeName() }}</option>
+        </select>
+      </div>
+
+      <div class="nb-field nb-field--checkbox">
+        <label class="nb-checkbox">
+          <input type="checkbox" formControlName="vip_Guest" />
+          <span><ui-inline-text kind="screen" screen="booking" key="nbVipGuest" /></span>
+        </label>
+      </div>
+
+      <div class="nb-field nb-field--span-2">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbAgent" /></label>
+        <div class="nb-composite">
+          <button type="button" class="nb-btn nb-btn--add" [attr.aria-label]="ui.screenText('booking', 'nbAddAgent')">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+          </button>
+          <input type="search" class="nb-control nb-control--flat" formControlName="agent_Search" [placeholder]="ui.screenText('booking', 'nbSearchGuestPh')" />
+          <button type="button" class="nb-btn nb-btn--search" [attr.aria-label]="ui.screenText('booking', 'nbSearchAgent')">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbExternalBookingNo" /></label>
+        <div class="nb-composite nb-composite--icon-end">
+          <input type="text" class="nb-control nb-control--flat" formControlName="external_Booking_Number" />
+          <span class="nb-input-icon"><i class="fas fa-link" aria-hidden="true"></i></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbNusukAgreement" /></label>
+        <div class="nb-composite nb-composite--icon-end">
+          <input type="text" class="nb-control nb-control--flat" formControlName="nusuk_Agreement" />
+          <span class="nb-input-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nb-section">
+    <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="nbBookingDetailsTitle" /></h2>
+    <div class="nb-grid nb-grid--4">
+      <div class="nb-field">
+        <label><i class="fas fa-hotel nb-label-icon" aria-hidden="true"></i> <ui-inline-text kind="screen" screen="booking" key="nbHotel" /></label>
+        <select class="nb-control" disabled>
+          <option>{{ reservationHotelName() }}</option>
+        </select>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbArrival" /></label>
+        <div class="nb-composite">
+          <input type="date" class="nb-control nb-control--flat" formControlName="booking_Date" (change)="onReservationArrivalChange()" />
+          <span class="nb-btn nb-btn--calendar nb-btn--static"><i class="fas fa-calendar-check" aria-hidden="true"></i></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbArrivalTime" /></label>
+        <div class="nb-composite nb-composite--icon-end">
+          <input type="time" class="nb-control nb-control--flat" formControlName="booking_Time" />
+          <span class="nb-input-icon"><i class="far fa-clock" aria-hidden="true"></i></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbDeparture" /></label>
+        <div class="nb-composite">
+          <input type="date" class="nb-control nb-control--flat" [value]="reservationDepartureDate()" readonly tabindex="-1" />
+          <span class="nb-btn nb-btn--calendar nb-btn--static"><i class="fas fa-calendar-check" aria-hidden="true"></i></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbDepartureTime" /></label>
+        <div class="nb-composite nb-composite--icon-end">
+          <input type="time" class="nb-control nb-control--flat" formControlName="departure_Time" />
+          <span class="nb-input-icon"><i class="far fa-clock" aria-hidden="true"></i></span>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="nbNights" /></label>
+        <div class="nb-stepper">
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('stay_Days', -1, 1)">?</button>
+          <input type="number" class="nb-stepper-value" formControlName="stay_Days" min="1" (change)="onReservationNightsChange()" />
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('stay_Days', 1, 1)">+</button>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="adultsLabel" /></label>
+        <div class="nb-stepper">
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('adults_Count', -1, 1)">?</button>
+          <input type="number" class="nb-stepper-value" formControlName="adults_Count" min="1" />
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('adults_Count', 1, 1)">+</button>
+        </div>
+      </div>
+
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="childrenLabel" /></label>
+        <div class="nb-stepper">
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('children_Count', -1, 0)">?</button>
+          <input type="number" class="nb-stepper-value" formControlName="children_Count" min="0" />
+          <button type="button" class="nb-stepper-btn" (click)="stepReservationField('children_Count', 1, 0)">+</button>
+        </div>
+      </div>
+
+      <div class="nb-field nb-field--span-2">
+        <label><ui-inline-text kind="screen" screen="booking" key="roomNumberLabel" /></label>
+        <div class="nb-composite nb-composite--select">
+          <select class="nb-control nb-control--flat" formControlName="room_Number" (change)="onRoomSelect($event)">
+            <option value="" disabled><ui-inline-text kind="screen" screen="booking" key="chooseRoom" /></option>
+            <option *ngFor="let room of availableRooms" [value]="room.roomNumber">
+              <ui-inline-text kind="screen" screen="booking" key="roomOptionPrefix" /> {{ room.roomNumber }} ({{ room.type }})
+            </option>
+          </select>
+          <button type="button" class="nb-btn nb-btn--search" (click)="goPickRoomFromChart()" [attr.aria-label]="ui.screenText('booking', 'pickRoomFromChartAria')">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nb-section">
+    <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="nbRoomDetailsTitle" /></h2>
+    <div class="nb-grid nb-grid--4">
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="roomTypeLabel" /></label>
+        <select class="nb-control" disabled>
+          <option>{{ reservationRoomDetail(selectedRoom?.type) }}</option>
+        </select>
+      </div>
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="priceLabel" /></label>
+        <div class="nb-composite">
+          <input type="text" class="nb-control nb-control--flat" [value]="reservationRoomPriceText()" readonly tabindex="-1" />
+          <span class="nb-btn nb-btn--calendar nb-btn--static">{{ priceCurrencySymbol() }}</span>
+        </div>
+      </div>
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="adultsLabel" /></label>
+        <input type="text" class="nb-control" [value]="bookingForm.get('adults_Count')?.value || 0" readonly tabindex="-1" />
+      </div>
+      <div class="nb-field">
+        <label><ui-inline-text kind="screen" screen="booking" key="childrenLabel" /></label>
+        <input type="text" class="nb-control" [value]="bookingForm.get('children_Count')?.value || 0" readonly tabindex="-1" />
+      </div>
+    </div>
+
+    <div class="nb-data-table nb-data-table--room">
+      <div class="nb-data-table__head nb-data-table__head--room">
+        <span><ui-inline-text kind="screen" screen="booking" key="roomTypeLabel" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbNights" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbGuestCount" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="priceLabel" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbTotal" /></span>
+      </div>
+      <div class="nb-data-table__row nb-data-table__row--room" *ngIf="selectedRoom; else nbNoRoomDetails">
+        <span>{{ reservationRoomDetail(selectedRoom?.type) }}</span>
+        <span>{{ bookingForm.get('stay_Days')?.value || 1 }}</span>
+        <span>{{ reservationGuestCount() }}</span>
+        <span dir="ltr">{{ reservationRoomPriceText() }}</span>
+        <span dir="ltr">{{ reservationTotalText() }}</span>
+      </div>
+      <ng-template #nbNoRoomDetails>
+        <div class="nb-data-table__empty">
+          <ui-inline-text kind="screen" screen="booking" key="nbNoData" />
+        </div>
+      </ng-template>
+    </div>
+  </section>
+
+  <section class="nb-section">
+    <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="nbPackagesTitle" /></h2>
+    <div class="nb-data-table">
+      <div class="nb-data-table__head nb-data-table__head--packages">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPackageCode" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPackageItem" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbQuantity" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbTotal" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbCalculationMethod" /></span>
+      </div>
+      <div class="nb-data-table__empty">
+        <ui-inline-text kind="screen" screen="booking" key="nbNoData" />
+      </div>
+    </div>
+  </section>
+
+  <section class="nb-section">
+    <div class="nb-section-head">
+      <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="nbAdvancePoliciesTitle" /></h2>
+      <button type="button" class="nb-icon-btn" [attr.aria-label]="ui.screenText('booking', 'nbAddPolicy')">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="nb-data-table">
+      <div class="nb-data-table__head nb-data-table__head--policies">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPolicy" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPercentage" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbAdvanceAmount" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbDueDate" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="guestNotesLabel" /></span>
+      </div>
+      <div class="nb-data-table__empty">
+        <ui-inline-text kind="screen" screen="booking" key="nbNoData" />
+      </div>
+      <div class="nb-data-table__total">
+        <ui-inline-text kind="screen" screen="booking" key="nbTotal" />: 0
+      </div>
+    </div>
+  </section>
+
+  <section class="nb-section nb-section--payment">
+    <div class="nb-section-head">
+      <h2 class="nb-section-title"><ui-inline-text kind="screen" screen="booking" key="walkInPaymentTitle" /></h2>
+      <button type="button" class="nb-icon-btn" (click)="addReservationPaymentLine()" [attr.aria-label]="ui.screenText('booking', 'nbAddPayment')">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="nb-payment-table">
+      <div class="nb-payment-table__head">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPaymentAmount" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPaymentCurrency" /></span>
+        <span><ui-inline-text kind="screen" screen="booking" key="paymentMethodLabel" /></span>
+        <span class="nb-payment-table__actions"></span>
+      </div>
+      <div class="nb-payment-table__empty" *ngIf="!reservationPaymentLines.length">
+        <ui-inline-text kind="screen" screen="booking" key="nbNoData" />
+      </div>
+      <div class="nb-payment-table__row" *ngFor="let line of reservationPaymentLines; let i = index">
+        <input type="number" class="nb-control" min="0" [value]="line.amount" (input)="updateReservationPaymentLine(i, 'amount', $event)" />
+        <select class="nb-control" [value]="line.currency" (change)="updateReservationPaymentLine(i, 'currency', $event)">
+          <option [value]="priceCurrencySymbol()">{{ priceCurrencySymbol() }}</option>
+        </select>
+        <select class="nb-control" [value]="line.method" (change)="updateReservationPaymentLine(i, 'method', $event)">
+          <option value=""><ui-inline-text kind="screen" screen="booking" key="optionalField" /></option>
+          <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+        </select>
+        <button type="button" class="nb-icon-btn nb-icon-btn--danger" (click)="removeReservationPaymentLine(i)">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="nb-notes-panel" *ngIf="reservationNotesOpen">
+      <label><ui-inline-text kind="screen" screen="booking" key="guestNotesLabel" /></label>
+      <textarea class="nb-control nb-control--textarea" formControlName="guest_Notes" rows="3" [placeholder]="ui.screenText('booking', 'guestNotesPlaceholder')"></textarea>
+    </div>
+
+    <div class="nb-summary-panel">
+      <h3><ui-inline-text kind="screen" screen="booking" key="nbReservationSummaryTitle" /></h3>
+      <div class="nb-summary-row">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbRoomCount" /></span>
+        <strong>{{ selectedRoom ? 1 : 0 }}</strong>
+      </div>
+      <div class="nb-summary-row">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbGuestTotal" /></span>
+        <strong>{{ reservationGuestCount() }}</strong>
+      </div>
+      <div class="nb-summary-row">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbTotalNights" /></span>
+        <strong>{{ bookingForm.get('stay_Days')?.value || 1 }}</strong>
+      </div>
+      <div class="nb-summary-row">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbRoomTotal" /></span>
+        <strong dir="ltr">{{ reservationTotalText() }}</strong>
+      </div>
+      <div class="nb-summary-row">
+        <span><ui-inline-text kind="screen" screen="booking" key="nbPaidTotal" /></span>
+        <strong dir="ltr">{{ reservationPaidText() }}</strong>
+      </div>
+      <div class="nb-summary-row nb-summary-row--strong">
+        <span><ui-inline-text kind="screen" screen="booking" key="remainingLabel" /></span>
+        <strong dir="ltr">{{ reservationRemainingText() }}</strong>
+      </div>
+    </div>
+
+    <div class="nb-actions">
+      <button type="button" class="nb-action nb-action--ghost" (click)="toggleReservationNotes()">
+        <ui-inline-text kind="screen" screen="booking" key="nbNotesBtn" />
+      </button>
+      <button type="button" class="nb-action nb-action--secondary" (click)="goWalkInCheckIn()">
+        <ui-inline-text kind="screen" screen="booking" key="bookingKindWalkIn" />
+      </button>
+      <button type="submit" class="nb-action nb-action--primary" [disabled]="loading">
+        <span *ngIf="!loading"><ui-inline-text kind="screen" screen="booking" key="nbReserveBtn" /></span>
+        <span *ngIf="loading" class="loader-inline"></span>
+      </button>
+    </div>
+    <div *ngIf="success" class="toast success nb-success-toast">
+      <i class="fas fa-check-circle"></i>
+      <ui-inline-text kind="screen" screen="booking" key="reservationSuccess" />
+    </div>
+  </section>
+</div>
+
+      </ng-container>
+
+      <ng-container *ngIf="!reservationMode">
+      <div
+        *ngIf="transferRoomMode"
+        class="transfer-room-flow"
+        [ngClass]="'transfer-room-flow--' + transferDisplayState"
+        role="status"
+        [attr.aria-label]="transferStateLabel()">
+        <div class="transfer-room-flow-head">
+          <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+          <span class="transfer-room-flow-state">{{ transferStateLabel() }}</span>
+        </div>
+        <div class="transfer-room-from-to">
+          <div class="transfer-room-pill transfer-room-pill--from">
+            <span class="transfer-room-pill-label"><ui-inline-text kind="screen" screen="booking" key="transferRoomFromLabel" /></span>
+            <strong class="transfer-room-pill-num">{{ transferCurrentRoomNumber || '?' }}</strong>
+          </div>
+          <i class="fas fa-long-arrow-alt-left transfer-room-arrow" aria-hidden="true"></i>
+          <div class="transfer-room-pill transfer-room-pill--to">
+            <span class="transfer-room-pill-label"><ui-inline-text kind="screen" screen="booking" key="transferRoomToLabel" /></span>
+            <strong class="transfer-room-pill-num">
+               transferTargetRoomNumber || <ui-inline-text kind="screen" screen="booking" key="transferRoomToPending" /> 
+            </strong>
+          </div>
+        </div>
+        <p class="transfer-room-flow-hint" *ngIf="transferDisplayState === 'same'">
+          <ui-inline-text kind="screen" screen="booking" key="transferRoomSameWarning" />
+        </p>
+      </div>
+
+      <div *ngIf="extendStayMode && checkInBookingInvoice" class="transfer-room-banner extend-stay-banner" role="note">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="booking" key="extendStayBanner" />: {{ checkInBookingInvoice }}</span>
+      </div>
+
+      <div *ngIf="checkInMode && !extendStayMode && !walkInCheckInMode && checkInBookingInvoice" class="transfer-room-banner check-in-banner" role="note">
+        <i class="fas fa-door-open" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="booking" key="checkInBanner" />: {{ checkInBookingInvoice }}</span>
+      </div>
+
+      <div *ngIf="editBookingMode && editBookingInvoice" class="transfer-room-banner edit-booking-banner" role="note">
+        <i class="fas fa-pen" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="booking" key="editBookingBanner" />: {{ editBookingInvoice }}</span>
+      </div>
+
+      <div *ngIf="walkInCheckInMode" class="walkin-meta-board">
+        <div class="walkin-meta-row walkin-meta-row--head">
+          <div class="walkin-meta-cell walkin-meta-cell--invoice">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="invoiceLabel" /></span>
+            <span class="walkin-meta-value walkin-meta-value--accent">{{ bookingForm.get('invoice_Number')?.value }}</span>
+          </div>
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="bookingDateLabel" /></span>
+            <span class="walkin-meta-value">{{ bookingForm.get('booking_Date')?.value }}</span>
+          </div>
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="bookingTimeLabel" /></span>
+            <span class="walkin-meta-value">{{ bookingForm.get('booking_Time')?.value }}</span>
+          </div>
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="walkInArrivalTimeLabel" /></span>
+            <span class="walkin-meta-value">{{ walkInArrivalTime() }}</span>
+          </div>
+        </div>
+        <div class="walkin-meta-row">
+          <div class="walkin-meta-cell walkin-meta-cell--field">
+            <label class="walkin-meta-label" for="walkin-stay-days"><ui-inline-text kind="screen" screen="booking" key="daysLabel" /></label>
+            <input
+              id="walkin-stay-days"
+              type="number"
+              formControlName="stay_Days"
+              min="1"
+              class="walkin-meta-input" />
+          </div>
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="walkInDepartureDateLabel" /></span>
+            <span class="walkin-meta-value">{{ walkInCheckoutDate() }}</span>
+          </div>
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="walkInDepartureTimeLabel" /></span>
+            <span class="walkin-meta-value">{{ walkInCheckoutTime() }}</span>
+          </div>
+          <div class="walkin-meta-cell walkin-meta-cell--field">
+            <label class="walkin-meta-label" for="walkin-booking-source"><ui-inline-text kind="screen" screen="booking" key="bookingSourceLabel" /></label>
+            <select id="walkin-booking-source" formControlName="booking_Source" class="walkin-meta-select">
+              <option value=""><ui-inline-text kind="screen" screen="booking" key="optionalField" /></option>
+              <option *ngFor="let opt of bookingSourceOptions" [value]="opt.id">
+                <ui-inline-text kind="screen" screen="booking" [key]="opt.labelKey" />
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="walkin-meta-row walkin-meta-row--foot" *ngIf="showGuestCodingFields && guestCodingFieldsReady">
+          <div class="walkin-meta-cell">
+            <span class="walkin-meta-label"><ui-inline-text kind="screen" screen="booking" key="walkInEmployeeLabel" /></span>
+            <span class="walkin-meta-value">{{ walkInEmployeeName }}</span>
+          </div>
+          <div class="walkin-meta-cell walkin-meta-cell--field">
+            <label class="walkin-meta-label" for="walkin-price-code"><ui-inline-text kind="screen" screen="booking" key="priceCodeLabel" /></label>
+            <select
+              id="walkin-price-code"
+              formControlName="price_Code"
+              class="walkin-meta-select"
+              (change)="onGuestCodingFieldChange()">
+              <option *ngFor="let item of priceCodeOptions" [value]="item.name">
+                {{ item.name }}<ng-container *ngIf="priceCodeOptionPercent(item) > 0"> ? {{ priceCodeOptionPercent(item) }}%</ng-container>
+              </option>
+            </select>
+          </div>
+          <div class="walkin-meta-cell walkin-meta-cell--field">
+            <label class="walkin-meta-label" for="walkin-relationship"><ui-inline-text kind="screen" screen="booking" key="relationshipTypeLabel" /></label>
+            <select
+              id="walkin-relationship"
+              formControlName="relationship_Type"
+              class="walkin-meta-select"
+              (change)="onGuestCodingFieldChange()">
+              <option *ngFor="let item of relationshipTypeOptions" [value]="item.name">{{ item.name }}</option>
+            </select>
+          </div>
+          <div class="walkin-meta-cell walkin-meta-cell--field">
+            <label class="walkin-meta-label" for="walkin-purpose"><ui-inline-text kind="screen" screen="booking" key="purposeOfStayLabel" /></label>
+            <select
+              id="walkin-purpose"
+              formControlName="purpose_Of_Stay"
+              class="walkin-meta-select"
+              (change)="onGuestCodingFieldChange()">
+              <option *ngFor="let item of purposeOfStayOptions" [value]="item.name">{{ item.name }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="!walkInCheckInMode"
+        class="booking-toolbar"
+        [class.booking-toolbar--with-kind]="showBookingKindPicker">
+        <div class="top-meta-bar">
+          <div class="meta-item">
+            <label><ui-inline-text kind="screen" screen="booking" key="invoiceLabel" /></label>
+            <div class="meta-value highlight">{{ bookingForm.get('invoice_Number')?.value }}</div>
+          </div>
+          <div class="meta-item">
+            <label><ui-inline-text kind="screen" screen="booking" key="bookingDateLabel" /></label>
+            <div class="meta-value">{{ bookingForm.get('booking_Date')?.value }}</div>
+          </div>
+          <div class="meta-item">
+            <label><ui-inline-text kind="screen" screen="booking" key="bookingTimeLabel" /></label>
+            <div class="meta-value">{{ bookingForm.get('booking_Time')?.value }}</div>
+          </div>
+        </div>
+        <div class="booking-kind-slot" *ngIf="showBookingKindPicker" (click)="$event.stopPropagation()">
+          <label class="booking-kind-slot__label" for="booking-kind-display">
+            <i class="fas fa-tag" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="booking" key="bookingTypeLabel" />
+          </label>
+          <div class="booking-kind-picker-wrap">
+            <div
+              class="booking-kind-field-shell"
+              [class.booking-kind-field-shell--open]="bookingKindPickerOpen"
+              [class.booking-kind-field-shell--locked]="bookingKindLocked">
+              <input
+                id="booking-kind-display"
+                type="text"
+                class="premium-input booking-kind-display"
+                readonly
+                [value]="selectedBookingKindLabel || ui.screenText('booking', 'bookingKindPlaceholder')"
+                [placeholder]="ui.screenText('booking', 'bookingKindPlaceholder')"
+                (click)="toggleBookingKindPicker($event)" />
+              <div class="booking-kind-field-actions">
+                <button
+                  type="button"
+                  class="booking-kind-clear-btn"
+                  *ngIf="!bookingKindLocked && selectedBookingKindLabel"
+                  (click)="clearBookingKind($event)"
+                  [attr.aria-label]="ui.screenText('booking', 'bookingKindClearAria')">
+                  <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="booking-kind-toggle-btn"
+                  [disabled]="bookingKindLocked"
+                  (click)="toggleBookingKindPicker($event)"
+                  [attr.aria-expanded]="bookingKindPickerOpen"
+                  [attr.aria-label]="ui.screenText('booking', 'bookingKindToggleAria')">
+                  <i class="fas" [ngClass]="bookingKindPickerOpen ? 'fa-chevron-up' : 'fa-chevron-down'" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <div
+              class="booking-kind-panel"
+              *ngIf="bookingKindPickerOpen && !bookingKindLocked"
+              role="listbox"
+              [attr.aria-label]="ui.screenText('booking', 'bookingTypeLabel')">
+              <button
+                type="button"
+                class="booking-kind-option"
+                *ngFor="let opt of bookingKindOptions"
+                role="option"
+                [attr.aria-selected]="selectedBookingKind === opt.id"
+                [class.booking-kind-option--active]="selectedBookingKind === opt.id"
+                (click)="selectBookingKind(opt.id)">
+                <i class="fas" [ngClass]="opt.icon" aria-hidden="true"></i>
+                <span><ui-inline-text kind="screen" screen="booking" [key]="opt.labelKey" /></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panes-container" [class.walkin-layout]="walkInCheckInMode">
+        <aside *ngIf="walkInCheckInMode" class="walkin-sidebar">
+          <section class="walkin-room-preview" [class.walkin-room-preview--empty]="!selectedRoom">
+            <h3 class="walkin-panel-title">
+              <i class="fas fa-bed" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="booking" key="walkInRoomPreviewTitle" />
+            </h3>
+            <ng-container *ngIf="selectedRoom; else walkInNoRoom">
+              <dl class="walkin-detail-list">
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="roomCategoryLabel" /></dt>
+                  <dd>{{ ui.roomTypeLabel(selectedRoom.type) }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRoomCount" /></dt>
+                  <dd>{{ walkInRoomClassCount('roomCount') }}</dd>
+                </div>
+                <div class="walkin-detail-item walkin-detail-item--beds">
+                  <div class="walkin-bed-stat">
+                    <span class="walkin-bed-stat__label"><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRegularBed" /></span>
+                    <span class="walkin-bed-stat__value">{{ walkInRoomClassCount('regularBedCount') }}</span>
+                  </div>
+                  <div class="walkin-bed-stat">
+                    <span class="walkin-bed-stat__label"><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColFamilyBed" /></span>
+                    <span class="walkin-bed-stat__value">{{ walkInRoomClassCount('familyBedCount') }}</span>
+                  </div>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="roomNumberLabel" /></dt>
+                  <dd class="walkin-detail-item--strong">{{ selectedRoom.roomNumber }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="floorLabel" /></dt>
+                  <dd>{{ selectedRoom.floor }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="settings" key="roomArchitecture" /></dt>
+                  <dd>{{ walkInRoomDetail(selectedRoom.roomArchitecture) }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="settings" key="roomLocation" /></dt>
+                  <dd>{{ walkInRoomDetail(selectedRoom.roomLocation) }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="settings" key="roomView" /></dt>
+                  <dd>{{ walkInRoomDetail(selectedRoom.roomView) }}</dd>
+                </div>
+                <div class="walkin-detail-item walkin-detail-item--wide">
+                  <dt><ui-inline-text kind="screen" screen="settings" key="roomFeatures" /></dt>
+                  <dd>{{ walkInRoomFeaturesText() }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="settings" key="roomStatus" /></dt>
+                  <dd>
+                    <span class="walkin-status-pill">{{ walkInRoomStatusLabel(selectedRoom.status) }}</span>
+                  </dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="walkInRoomPriceLabel" /></dt>
+                  <dd class="walkin-detail-item--price">
+                    {{ selectedRoom.price | localeNumber:'money' }}
+                    <small>{{ priceCurrencySymbol() }}</small>
+                  </dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="priceCodeLabel" /></dt>
+                  <dd class="walkin-price-code-value">
+                    <span>{{ walkInRoomDetail(bookingForm.get('price_Code')?.value) }}</span>
+                    @if (selectedPriceCodePercentBadge()) {
+                      <span class="walkin-price-code-pct" dir="ltr">{{ selectedPriceCodePercentBadge() }}</span>
+                    }
+                  </dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="relationshipTypeLabel" /></dt>
+                  <dd>{{ walkInRoomDetail(bookingForm.get('relationship_Type')?.value) }}</dd>
+                </div>
+                <div class="walkin-detail-item">
+                  <dt><ui-inline-text kind="screen" screen="booking" key="bookingSourceLabel" /></dt>
+                  <dd>{{ bookingSourceDisplay() }}</dd>
+                </div>
+              </dl>
+            </ng-container>
+            <ng-template #walkInNoRoom>
+              <p class="walkin-empty-hint"><ui-inline-text kind="screen" screen="booking" key="walkInNoRoomHint" /></p>
+            </ng-template>
+          </section>
+        </aside>
+
+        <!-- Screen 1: Guest Data Pane -->
+        <div class="form-pane guest-pane" [class.guest-pane--walkin]="walkInCheckInMode">
+          <h2 class="pane-title">
+            <i class="fas fa-user-tag"></i>
+            <ui-inline-text kind="screen" screen="booking" key="guestPaneTitle" />
+          </h2>
+
+          <div class="pane-grid">
+            <div
+              class="form-group full-width guest-name-picker-wrap walkin-guest-name"
+              *ngIf="walkInCheckInMode"
+              (click)="$event.stopPropagation()">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestFullNameLabel" /></label>
+              <div
+                class="guest-name-field-shell"
+                [class.guest-name-field-shell--open]="guestPickerOpen"
+                [class.guest-name-field-shell--error]="submitted && bookingForm.get('guest_Full_Name')?.invalid"
+                (click)="$event.stopPropagation()">
+                <input
+                  type="search"
+                  formControlName="guest_Full_Name"
+                  class="premium-input guest-name-input"
+                  [placeholder]="ui.screenText('booking', 'guestPickSearchPlaceholder')"
+                  (focus)="onGuestNameFieldFocus()"
+                  (input)="onGuestNameFieldInput()"
+                  autocomplete="name" />
+                <button
+                  type="button"
+                  class="guest-pick-btn"
+                  (click)="toggleGuestPicker($event)"
+                  [attr.aria-expanded]="guestPickerOpen"
+                  [attr.aria-label]="ui.screenText('booking', 'guestPickAria')"
+                  [title]="ui.screenText('booking', 'guestPickAria')">
+                  <i class="fas fa-address-book" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div
+                class="guest-picker-panel"
+                *ngIf="guestPickerOpen"
+                role="listbox"
+                [attr.aria-label]="ui.screenText('booking', 'guestPickTitle')"
+                (click)="$event.stopPropagation()">
+                <p class="guest-picker-hint" *ngIf="guestPickerLoading">
+                  <ui-inline-text kind="screen" screen="booking" key="guestPickLoading" />
+                </p>
+                <p class="guest-picker-hint" *ngIf="!guestPickerLoading && !filteredKnownGuests.length">
+                  <ui-inline-text kind="screen" screen="booking" key="guestPickEmpty" />
+                </p>
+                <ul class="guest-picker-list" *ngIf="!guestPickerLoading && filteredKnownGuests.length">
+                  <li *ngFor="let g of filteredKnownGuests">
+                    <button type="button" class="guest-picker-item" (click)="selectKnownGuest(g)">
+                      <span class="guest-picker-item-name">{{ g.fullName }}</span>
+                      <span class="guest-picker-item-meta" *ngIf="g.phone_Number || g.id_Number || g.nationality">
+                        <span *ngIf="g.phone_Number">{{ g.phone_Number }}</span>
+                        <span *ngIf="g.phone_Number && (g.id_Number || g.nationality)"> ? </span>
+                        <span *ngIf="g.id_Number">{{ g.id_Type ? g.id_Type + ' ' : '' }}{{ g.id_Number }}</span>
+                        <span *ngIf="g.id_Number && g.nationality"> ? </span>
+                        <span *ngIf="g.nationality">{{ g.nationality }}</span>
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="field-error" *ngIf="submitted && bookingForm.get('guest_Full_Name')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="guestFullNameRequired" /></span>
+              </div>
+            </div>
+            <div
+              class="form-group full-width guest-name-picker-wrap"
+              *ngIf="reservationMode"
+              (click)="$event.stopPropagation()">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestFullNameLabel" /></label>
+              <div
+                class="guest-name-field-shell guest-name-field-shell--reservation"
+                [class.guest-name-field-shell--open]="guestPickerOpen || guestProfileModalOpen"
+                [class.guest-name-field-shell--error]="submitted && bookingForm.get('guest_Full_Name')?.invalid"
+                (click)="$event.stopPropagation()">
+                <button
+                  type="button"
+                  class="guest-pick-btn guest-pick-btn--reservation"
+                  (click)="toggleGuestPicker($event)"
+                  [attr.aria-expanded]="guestPickerOpen"
+                  [attr.aria-label]="ui.screenText('booking', 'guestPickAria')"
+                  [title]="ui.screenText('booking', 'guestPickAria')">
+                  <i class="fas fa-address-book" aria-hidden="true"></i>
+                </button>
+                <input
+                  type="search"
+                  formControlName="guest_Full_Name"
+                  class="premium-input guest-name-input guest-name-input--reservation-pick"
+                  [placeholder]="ui.screenText('booking', 'guestPickSearchPlaceholder')"
+                  (focus)="onGuestNameFieldFocus()"
+                  (input)="onGuestNameFieldInput()"
+                  autocomplete="name" />
+              </div>
+              <div
+                class="guest-picker-panel"
+                *ngIf="guestPickerOpen"
+                role="listbox"
+                [attr.aria-label]="ui.screenText('booking', 'guestPickTitle')"
+                (click)="$event.stopPropagation()">
+                <p class="guest-picker-hint" *ngIf="guestPickerLoading">
+                  <ui-inline-text kind="screen" screen="booking" key="guestPickLoading" />
+                </p>
+                <p class="guest-picker-hint" *ngIf="!guestPickerLoading && !filteredKnownGuests.length">
+                  <ui-inline-text kind="screen" screen="booking" key="guestPickEmpty" />
+                </p>
+                <ul class="guest-picker-list" *ngIf="!guestPickerLoading && filteredKnownGuests.length">
+                  <li *ngFor="let g of filteredKnownGuests">
+                    <button type="button" class="guest-picker-item" (click)="selectKnownGuest(g)">
+                      <span class="guest-picker-item-name">{{ g.fullName }}</span>
+                      <span class="guest-picker-item-meta" *ngIf="g.phone_Number || g.id_Number || g.nationality">
+                        <span *ngIf="g.phone_Number">{{ g.phone_Number }}</span>
+                        <span *ngIf="g.phone_Number && (g.id_Number || g.nationality)"> ? </span>
+                        <span *ngIf="g.id_Number">{{ g.id_Type ? g.id_Type + ' ' : '' }}{{ g.id_Number }}</span>
+                        <span *ngIf="g.id_Number && g.nationality"> ? </span>
+                        <span *ngIf="g.nationality">{{ g.nationality }}</span>
+                      </span>
+                      <span class="guest-picker-item-badge" *ngIf="g.fromRegistry">
+                        <ui-inline-text kind="screen" screen="booking" key="guestPickRegistryBadge" />
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="field-error" *ngIf="submitted && bookingForm.get('guest_Full_Name')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="guestFullNameRequired" /></span>
+              </div>
+            </div>
+            <ng-container *ngIf="!walkInCheckInMode && !reservationMode">
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="firstNameLabel" /></label>
+                <input type="text" formControlName="first_Name" placeholder="" class="premium-input" />
+              </div>
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="lastNameLabel" /></label>
+                <input type="text" formControlName="last_Name" placeholder="" class="premium-input" />
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!reservationMode">
+            <div class="form-group" [class.walkin-id-type]="walkInCheckInMode">
+              <label><ui-inline-text kind="screen" screen="booking" key="idTypeLabel" /></label>
+              <select formControlName="id_Type" class="premium-input field-box__control">
+                <option *ngFor="let type of identityTypes" [value]="type.name">{{ type.name }}</option>
+              </select>
+            </div>
+            <div
+              class="form-group"
+              [class.walkin-id-inline]="walkInCheckInMode"
+              [class.has-error]="submitted && bookingForm.get('id_Number')?.invalid">
+              <label><ui-inline-text kind="screen" screen="booking" key="idNumberPlaceholder" /></label>
+              <div class="phone-input-container" *ngIf="ui.displayLocale() === 'ar'; else plainIdNumberInput">
+                <div class="phone-prefix" [attr.aria-label]="phoneDisplay.dialCode">
+                  <img class="flag-icon-img" [src]="phoneDisplay.flagSrc" alt="" width="22" height="16" />
+                </div>
+                <input
+                  type="text"
+                  formControlName="id_Number"
+                  [maxlength]="idNumberMaxLength"
+                  class="premium-input phone-input"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  [class.input-error]="submitted && bookingForm.get('id_Number')?.invalid" />
+              </div>
+              <ng-template #plainIdNumberInput>
+                <input
+                  type="text"
+                  formControlName="id_Number"
+                  [maxlength]="idNumberMaxLength"
+                  class="premium-input"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  [class.input-error]="submitted && bookingForm.get('id_Number')?.invalid" />
+              </ng-template>
+              <div class="field-error" *ngIf="submitted && bookingForm.get('id_Number')?.errors as errs">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="errs['required']">??? ????? ?????</span>
+                <span *ngIf="errs['minlength'] || errs['maxlength']">
+                  ??? ????? {{ idNumberMaxLength }} ????? ??????
+                </span>
+                <span *ngIf="errs['pattern'] && !errs['minlength'] && !errs['maxlength']">????? ???????? ???</span>
+              </div>
+            </div>
+
+            <div class="form-group full-width" *ngIf="!reservationMode" [class.walkin-phone]="walkInCheckInMode">
+              <label><ui-inline-text kind="screen" screen="booking" key="phoneLabel" /></label>
+              <div class="phone-input-container">
+                <div class="phone-prefix" [attr.aria-label]="phoneDisplay.dialCode">
+                  <img
+                    class="flag-icon-img"
+                    [src]="phoneDisplay.flagSrc"
+                    alt=""
+                    width="22"
+                    height="16" />
+                  <span class="country-code">{{ phoneDisplay.dialCode }}</span>
+                </div>
+                <input
+                  type="tel"
+                  formControlName="phone_Number"
+                  placeholder=""
+                  [attr.maxlength]="phoneDisplay.maxLength"
+                  class="premium-input phone-input"
+                  [class.input-error]="submitted && bookingForm.get('phone_Number')?.invalid" />
+              </div>
+              <div class="field-error" *ngIf="submitted && bookingForm.get('phone_Number')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="bookingForm.get('phone_Number')?.errors?.['required']"><ui-inline-text kind="screen" screen="booking" key="phoneRequired" /></span>
+                <span *ngIf="bookingForm.get('phone_Number')?.errors?.['pattern']"><ui-inline-text kind="screen" screen="booking" key="phonePattern" /></span>
+                <span *ngIf="bookingForm.get('phone_Number')?.errors?.['minlength']"><ui-inline-text kind="screen" screen="booking" key="phoneMinLength" /></span>
+              </div>
+            </div>
+
+            <ng-container *ngIf="showGuestCodingFields && guestCodingFieldsReady && !walkInCheckInMode">
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="purposeOfStayLabel" /></label>
+                <select
+                  formControlName="purpose_Of_Stay"
+                  class="premium-input field-box__control"
+                  (change)="onGuestCodingFieldChange()">
+                  <option *ngFor="let item of purposeOfStayOptions" [value]="item.name">{{ item.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="relationshipTypeLabel" /></label>
+                <select
+                  formControlName="relationship_Type"
+                  class="premium-input field-box__control"
+                  (change)="onGuestCodingFieldChange()">
+                  <option *ngFor="let item of relationshipTypeOptions" [value]="item.name">{{ item.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="priceCodeLabel" /></label>
+                <select
+                  formControlName="price_Code"
+                  class="premium-input field-box__control"
+                  (change)="onGuestCodingFieldChange()">
+                  <option *ngFor="let item of priceCodeOptions" [value]="item.name">
+                {{ item.name }}<ng-container *ngIf="priceCodeOptionPercent(item) > 0"> ? {{ priceCodeOptionPercent(item) }}%</ng-container>
+              </option>
+                </select>
+              </div>
+            </ng-container>
+
+            </ng-container>
+
+            <div class="form-group full-width" *ngIf="reservationMode">
+              <label><ui-inline-text kind="screen" screen="booking" key="phoneLabel" /></label>
+              <div class="phone-input-container">
+                <div class="phone-prefix" [attr.aria-label]="phoneDisplay.dialCode">
+                  <img class="flag-icon-img" [src]="phoneDisplay.flagSrc" alt="" width="22" height="16" />
+                  <span class="country-code">{{ phoneDisplay.dialCode }}</span>
+                </div>
+                <input type="tel" formControlName="phone_Number" class="premium-input phone-input" [attr.maxlength]="phoneDisplay.maxLength" />
+              </div>
+            </div>
+
+            <div class="numbers-modern-grid full-width reservation-guest-count" *ngIf="reservationMode">
+              <div class="stat-input-card">
+                <label><i class="fas fa-users"></i> <ui-inline-text kind="screen" screen="booking" key="peopleCountLabel" /></label>
+                <input type="number" formControlName="people_Count" min="1" />
+              </div>
+              <div class="stat-input-card highlight">
+                <label><i class="fas fa-calendar-day"></i> <ui-inline-text kind="screen" screen="booking" key="daysLabel" /></label>
+                <input type="number" formControlName="stay_Days" min="1" />
+              </div>
+            </div>
+
+            <div class="divider full-width" *ngIf="!reservationMode"></div>
+
+            <div
+              class="numbers-modern-grid numbers-modern-grid--triple full-width"
+              [class.walkin-occupancy-grid]="walkInCheckInMode"
+              *ngIf="!reservationMode">
+              <div class="stat-input-card" *ngIf="walkInCheckInMode">
+                <label><i class="fas fa-users"></i> <ui-inline-text kind="screen" screen="booking" key="peopleCountLabel" /></label>
+                <input type="number" formControlName="people_Count" min="1" readonly tabindex="-1" />
+              </div>
+              <div class="stat-input-card">
+                <label><i class="fas fa-user"></i> <ui-inline-text kind="screen" screen="booking" key="adultsLabel" /></label>
+                <input type="number" formControlName="adults_Count" min="1" />
+              </div>
+              <div class="stat-input-card">
+                <label><i class="fas fa-child"></i> <ui-inline-text kind="screen" screen="booking" key="childrenLabel" /></label>
+                <input type="number" formControlName="children_Count" min="0" />
+              </div>
+              <div class="stat-input-card highlight" *ngIf="!walkInCheckInMode">
+                <label><i class="fas fa-calendar-day"></i> <ui-inline-text kind="screen" screen="booking" key="daysLabel" /></label>
+                <input type="number" formControlName="stay_Days" min="1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 2: Order Data Pane -->
+        <div
+          class="form-pane order-pane"
+          [class.order-pane--transfer]="transferRoomMode"
+          [class.order-pane--walkin]="walkInCheckInMode">
+          <h2 class="pane-title">
+            <i class="fas fa-shopping-cart"></i>
+            <ui-inline-text kind="screen" screen="booking" key="orderPaneTitle" />
+          </h2>
+
+          <div class="pane-grid" [class.walkin-order-grid]="walkInCheckInMode">
+            <div class="form-group full-width field-box-group" [class.form-group--transfer-target]="transferRoomMode">
+              <label>
+                transferRoomMode
+                  ? <ui-inline-text kind="screen" screen="booking" key="transferRoomNewRoomLabel" />
+                  : <ui-inline-text kind="screen" screen="booking" key="roomNumberLabel" />
+              </label>
+              <div class="field-box-shell field-box-shell--select">
+                <select
+                  formControlName="room_Number"
+                  (change)="onRoomSelect($event)"
+                  class="premium-input field-box__control">
+                  <option value="" disabled><ui-inline-text kind="screen" screen="booking" key="chooseRoom" /></option>
+                  <option *ngFor="let room of availableRooms" [value]="room.roomNumber">
+                    <ui-inline-text kind="screen" screen="booking" key="roomOptionPrefix" /> {{ room.roomNumber }} ({{ room.type }})
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  class="field-box__action field-box__action--chart-search"
+                  (click)="goPickRoomFromChart()"
+                  [attr.aria-label]="ui.screenText('booking', 'pickRoomFromChartAria')"
+                  [title]="ui.screenText('booking', 'pickRoomFromChartAria')">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+
+            <ng-container *ngIf="!walkInCheckInMode">
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="roomTypeFieldLabelKey" /></label>
+                <input type="text" formControlName="room_Type" readonly class="readonly-input" />
+              </div>
+              <div class="form-group">
+                <label><ui-inline-text kind="screen" screen="booking" key="floorLabel" /></label>
+                <input type="text" formControlName="floor" readonly class="readonly-input" />
+              </div>
+            </ng-container>
+
+            <div class="finance-section full-width" *ngIf="!walkInCheckInMode">
+              <div class="finance-card total">
+                <label>??? ?????? ????????</label>
+                <div class="price-display">
+                  <span>{{ bookingForm.get('total_Price')?.value | localeNumber:'money' }}</span>
+                  <small class="currency-tag">{{ priceCurrencySymbol() }}</small>
+                </div>
+              </div>
+
+              <div class="form-group payment-input" *ngIf="showPaidAmountField">
+                <label>
+                  <ui-inline-text kind="screen" screen="booking" key="paidLabel" />
+                  <span class="optional-tag" *ngIf="reservationMode && advanceDepositMode">*</span>
+                </label>
+                <div class="input-with-icon">
+                  <input
+                    type="number"
+                    formControlName="payment_Amount"
+                    [attr.min]="advanceDepositMode ? 0.01 : 0"
+                    [placeholder]="advanceDepositMode ? '' : '0'" />
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="field-error" *ngIf="submitted && advanceDepositMode && bookingForm.get('payment_Amount')?.invalid">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span><ui-inline-text kind="screen" screen="booking" key="advanceDepositAmountRequired" /></span>
+                </div>
+              </div>
+
+              <div class="finance-card balance" [class.debt]="(bookingForm.get('remaining_amount')?.value || 0) > 0">
+                <label>?????? ???????</label>
+                <div class="price-display">
+                  <span>{{ bookingForm.get('remaining_Amount')?.value | localeNumber:'money' }}</span>
+                  <small class="currency-tag">{{ priceCurrencySymbol() }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="form-group full-width"
+              [class.walkin-payment-method]="walkInCheckInMode"
+              *ngIf="showPaymentMethodField">
+              <label><ui-inline-text kind="screen" screen="booking" key="paymentMethodLabel" /></label>
+              <select formControlName="payment_Method" class="premium-input field-box__control">
+                <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+              </select>
+            </div>
+
+            <section *ngIf="walkInCheckInMode" class="walkin-payment-board walkin-payment-board--inline full-width">
+              <h3 class="walkin-panel-title walkin-panel-title--payment">
+                <i class="fas fa-wallet" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="booking" key="walkInPaymentTitle" />
+              </h3>
+              <div class="walkin-payment-grid walkin-payment-grid--inline">
+                <div class="walkin-payment-card walkin-payment-card--required">
+                  <span class="walkin-payment-label"><ui-inline-text kind="screen" screen="booking" key="walkInRequiredAmountLabel" /></span>
+                  <span class="walkin-payment-amount">
+                    {{ bookingForm.get('total_Price')?.value | localeNumber:'money' }}
+                    <small>{{ priceCurrencySymbol() }}</small>
+                  </span>
+                  @if (priceCodeDiscountHintText()) {
+                    <span class="walkin-payment-discount" dir="ltr">{{ priceCodeDiscountHintText() }}</span>
+                  }
+                </div>
+                <div class="walkin-payment-card walkin-payment-card--paid">
+                  <label class="walkin-payment-label" for="walkin-paid-amount"><ui-inline-text kind="screen" screen="booking" key="paidLabel" /></label>
+                  <div class="walkin-paid-input-wrap">
+                    <input
+                      id="walkin-paid-amount"
+                      type="number"
+                      formControlName="payment_Amount"
+                      min="0"
+                      class="walkin-paid-input" />
+                    <span class="walkin-paid-currency">{{ priceCurrencySymbol() }}</span>
+                  </div>
+                </div>
+                <div
+                  class="walkin-payment-card walkin-payment-card--balance"
+                  [class.walkin-payment-card--debt]="(bookingForm.get('remaining_Amount')?.value || 0) > 0">
+                  <span class="walkin-payment-label"><ui-inline-text kind="screen" screen="booking" key="remainingLabel" /></span>
+                  <span class="walkin-payment-amount">
+                    {{ bookingForm.get('remaining_Amount')?.value | localeNumber:'money' }}
+                    <small>{{ priceCurrencySymbol() }}</small>
+                  </span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      </ng-container>
+
+      <div class="form-footer" *ngIf="!reservationMode">
+        <div class="submit-section">
+          <button type="submit" class="btn-confirm-booking" [disabled]="loading || checkInPrefillBusy">
+            <span *ngIf="!loading && !checkInPrefillBusy">
+              <i class="fas" [ngClass]="transferRoomMode ? 'fa-exchange-alt' : 'fa-check-double'"></i>
+              {{ bookingSubmitLabel }}
+            </span>
+            <span *ngIf="loading || checkInPrefillBusy" class="loader-inline"></span>
+          </button>
+        </div>
+
+        <div *ngIf="success" class="toast success">
+          <i class="fas fa-check-circle"></i>
+          <ui-inline-text kind="screen" screen="booking" key="successMsg" />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div
+    *ngIf="guestProfileModalOpen"
+    class="gp-modal-wrap guest-profile-modal-wrap"
+    (click)="closeGuestProfileModal()">
+    <div
+      class="gp-modal-panel"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="'gp-modal-title'"
+      (click)="$event.stopPropagation()">
+      <header class="gp-modal-head">
+        <h2 class="gp-modal-title" id="gp-modal-title">
+          <i class="fas fa-user-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="booking" key="guestProfileModalTitle" />
+        </h2>
+        <button
+          type="button"
+          class="gp-modal-close"
+          (click)="closeGuestProfileModal()"
+          [attr.aria-label]="ui.screenText('booking', 'guestProfileModalClose')">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <form class="gp-modal-body" [formGroup]="guestProfileForm" (ngSubmit)="confirmGuestProfileModal()">
+        <div class="gp-modal-alert gp-modal-alert--warn" *ngIf="guestProfileValidationMessage">
+          <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+          <span>{{ guestProfileValidationMessage }}</span>
+        </div>
+        <section class="gp-modal-section">
+          <h3 class="gp-modal-section-title">
+            <i class="fas fa-id-card-alt" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="booking" key="guestProfilePersonalSection" />
+          </h3>
+          <div class="gp-modal-grid">
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileFirstName" /></label>
+              <input type="text" formControlName="first_Name" class="premium-input" autocomplete="given-name" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('first_Name')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileMiddleName" /></label>
+              <input type="text" formControlName="middle_Name" class="premium-input" autocomplete="additional-name" />
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileLastName" /></label>
+              <input type="text" formControlName="last_Name" class="premium-input" autocomplete="family-name" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('last_Name')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="phoneLabel" /></label>
+              <input type="tel" formControlName="phone_Number" class="premium-input" autocomplete="tel" inputmode="numeric" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('phone_Number')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="phoneRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileGender" /></label>
+              <select formControlName="gender" class="premium-input field-box__control">
+                <option *ngFor="let g of guestGenderOptions" [value]="g.id">
+                  <ui-inline-text kind="screen" screen="booking" [key]="g.labelKey" />
+                </option>
+              </select>
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('gender')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileNationality" /></label>
+              <input type="text" formControlName="nationality" class="premium-input" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('nationality')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileCountry" /></label>
+              <input type="text" formControlName="country" class="premium-input" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('country')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileBirthDate" /></label>
+              <input type="date" formControlName="birth_Date" class="premium-input" />
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('birth_Date')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="gp-modal-section">
+          <h3 class="gp-modal-section-title">
+            <i class="fas fa-passport" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="booking" key="guestProfileIdentitySection" />
+          </h3>
+          <div class="gp-modal-grid">
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="idTypeLabel" /></label>
+              <select formControlName="id_Type" class="premium-input field-box__control">
+                <option *ngFor="let type of identityTypes" [value]="type.name">{{ type.name }}</option>
+              </select>
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('id_Type')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label><ui-inline-text kind="screen" screen="booking" key="guestProfileIdIssuingCountry" /></label>
+              <input type="text" formControlName="id_Issuing_Country" class="premium-input" />
+              <div
+                class="field-error"
+                *ngIf="guestProfileSubmitted && guestProfileForm.get('id_Issuing_Country')?.invalid">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+            </div>
+            <div class="form-group gp-modal-grid-span-2">
+              <label><ui-inline-text kind="screen" screen="booking" key="idNumberPlaceholder" /></label>
+              <input
+                type="text"
+                formControlName="id_Number"
+                class="premium-input"
+                inputmode="numeric"
+                [attr.maxlength]="idNumberMaxLength"
+                [placeholder]="idNumberHint || ui.screenText('booking', 'idNumberPlaceholder')" />
+              <p class="gp-modal-field-hint" *ngIf="idNumberHint">{{ idNumberHint }}</p>
+              <div class="field-error" *ngIf="guestProfileSubmitted && guestProfileForm.get('id_Number')?.hasError('required')">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><ui-inline-text kind="screen" screen="booking" key="fieldRequired" /></span>
+              </div>
+              <div
+                class="field-error"
+                *ngIf="guestProfileSubmitted && guestProfileForm.get('id_Number')?.invalid && !guestProfileForm.get('id_Number')?.hasError('required')">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ ui.screenText('booking', 'idNumberExactLength').replace('{n}', '' + idNumberMaxLength) }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="gp-modal-footer">
+          <button type="button" class="gp-modal-btn gp-modal-btn--ghost" (click)="closeGuestProfileModal()">
+            <ui-inline-text kind="screen" screen="booking" key="guestProfileModalCancel" />
+          </button>
+          <button type="submit" class="gp-modal-btn gp-modal-btn--primary" [disabled]="guestProfileSaving">
+            <i class="fas" [ngClass]="guestProfileSaving ? 'fa-spinner fa-spin' : 'fa-check'" aria-hidden="true"></i>
+             guestProfileSaving ? <ui-inline-text kind="screen" screen="booking" key="guestProfileSaving" /> : <ui-inline-text kind="screen" screen="booking" key="guestProfileModalSave" /> 
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+</div>

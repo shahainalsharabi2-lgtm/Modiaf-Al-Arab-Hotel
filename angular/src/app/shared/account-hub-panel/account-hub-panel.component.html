@@ -1,0 +1,52 @@
+<div class="account-hub-root" *ngIf="open" (click)="onBackdropClick()">
+  <aside
+    class="account-hub-panel"
+    role="dialog"
+    [attr.aria-label]="ui.chromeLabel('accountHubAria')"
+    (click)="onPanelClick($event)">
+    <button
+      type="button"
+      class="account-hub-panel__close"
+      (click)="requestClose()"
+      [attr.aria-label]="ui.chromeLabel('accountHubCloseAria')">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+
+    <header class="account-hub-panel__profile">
+      <div class="account-hub-panel__avatar" aria-hidden="true">
+        <span>{{ userInitial }}</span>
+      </div>
+      <p class="account-hub-panel__name">{{ userLabel || ui.chromeLabel('dbDefaultUser') }}</p>
+      <p class="account-hub-panel__email" *ngIf="userEmail">{{ userEmail }}</p>
+    </header>
+
+    <div class="account-hub-panel__actions-row">
+      <button type="button" class="account-hub-panel__theme" disabled [attr.title]="ui.chromeLabel('accountHubThemeSoon')">
+        <i class="fas fa-moon" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="account-hub-panel__my-account" (click)="openMyAccount()">
+        <ui-inline-text kind="chrome" key="myAccountBtn" />
+      </button>
+    </div>
+
+    <div class="account-hub-panel__divider" aria-hidden="true"></div>
+
+    <section class="account-hub-panel__favorites">
+      <h2 class="account-hub-panel__favorites-title"><ui-inline-text kind="chrome" key="accountHubFavoritesTitle" /></h2>
+      <nav [attr.aria-label]="ui.chromeLabel('accountHubFavoritesTitle')">
+        <button
+          type="button"
+          class="account-hub-panel__link"
+          *ngFor="let link of favoriteLinks"
+          (click)="navigateLink(link)">
+          <span class="account-hub-panel__link-label"><ui-inline-text kind="chrome" [key]="link.labelKey" /></span>
+          <i class="fas {{ link.icon }}" aria-hidden="true"></i>
+        </button>
+      </nav>
+    </section>
+
+    <button type="button" class="account-hub-panel__logout" (click)="logout()">
+      <ui-inline-text kind="chrome" key="logoutBtn" />
+    </button>
+  </aside>
+</div>

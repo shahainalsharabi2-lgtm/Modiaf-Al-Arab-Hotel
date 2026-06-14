@@ -1,0 +1,76 @@
+<aside
+  class="notify-panel"
+  role="dialog"
+  [attr.aria-label]="ui.chromeLabel('notificationsMenuTitle')"
+  (click)="$event.stopPropagation()">
+  <header class="notify-panel__head">
+    <h2 class="notify-panel__title"><ui-inline-text kind="chrome" key="notificationsMenuTitle" /></h2>
+    <div class="notify-panel__actions">
+      <button
+        type="button"
+        class="notify-panel__icon-btn"
+        (click)="markAllRead()"
+        [attr.title]="ui.chromeLabel('notificationsMarkRead')"
+        [attr.aria-label]="ui.chromeLabel('notificationsMarkRead')">
+        <i class="fas fa-check-double" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="notify-panel__icon-btn"
+        (click)="requestClose()"
+        [attr.title]="ui.chromeLabel('notificationsCloseAria')"
+        [attr.aria-label]="ui.chromeLabel('notificationsCloseAria')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="notify-panel__tabs" role="tablist" [attr.aria-label]="ui.chromeLabel('notificationsFilterAria')">
+    <button
+      type="button"
+      class="notify-panel__tab"
+      role="tab"
+      [class.notify-panel__tab--active]="filter === 'all'"
+      [attr.aria-selected]="filter === 'all'"
+      (click)="setFilter('all')">
+      <ui-inline-text kind="chrome" key="notificationsFilterAll" />
+    </button>
+    <button
+      type="button"
+      class="notify-panel__tab"
+      role="tab"
+      [class.notify-panel__tab--active]="filter === 'unread'"
+      [attr.aria-selected]="filter === 'unread'"
+      (click)="setFilter('unread')">
+      <ui-inline-text kind="chrome" key="notificationsFilterUnread" />
+    </button>
+  </div>
+
+  <div class="notify-panel__list-wrap">
+    <p class="notify-panel__empty" *ngIf="filteredItems.length === 0">
+      <ui-inline-text kind="chrome" key="notificationsEmpty" />
+    </p>
+
+    <ul class="notify-panel__list" *ngIf="filteredItems.length > 0">
+      <li
+        *ngFor="let item of filteredItems; let last = last"
+        class="notify-panel__item"
+        [class.notify-panel__item--unread]="!item.read"
+        [class.notify-panel__item--last]="last">
+        <span class="notify-panel__item-icon" aria-hidden="true">
+          <i class="far" [ngClass]="panelIcon(item.kind)"></i>
+        </span>
+        <div class="notify-panel__item-body">
+          <p class="notify-panel__item-text">{{ notifications.message(item) }}</p>
+          <p class="notify-panel__item-meta">{{ metaLine(item) }}</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <footer class="notify-panel__foot">
+    <a class="notify-panel__view-all" routerLink="/dashboard" (click)="requestClose()">
+      <ui-inline-text kind="chrome" key="notificationsViewAll" />
+    </a>
+  </footer>
+</aside>

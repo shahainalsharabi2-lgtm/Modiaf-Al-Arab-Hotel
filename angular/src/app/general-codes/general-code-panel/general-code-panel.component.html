@@ -1,0 +1,468 @@
+<section class="hc-page gc-panel" dir="rtl">
+  <div class="hc-page__panel">
+    <header class="gc-panel__hero">
+      <div class="gc-panel__hero-text">
+        <h2 class="gc-panel__title"><ui-inline-text kind="screen" screen="generalCodes" [key]="titleKey" /></h2>
+        @if (panelDescription()) {
+          <p class="gc-panel__subtitle">{{ panelDescription() }}</p>
+        }
+      </div>
+      <button type="button" class="hc-page__add-btn gc-panel__add-btn" *ngIf="canEdit" (click)="openCreate()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="generalCodes" key="addNew" />
+      </button>
+    </header>
+
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+            [placeholder]="ui.screenText('generalCodes', 'searchPh')" />
+        </div>
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="hc-page__alert">{{ errorMessage }}</div>
+    }
+
+    @if (loading) {
+      <div class="hc-page__loading">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="generalCodes" key="loading" />
+      </div>
+    } @else if (!filteredItems().length) {
+      <div class="hc-page__empty">
+        <i class="bi bi-inbox" aria-hidden="true"></i>
+        <p><ui-inline-text kind="screen" screen="generalCodes" key="emptyList" /></p>
+        <button type="button" class="hc-page__add-btn hc-page__add-btn--ghost" *ngIf="canEdit" (click)="openCreate()">
+          <ui-inline-text kind="screen" screen="generalCodes" key="addFirst" />
+        </button>
+      </div>
+    } @else {
+      <div class="hc-page__table-wrap">
+        <table class="hc-page__table">
+          <thead>
+            <tr>
+              @if (isPrefCategory) {
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColName" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColRegion" /></th>
+                <th dir="ltr"><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColCurrencyCode" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColDialCode" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColFlag" /></th>
+              } @else if (isRoomClasses) {
+                <th dir="ltr"><ui-inline-text kind="screen" screen="generalCodes" key="colCode" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="colName" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRoomCount" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRegularBed" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="roomClassColFamilyBed" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" /></th>
+              } @else if (isPriceCodeType) {
+                <th dir="ltr"><ui-inline-text kind="screen" screen="generalCodes" key="colCode" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="colName" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="priceCodeColFinancial" /></th>
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" /></th>
+              } @else {
+                <th dir="ltr"><ui-inline-text kind="screen" screen="generalCodes" key="colCode" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="colName" /></th>
+                @if (showDescription) {
+                  <th><ui-inline-text kind="screen" screen="generalCodes" key="colDescription" /></th>
+                }
+                @if (showForeignName) {
+                  <th><ui-inline-text kind="screen" screen="generalCodes" key="colFName" /></th>
+                }
+                <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" /></th>
+                <th><ui-inline-text kind="screen" screen="generalCodes" key="colHotel" /></th>
+              }
+              <th class="hc-page__col-actions" *ngIf="canEdit" aria-hidden="true"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of pagedItems(); track item.id) {
+              <tr>
+                @if (isPrefCategory) {
+                  <td>{{ languageLabel(item.name) }}</td>
+                  <td>{{ item.fName || '—' }}</td>
+                  <td dir="ltr">{{ itemPrefCurrencyCode(item) }}</td>
+                  <td dir="ltr">{{ itemDialCode(item) }}</td>
+                  <td class="hc-page__col-order">
+                    <img class="gc-flag-thumb" [src]="itemFlagSrc(item)" alt="" width="32" height="24" />
+                  </td>
+                } @else if (isRoomClasses) {
+                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td>
+                    <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
+                  </td>
+                  <td class="hc-page__col-order">{{ formatCount(item.roomCount) }}</td>
+                  <td class="hc-page__col-order">{{ formatCount(item.regularBedCount) }}</td>
+                  <td class="hc-page__col-order">{{ formatCount(item.familyBedCount) }}</td>
+                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
+                } @else if (isPriceCodeType) {
+                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td>
+                    <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
+                  </td>
+                  <td class="hc-page__col-order" dir="ltr">{{ itemFinancialValue(item) }}</td>
+                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
+                } @else {
+                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td>
+                    <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
+                  </td>
+                  @if (showDescription) {
+                    <td>{{ item.description || '—' }}</td>
+                  }
+                  @if (showForeignName) {
+                    <td>{{ item.fName || '—' }}</td>
+                  }
+                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
+                  <td>—</td>
+                }
+                <td class="hc-page__col-actions" *ngIf="canEdit">
+                  <div class="hc-page__actions">
+                    <button
+                      type="button"
+                      class="hc-page__actions-btn"
+                      (click)="toggleActionsMenu(item.id, $event)"
+                      [attr.aria-expanded]="openActionsId === item.id"
+                      [attr.aria-label]="ui.screenText('generalCodes', 'colActions')">
+                      <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                    </button>
+                    <div class="hc-page__menu" *ngIf="openActionsId === item.id" (click)="$event.stopPropagation()">
+                      <button type="button" (click)="openEdit(item)">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
+                        <ui-inline-text kind="screen" screen="generalCodes" key="actionEdit" />
+                      </button>
+                      <button type="button" class="hc-page__menu-danger" (click)="deleteItem(item)">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <ui-inline-text kind="screen" screen="generalCodes" key="actionDelete" />
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="hc-page__footer" *ngIf="totalItems()">
+        <div class="hc-page__footer-info">
+          <ui-inline-text kind="screen" screen="generalCodes" key="catalogPage" />
+          {{ pageIndex }}
+          <ui-inline-text kind="screen" screen="generalCodes" key="catalogPageOf" />
+          {{ totalPages() }}
+          ({{ totalItems() }}
+          <ui-inline-text kind="screen" screen="generalCodes" key="catalogItemsCount" />)
+        </div>
+
+        <div class="hc-page__footer-pages">
+          <button type="button" class="hc-page__page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+            <i class="fas fa-angle-right" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__page-btn"
+            *ngFor="let page of pageNumbers()"
+            [class.hc-page__page-btn--active]="pageIndex === page"
+            (click)="setPage(page)">
+            {{ page }}
+          </button>
+          <button type="button" class="hc-page__page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="hc-page__footer-size">
+          <button
+            type="button"
+            class="hc-page__size-btn"
+            [class.hc-page__size-btn--active]="pageSize === 5"
+            (click)="setPageSize(5)">5</button>
+          <button
+            type="button"
+            class="hc-page__size-btn"
+            [class.hc-page__size-btn--active]="pageSize === 10"
+            (click)="setPageSize(10)">10</button>
+          <button
+            type="button"
+            class="hc-page__size-btn"
+            [class.hc-page__size-btn--active]="pageSize === 'all'"
+            (click)="setPageSize('all')">
+            <ui-inline-text kind="screen" screen="generalCodes" key="catalogPageSizeAll" />
+          </button>
+        </div>
+      </footer>
+    }
+  </div>
+
+</section>
+
+@if (modalOpen) {
+  <div class="gc-modal" role="dialog" aria-modal="true">
+    <div class="gc-modal__backdrop" (click)="closeModal()"></div>
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="gc-modal__card"
+      [class.gc-modal__card--pref]="isPrefCategory"
+      (click)="$event.stopPropagation()">
+      <header class="gc-modal__header">
+        <h3>{{ modalTitle() }}</h3>
+        <button type="button" class="gc-modal__close" (click)="closeModal()" [attr.aria-label]="ui.screenText('generalCodes', 'cancel')">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="gc-modal__body">
+        @if (isPrefCategory) {
+          <div class="gc-pref-form">
+            <div class="gc-pref-form__grid">
+              <div class="gc-field gc-field--compact">
+                <label class="gc-field__label">
+                  <i class="fas fa-language gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="prefCatColName" />
+                </label>
+                <div class="gc-input-wrap gc-input-wrap--compact">
+                  <select class="gc-input gc-input--select gc-input--compact" formControlName="languageCode">
+                    @for (lang of systemLanguages; track lang.code) {
+                      <option [value]="lang.code"><ui-inline-text kind="screen" screen="settings" [key]="lang.labelKey" /></option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <div class="gc-field gc-field--compact">
+                <label class="gc-field__label">
+                  <i class="fas fa-globe gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="prefCatColRegion" />
+                </label>
+                <div class="gc-input-wrap gc-input-wrap--compact">
+                  <input type="text" class="gc-input gc-input--compact" formControlName="fName" [attr.placeholder]="foreignNameFieldPlaceholder || null" />
+                </div>
+              </div>
+              <div class="gc-field gc-field--compact">
+                <label class="gc-field__label">
+                  <i class="fas fa-coins gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="prefCatColCurrencyCode" />
+                </label>
+                <div class="gc-input-wrap gc-input-wrap--compact">
+                  <input
+                    type="text"
+                    class="gc-input gc-input--compact"
+                    formControlName="prefCurrencyCode"
+                    dir="ltr"
+                    [attr.placeholder]="ui.screenText('generalCodes', 'prefCatCurrencyCodePlaceholder')" />
+                </div>
+              </div>
+              <div class="gc-field gc-field--compact">
+                <label class="gc-field__label">
+                  <i class="fas fa-phone gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="prefCatColDialCode" />
+                </label>
+                <div class="gc-input-wrap gc-input-wrap--compact">
+                  <input type="text" class="gc-input gc-input--compact" formControlName="countryDialCode" dir="ltr" [attr.placeholder]="ui.screenText('generalCodes', 'prefCatDialPlaceholder')" />
+                </div>
+              </div>
+              <div class="gc-field gc-field--compact">
+                <label class="gc-field__label">
+                  <i class="fas fa-sort-numeric-down gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" />
+                </label>
+                <div class="gc-input-wrap gc-input-wrap--compact">
+                  <input type="number" min="0" class="gc-input gc-input--compact" formControlName="displayOrder" />
+                </div>
+              </div>
+            </div>
+
+            <div class="gc-field gc-field--compact gc-field--flag">
+              <label class="gc-field__label">
+                <i class="fas fa-flag gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="prefCatColFlag" />
+              </label>
+              <div class="gc-flag-box">
+                <div class="gc-flag-box__top">
+                  <img class="gc-flag-box__preview" [src]="modalFlagPreview()" alt="" width="36" height="27" />
+                  <div class="gc-input-wrap gc-input-wrap--compact gc-flag-box__file">
+                    <input
+                      type="text"
+                      class="gc-input gc-input--compact"
+                      formControlName="flagImageName"
+                      dir="ltr"
+                      [attr.placeholder]="ui.screenText('generalCodes', 'prefCatFlagFilePlaceholder')" />
+                  </div>
+                  <label class="gc-flag-box__upload" [attr.title]="ui.screenText('generalCodes', 'prefCatFlagChoose')">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <input type="file" [attr.accept]="flagUploadAccept" hidden (change)="onFlagFileChosen($event)" />
+                  </label>
+                  <button
+                    type="button"
+                    class="gc-flag-box__apply"
+                    [disabled]="!pendingFlagFile || flagUploadApplying"
+                    (click)="applyPendingFlagUpload()"
+                    [attr.title]="ui.screenText('generalCodes', 'prefCatFlagApplyUpload')">
+                    @if (flagUploadApplying) {
+                      <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                    } @else {
+                      <i class="fas fa-upload" aria-hidden="true"></i>
+                    }
+                  </button>
+                  @if (flagImageDataDraft) {
+                    <button type="button" class="gc-flag-box__clear" (click)="clearUploadedFlag()" [attr.title]="ui.screenText('generalCodes', 'prefCatFlagClearUpload')">
+                      <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                  }
+                </div>
+                @if (pendingFlagFileName) {
+                  <p class="gc-flag-box__pending">
+                    <ui-inline-text kind="screen" screen="generalCodes" key="prefCatFlagPendingHint" />
+                    <span dir="ltr">{{ pendingFlagFileName }}</span>
+                  </p>
+                }
+                <div class="gc-flag-box__presets">
+                  @for (flag of presetFlags; track flag) {
+                    <button type="button" class="gc-flag-preset gc-flag-preset--sm" (click)="onPresetFlagPick(flag)" [attr.title]="flag">
+                      <img [src]="'assets/flags/' + flag" alt="" width="24" height="18" />
+                    </button>
+                  }
+                </div>
+                <p class="gc-flag-box__hint"><ui-inline-text kind="screen" screen="generalCodes" key="prefCatFlagFileHint" /></p>
+              </div>
+            </div>
+          </div>
+        } @else {
+          @if (usesCodeField) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-barcode gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="colCode" />
+              </label>
+              <div class="gc-input-wrap">
+                <input type="text" class="gc-input" formControlName="fName" dir="ltr" maxlength="32" />
+              </div>
+            </div>
+          }
+          <div class="gc-field">
+            <label class="gc-field__label">
+              <i class="fas fa-tag gc-field__icon" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="generalCodes" [key]="nameColumnLabelKey" />
+            </label>
+            <div class="gc-input-wrap">
+              <input type="text" class="gc-input" formControlName="name" [attr.placeholder]="nameFieldPlaceholder || null" />
+            </div>
+          </div>
+          @if (isPriceCodeType) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-percent gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="priceCodeColFinancial" />
+              </label>
+              <div class="gc-input-wrap">
+                <input
+                  type="text"
+                  inputmode="decimal"
+                  class="gc-input"
+                  formControlName="description"
+                  dir="ltr"
+                  [attr.placeholder]="ui.screenText('generalCodes', 'priceCodeFinancialPlaceholder')" />
+              </div>
+              <p class="gc-flag-box__hint"><ui-inline-text kind="screen" screen="generalCodes" key="priceCodeFinancialHint" /></p>
+            </div>
+          }
+          @if (isRoomClasses) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-door-open gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRoomCount" />
+              </label>
+              <div class="gc-input-wrap">
+                <input type="number" min="0" class="gc-input" formControlName="roomCount" inputmode="numeric" />
+              </div>
+            </div>
+            <div class="gc-field gc-field--inline-pair">
+              <div class="gc-field">
+                <label class="gc-field__label">
+                  <i class="fas fa-bed gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="roomClassColRegularBed" />
+                </label>
+                <div class="gc-input-wrap">
+                  <input type="number" min="0" class="gc-input" formControlName="regularBedCount" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="gc-field">
+                <label class="gc-field__label">
+                  <i class="fas fa-people-roof gc-field__icon" aria-hidden="true"></i>
+                  <ui-inline-text kind="screen" screen="generalCodes" key="roomClassColFamilyBed" />
+                </label>
+                <div class="gc-input-wrap">
+                  <input type="number" min="0" class="gc-input" formControlName="familyBedCount" inputmode="numeric" />
+                </div>
+              </div>
+            </div>
+          }
+          @if (showCodeForeignName) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-language gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="colFName" />
+              </label>
+              <div class="gc-input-wrap">
+                <input type="text" class="gc-input" formControlName="foreignName" dir="ltr" />
+              </div>
+            </div>
+          }
+          @if (showForeignName) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-globe gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" [key]="foreignNameColumnLabelKey" />
+              </label>
+              <div class="gc-input-wrap">
+                <input type="text" class="gc-input" formControlName="fName" [attr.placeholder]="foreignNameFieldPlaceholder || null" />
+              </div>
+            </div>
+          }
+          @if (!isPrefCategory) {
+            <div class="gc-field">
+              <label class="gc-field__label">
+                <i class="fas fa-sort-numeric-down gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" />
+              </label>
+              <div class="gc-input-wrap">
+                <input type="number" min="0" class="gc-input" formControlName="displayOrder" />
+              </div>
+            </div>
+          }
+          @if (showModalDescription) {
+            <div class="gc-field gc-field--description">
+              <label class="gc-field__label">
+                <i class="fas fa-align-right gc-field__icon" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="generalCodes" key="colDescription" />
+              </label>
+              <div class="gc-input-wrap gc-input-wrap--textarea gc-input-wrap--description">
+                <textarea
+                  rows="3"
+                  class="gc-input gc-input--textarea"
+                  formControlName="description"
+                  [attr.placeholder]="ui.screenText('generalCodes', 'colDescription')"></textarea>
+              </div>
+            </div>
+          }
+        }
+      </div>
+      <footer class="gc-modal__footer">
+        <button type="button" class="gc-btn gc-btn--ghost" (click)="closeModal()">
+          <ui-inline-text kind="screen" screen="generalCodes" key="cancel" />
+        </button>
+        <button type="submit" class="gc-btn gc-btn--primary" [disabled]="!canSaveForm">
+          @if (saving) {
+            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          }
+          <ui-inline-text kind="screen" screen="generalCodes" key="save" />
+        </button>
+      </footer>
+    </form>
+  </div>
+}

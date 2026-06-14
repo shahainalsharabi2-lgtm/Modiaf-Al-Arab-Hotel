@@ -1,0 +1,173 @@
+<div class="ks-page">
+  <section class="ks-hero ks-panel">
+    <div class="ks-hero__top">
+      <div class="ks-hero__title">
+        <i class="fas fa-server" aria-hidden="true"></i>
+        <h1><ui-inline-text kind="screen" screen="keyServices" key="pageTitle" /></h1>
+      </div>
+
+      <div class="ks-hero__actions">
+        <button type="button" class="ks-btn ks-btn--primary" (click)="addService()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keyServices" key="addService" />
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="ks-table-card ks-panel">
+    <div class="ks-table-wrap">
+      <table class="ks-table">
+        <thead>
+          <tr class="ks-table__head-row">
+            <th>
+              <button type="button" class="ks-sort" (click)="toggleSort('serviceNo')">
+                <span><ui-inline-text kind="screen" screen="keyServices" key="colServiceNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('serviceNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ks-sort" (click)="toggleSort('serviceName')">
+                <span><ui-inline-text kind="screen" screen="keyServices" key="colServiceName" /></span>
+                <i class="fas" [ngClass]="sortIcon('serviceName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ks-sort" (click)="toggleSort('status')">
+                <span><ui-inline-text kind="screen" screen="keyServices" key="colStatus" /></span>
+                <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ks-sort" (click)="toggleSort('lastSeen')">
+                <span><ui-inline-text kind="screen" screen="keyServices" key="colLastSeen" /></span>
+                <i class="fas" [ngClass]="sortIcon('lastSeen')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ks-sort" (click)="toggleSort('linkedUsers')">
+                <span><ui-inline-text kind="screen" screen="keyServices" key="colLinkedUsers" /></span>
+                <i class="fas" [ngClass]="sortIcon('linkedUsers')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="ks-col-actions"><ui-inline-text kind="screen" screen="keyServices" key="colActions" /></th>
+          </tr>
+          <tr class="ks-table__filter-row">
+            <th>
+              <label class="ks-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterServiceNo" [attr.aria-label]="label('filterServiceNoAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ks-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterServiceName" [attr.aria-label]="label('filterServiceNameAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ks-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterStatus" [attr.aria-label]="label('filterStatusAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ks-filter ks-filter--date">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <input type="date" [(ngModel)]="filterLastSeen" [attr.aria-label]="label('filterLastSeenAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ks-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterLinkedUsers" [attr.aria-label]="label('filterLinkedUsersAria')" />
+              </label>
+            </th>
+            <th class="ks-col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td dir="ltr" class="ks-mono">{{ row.serviceNo }}</td>
+            <td>{{ row.serviceName }}</td>
+            <td>
+              <span class="ks-badge" [class.ks-badge--offline]="row.status === 'offline'" [class.ks-badge--online]="row.status === 'online'">
+                {{ statusLabel(row.status) }}
+              </span>
+            </td>
+            <td dir="ltr">{{ formatDateTime(row.lastSeen) }}</td>
+            <td>
+              <span class="ks-badge ks-badge--users">{{ linkedUsersLabel(row.linkedUsersCount) }}</span>
+            </td>
+            <td class="ks-col-actions">
+              <div class="ks-row-actions">
+                <button type="button" class="ks-action ks-action--danger" (click)="deleteRow(row)" [attr.aria-label]="label('deleteAria')">
+                  <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="ks-action ks-action--edit" (click)="editRow(row)" [attr.aria-label]="label('editAria')">
+                  <i class="fas fa-edit" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="ks-action ks-action--users" (click)="viewLinkedUsers(row)" [attr.aria-label]="label('viewUsersAria')">
+                  <i class="fas fa-users" aria-hidden="true"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="6" class="ks-empty"><ui-inline-text kind="screen" screen="keyServices" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+@if (serviceModalOpen) {
+  <div class="ks-modal-backdrop" (click)="closeServiceModal()"></div>
+  <div class="ks-modal" role="dialog" aria-modal="true" [attr.aria-label]="serviceModalTitle">
+    <header class="ks-modal__header">
+      <h2 class="ks-modal__title">{{ serviceModalTitle }}</h2>
+      <button type="button" class="ks-modal__close" (click)="closeServiceModal()" [attr.aria-label]="label('modalCloseAria')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <form class="ks-modal__body" (ngSubmit)="saveService()">
+      <div class="ks-field">
+        <label class="ks-field__label"><ui-inline-text kind="screen" screen="keyServices" key="colServiceNo" /></label>
+        <input
+          type="text"
+          class="ks-input"
+          [(ngModel)]="formServiceNo"
+          name="formServiceNo"
+          [placeholder]="label('serviceNoPlaceholder')"
+          dir="ltr"
+        />
+      </div>
+
+      <div class="ks-field">
+        <label class="ks-field__label"><ui-inline-text kind="screen" screen="keyServices" key="colServiceName" /></label>
+        <input
+          type="text"
+          class="ks-input"
+          [(ngModel)]="formServiceName"
+          name="formServiceName"
+          [placeholder]="label('serviceNamePlaceholder')"
+        />
+      </div>
+
+      @if (formError) {
+        <p class="ks-form-error" role="alert">{{ formError }}</p>
+      }
+
+      <footer class="ks-modal__footer">
+        <button type="button" class="ks-btn ks-btn--ghost" (click)="closeServiceModal()">
+          <ui-inline-text kind="screen" screen="keyServices" key="modalCancel" />
+        </button>
+        <button type="submit" class="ks-btn ks-btn--primary">
+          <ui-inline-text kind="screen" screen="keyServices" key="modalSave" />
+        </button>
+      </footer>
+    </form>
+  </div>
+}

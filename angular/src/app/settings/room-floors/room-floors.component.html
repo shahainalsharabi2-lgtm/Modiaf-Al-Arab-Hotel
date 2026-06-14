@@ -1,0 +1,168 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+            [placeholder]="ui.screenText('settings', 'roomFloorsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomFloorsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter" (ngModelChange)="onSearchChange()">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="roomFloorsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="roomFloorsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="roomFloorsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="roomFloorsAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'roomFloorsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'roomFloorsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'roomFloorsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!pagedRows().length">
+      <i class="fas fa-building" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="roomFloorsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && pagedRows().length">
+      <table class="hc-page__table rf-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('description')">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColDescription" />
+              <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+            </th>
+            <th class="rf-check">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColHousekeeping" />
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('serialNumber')">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColSerial" />
+              <i class="fas" [ngClass]="sortIcon('serialNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('building')">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColBuilding" />
+              <i class="fas" [ngClass]="sortIcon('building')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="roomFloorsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows()">
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.description }}</td>
+            <td class="rf-check">
+              <input type="checkbox" [checked]="row.housekeeping" disabled />
+            </td>
+            <td class="hc-page__col-order">{{ row.serialNumber }}</td>
+            <td class="hc-page__col-order">{{ row.building }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'roomFloorsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomFloorsActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomFloorsActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="rf-footer" *ngIf="viewMode === 'list' && totalRows()">
+      <div class="rf-footer__range">
+        <ui-inline-text kind="screen" screen="settings" key="roomFloorsShowing" />
+        {{ rangeFrom() }}
+        <ui-inline-text kind="screen" screen="settings" key="roomFloorsTo" />
+        {{ rangeTo() }}
+        <ui-inline-text kind="screen" screen="settings" key="roomFloorsOf" />
+        {{ totalRows() }}
+        <ui-inline-text kind="screen" screen="settings" key="roomFloorsRecords" />
+      </div>
+
+      <div class="rf-footer__pages">
+        <button type="button" class="rf-page-btn" (click)="setPage(1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="rf-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-right" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="rf-page-btn"
+          *ngFor="let page of pageNumbers()"
+          [class.rf-page-btn--active]="pageIndex === page"
+          (click)="setPage(page)">
+          {{ page }}
+        </button>
+        <button type="button" class="rf-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="rf-page-btn" (click)="setPage(totalPages())" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <label class="rf-footer__size">
+        <span><ui-inline-text kind="screen" screen="settings" key="roomFloorsPageSize" /></span>
+        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </label>
+    </footer>
+  </section>
+</div>

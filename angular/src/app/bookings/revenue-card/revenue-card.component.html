@@ -1,0 +1,166 @@
+<div class="rc-page" dir="rtl" [formGroup]="form">
+  <div class="rc-layout">
+    <aside class="rc-aside">
+      <div class="rc-aside__card">
+        <h2 class="rc-aside__title">
+          <ui-inline-text kind="screen" screen="revenueCard" key="bookingTotalTitle" />
+        </h2>
+        <dl class="rc-summary">
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumRooms" /></dt>
+            <dd>{{ summaryRooms | localeNumber }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumGuests" /></dt>
+            <dd>{{ summaryGuests | localeNumber }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumNights" /></dt>
+            <dd>{{ summaryNights | localeNumber }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumNightPrice" /></dt>
+            <dd>{{ formatMoney(summaryNightPrice) }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumAvgRoomPrice" /></dt>
+            <dd>{{ formatMoney(summaryAvgRoomPrice) }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumRoomPrice" /></dt>
+            <dd>{{ formatMoney(summaryRoomPrice) }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumPackages" /></dt>
+            <dd>{{ formatMoney(summaryPackages) }}</dd>
+          </div>
+          <div class="rc-summary__row">
+            <dt><ui-inline-text kind="screen" screen="revenueCard" key="sumTaxes" /></dt>
+            <dd>{{ formatMoney(summaryTaxes) }}</dd>
+          </div>
+        </dl>
+        <div class="rc-summary__total">
+          <span><ui-inline-text kind="screen" screen="revenueCard" key="sumGrandTotal" /></span>
+          <strong>{{ formatMoney(summaryTotal) }}</strong>
+        </div>
+        <div class="rc-aside__actions">
+          <button type="button" class="rc-book-btn" (click)="submitBooking()">
+            <ui-inline-text kind="screen" screen="revenueCard" key="bookBtn" />
+          </button>
+          <button type="button" class="rc-notes-btn" (click)="toggleNotes()">
+            <ui-inline-text kind="screen" screen="revenueCard" key="notesBtn" />
+          </button>
+        </div>
+        <div class="rc-notes-panel" *ngIf="notesOpen">
+          <textarea
+            class="rc-control rc-control--textarea"
+            formControlName="notes"
+            rows="3"
+            [placeholder]="label('notesPlaceholder')"></textarea>
+        </div>
+      </div>
+    </aside>
+
+    <section class="rc-main">
+      <div class="rc-form-card">
+        <header class="rc-form-head">
+          <h2><ui-inline-text kind="screen" screen="revenueCard" key="postMasterDetailsTitle" /></h2>
+        </header>
+        <div class="rc-grid rc-grid--4">
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldArrival" /></label>
+            <div class="rc-date-wrap">
+              <i class="fas fa-calendar-alt"></i>
+              <input type="date" class="rc-control rc-control--date" formControlName="arrivalDate" />
+            </div>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldNights" /></label>
+            <div class="rc-stepper">
+              <button type="button" class="rc-stepper__btn" (click)="stepNights(-1)"><i class="fas fa-minus"></i></button>
+              <input type="number" class="rc-stepper__input" formControlName="nights" min="1" />
+              <button type="button" class="rc-stepper__btn" (click)="stepNights(1)"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldDeparture" /></label>
+            <div class="rc-date-wrap">
+              <i class="fas fa-calendar-alt"></i>
+              <input type="date" class="rc-control rc-control--date" formControlName="departureDate" />
+            </div>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldAdults" /></label>
+            <div class="rc-stepper">
+              <button type="button" class="rc-stepper__btn" (click)="stepAdults(-1)"><i class="fas fa-minus"></i></button>
+              <input type="number" class="rc-stepper__input" formControlName="adults" min="0" />
+              <button type="button" class="rc-stepper__btn" (click)="stepAdults(1)"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rc-form-card">
+        <header class="rc-form-head">
+          <h2><ui-inline-text kind="screen" screen="revenueCard" key="bookingDetailsTitle" /></h2>
+        </header>
+        <div class="rc-grid rc-grid--3">
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldGuestName" /></label>
+            <div class="rc-composite">
+              <button type="button" class="rc-composite__add rc-composite__add--green"><i class="fas fa-plus"></i></button>
+              <input
+                type="search"
+                class="rc-control rc-control--flat"
+                formControlName="guestSearch"
+                [class.rc-control--error]="submitted && form.get('guestSearch')?.invalid"
+                [placeholder]="label('guestSearchPh')" />
+              <button type="button" class="rc-composite__search"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldBookingType" /></label>
+            <select class="rc-control" formControlName="bookingKind">
+              <option *ngFor="let opt of bookingKindOptions" [value]="opt.id">{{ bookingKindLabel(opt.labelKey) }}</option>
+            </select>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldBookingSource" /></label>
+            <select class="rc-control" formControlName="bookingSource">
+              <option value="">{{ label('selectPlaceholder') }}</option>
+              <option *ngFor="let opt of bookingSourceOptions" [value]="opt.id">{{ sourceLabel(opt.labelKey) }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="rc-grid rc-grid--4 rc-grid--spaced">
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldPriceCode" /></label>
+            <select class="rc-control" formControlName="priceCode">
+              <option value="">{{ label('selectPlaceholder') }}</option>
+            </select>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldMarketCode" /></label>
+            <select class="rc-control" formControlName="marketCode">
+              <option value="">{{ label('selectPlaceholder') }}</option>
+              <option *ngFor="let opt of marketCodeOptions" [value]="opt.id">{{ label(opt.labelKey) }}</option>
+            </select>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldRoomType" /></label>
+            <select class="rc-control" formControlName="roomType">
+              <option *ngFor="let t of roomTypeOptions" [value]="t">{{ roomTypeLabel(t) }}</option>
+            </select>
+          </div>
+          <div class="rc-field">
+            <label><ui-inline-text kind="screen" screen="revenueCard" key="fieldSelectRoom" /></label>
+            <select class="rc-control" formControlName="roomNumber">
+              <option value="">{{ label('selectRoomPh') }}</option>
+              <option *ngFor="let room of roomOptions" [value]="room">{{ room }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

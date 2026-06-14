@@ -1,0 +1,171 @@
+<div class="rp-page">
+  <section class="rp-stats">
+    <div class="rp-stats__row rp-stats__row--primary">
+      <article
+        *ngFor="let card of statRow1"
+        class="rp-stat-card"
+        [ngClass]="statToneClass(card)"
+        [class.rp-stat-card--menu-open]="openStatMenuKey === card.key"
+        [class.rp-stat-card--active]="activeStatQuickFilter === card.key">
+        <i class="fas rp-stat-card__icon" [ngClass]="card.icon" aria-hidden="true"></i>
+        <div class="rp-stat-card__label-wrap">
+          <button
+            *ngIf="card.labelMenu"
+            type="button"
+            class="rp-stat-card__label-btn"
+            [class.rp-stat-card__label-btn--open]="openStatMenuKey === card.key"
+            (click)="toggleStatMenu(card.key, $event)"
+            [attr.aria-expanded]="openStatMenuKey === card.key"
+            [attr.aria-label]="label(card.labelKey)">
+            <span><ui-inline-text kind="screen" screen="roomPlan" [key]="card.labelKey" /></span>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <span *ngIf="!card.labelMenu" class="rp-stat-card__label"><ui-inline-text kind="screen" screen="roomPlan" [key]="card.labelKey" /></span>
+          <div
+            *ngIf="card.labelMenu && openStatMenuKey === card.key"
+            class="rp-stat-card__menu"
+            role="menu"
+            (click)="$event.stopPropagation()">
+            <button type="button" class="rp-stat-card__menu-item" role="menuitem" (click)="applyStatQuickFilter(card.key, 'all')">
+              <ui-inline-text kind="screen" screen="roomPlan" key="statMenuShowAll" />
+            </button>
+            <button type="button" class="rp-stat-card__menu-item" role="menuitem" (click)="applyStatQuickFilter(card.key, 'match')">
+              <ui-inline-text kind="screen" screen="roomPlan" key="statMenuMatchCount" />
+            </button>
+          </div>
+        </div>
+        <strong class="rp-stat-card__value">{{ card.count | localeNumber }}</strong>
+      </article>
+    </div>
+    <div class="rp-stats__row rp-stats__row--secondary">
+      <article *ngFor="let card of statRow2; let idx = index" class="rp-stat-card" [ngClass]="statToneClass(card)" [style.grid-column]="secondaryCardColumn(idx)">
+        <i class="fas rp-stat-card__icon" [ngClass]="card.icon" aria-hidden="true"></i>
+        <span class="rp-stat-card__label"><ui-inline-text kind="screen" screen="roomPlan" [key]="card.labelKey" /></span>
+        <strong class="rp-stat-card__value">{{ card.count | localeNumber }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="rp-toolbar rp-panel">
+    <div class="rp-toolbar__search">
+      <input
+        type="search"
+        [(ngModel)]="searchQuery"
+        [placeholder]="label('searchPlaceholder')"
+        [attr.aria-label]="label('searchPlaceholder')" />
+      <i class="fas fa-search" aria-hidden="true"></i>
+    </div>
+
+    <div class="rp-toolbar__checks">
+      <label class="rp-check rp-check--icon-only">
+        <input type="checkbox" [(ngModel)]="filterHighlightDue" [attr.aria-label]="label('filterHighlightDueAria')" />
+      </label>
+      <label class="rp-check">
+        <input type="checkbox" [(ngModel)]="filterArrivals" />
+        <i class="fas fa-walking rp-check__icon" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="roomPlan" key="filterArrivals" /></span>
+      </label>
+      <label class="rp-check">
+        <input type="checkbox" [(ngModel)]="filterPaymentDue" />
+        <i class="fas fa-hand-holding-usd rp-check__icon" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="roomPlan" key="filterPaymentDue" /></span>
+      </label>
+    </div>
+
+    <div class="rp-toolbar__filters">
+      <label class="rp-select-wrap">
+        <span><ui-inline-text kind="screen" screen="roomPlan" key="filterFloor" /></span>
+        <select [(ngModel)]="selectedFloor">
+          <option [ngValue]="'all'"><ui-inline-text kind="screen" screen="roomPlan" key="filterAllFloors" /></option>
+          <option *ngFor="let floor of floors" [ngValue]="floor">{{ floor | localeNumber }}</option>
+        </select>
+        <i class="fas fa-chevron-down rp-select-chev" aria-hidden="true"></i>
+      </label>
+      <label class="rp-select-wrap">
+        <span><ui-inline-text kind="screen" screen="roomPlan" key="filterAllData" /></span>
+        <select [(ngModel)]="dataFilter">
+          <option value="all"><ui-inline-text kind="screen" screen="roomPlan" key="filterAllData" /></option>
+          <option value="occupied"><ui-inline-text kind="screen" screen="roomPlan" key="filterOccupiedData" /></option>
+          <option value="vacant"><ui-inline-text kind="screen" screen="roomPlan" key="filterVacantData" /></option>
+        </select>
+        <i class="fas fa-chevron-down rp-select-chev" aria-hidden="true"></i>
+      </label>
+    </div>
+  </section>
+
+  <section class="rp-board rp-panel">
+    <header class="rp-board__head">
+      <div class="rp-tabs">
+        <button
+          *ngFor="let building of buildings"
+          type="button"
+          class="rp-tab"
+          [class.rp-tab--active]="activeBuildingId === building.id"
+          (click)="setBuilding(building.id)">
+          <span><ui-inline-text kind="screen" screen="roomPlan" [key]="building.labelKey" /></span>
+          <em>{{ building.count | localeNumber }}</em>
+        </button>
+      </div>
+      <button type="button" class="rp-fullscreen" [attr.title]="label('fullScreen')" [attr.aria-label]="label('fullScreen')">
+        <i class="fas fa-expand" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="rp-grid-wrap" [style.--rp-zoom]="zoomLevel + '%'">
+      <div class="rp-grid">
+        <article *ngFor="let room of filteredRooms; trackBy: trackRoom" class="rp-room-card" [ngClass]="roomCardClass(room)">
+          <div class="rp-room-card__top">
+            <button type="button" class="rp-room-card__menu" [attr.aria-label]="label('roomMenuAria')">
+              <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+            </button>
+            <span class="rp-room-card__corner" [class.rp-room-card__corner--clean]="roomCornerIsClean(room)">
+              <i class="fas" [ngClass]="roomCornerIcon(room)" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="rp-room-card__body">
+            <span *ngIf="isOccupied(room)" class="rp-room-card__occupied" aria-hidden="true">
+              <i class="fas fa-walking"></i>
+            </span>
+            <strong class="rp-room-card__number" [class.rp-room-card__number--occupied]="isOccupied(room)">
+              {{ room.number }}
+            </strong>
+            <span class="rp-room-card__type"><ui-inline-text kind="screen" screen="roomPlan" [key]="room.typeKey" /></span>
+          </div>
+          <footer class="rp-room-card__balance" [class.rp-room-card__balance--due]="room.paymentDue">
+            <i class="rp-room-card__balance-icon" aria-hidden="true">{{ '' | hotelSymbol }}</i>
+            <span>{{ formatMoney(room.balance) }}</span>
+          </footer>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="rp-footer rp-panel">
+    <div class="rp-footer__occupancy">
+      <span><ui-inline-text kind="screen" screen="roomPlan" key="occupancyRate" /> {{ footer.occupancyRate | localeNumber }}%</span>
+      <div class="rp-footer__bar">
+        <i [style.width.%]="footer.occupancyRate"></i>
+      </div>
+    </div>
+    <div class="rp-footer__amount rp-footer__amount--credit">
+      <span><ui-inline-text kind="screen" screen="roomPlan" key="totalCredit" /></span>
+      <strong>{{ formatMoney(footer.totalCredit) }} {{ '' | hotelSymbol }}</strong>
+    </div>
+    <div class="rp-footer__amount rp-footer__amount--debit">
+      <span><ui-inline-text kind="screen" screen="roomPlan" key="totalDebit" /></span>
+      <strong>{{ formatMoney(footer.totalDebit) }} {{ '' | hotelSymbol }}</strong>
+    </div>
+    <div class="rp-footer__amount rp-footer__amount--net">
+      <span><ui-inline-text kind="screen" screen="roomPlan" key="totalNet" /></span>
+      <strong>{{ formatMoney(footer.totalNet) }} {{ '' | hotelSymbol }}</strong>
+    </div>
+    <label class="rp-footer__zoom">
+      <span class="sr-only"><ui-inline-text kind="screen" screen="roomPlan" key="zoomControl" /></span>
+      <input type="range" min="80" max="120" step="5" [(ngModel)]="zoomLevel" />
+    </label>
+  </footer>
+
+  <button type="button" class="rp-fab" [attr.aria-label]="label('chatFab')">
+    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+  </button>
+</div>

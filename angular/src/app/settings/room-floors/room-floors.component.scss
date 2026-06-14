@@ -1,0 +1,80 @@
+.rf-table {
+  min-width: 980px;
+}
+
+.rf-check {
+  text-align: center;
+}
+
+.rf-check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+}
+
+.rf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--app-border);
+  background: #fff;
+  font-size: 0.84rem;
+}
+
+.rf-footer__range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--app-text-muted);
+  font-weight: 700;
+}
+
+.rf-footer__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rf-page-btn {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--app-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rf-page-btn--active {
+  background: #1a3a32;
+  border-color: #1a3a32;
+  color: #fff;
+}
+
+.rf-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rf-footer__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.rf-footer__size select {
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}

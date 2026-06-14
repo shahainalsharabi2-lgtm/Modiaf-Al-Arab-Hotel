@@ -1,0 +1,147 @@
+<div class="pi-page" dir="rtl">
+  <section class="pi-panel">
+    <form class="pi-filter" (ngSubmit)="runInquiry()">
+      <div class="pi-filter__row pi-filter__row--5">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryFromDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="filter.fromDate" name="fromDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryToDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="filter.toDate" name="toDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryRoomCount" /></span>
+          <div class="rt-field__control">
+            <input type="number" min="0" [(ngModel)]="filter.roomCount" name="roomCount" />
+            <i class="fas fa-door-open rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryAdultCount" /></span>
+          <div class="rt-field__control">
+            <input type="number" min="0" [(ngModel)]="filter.adultCount" name="adultCount" />
+            <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryChildCount" /></span>
+          <div class="rt-field__control">
+            <input type="number" min="0" [(ngModel)]="filter.childCount" name="childCount" />
+            <i class="fas fa-child rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+
+      <div class="pi-filter__row pi-filter__row--5">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryPriceCode" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.priceCode" name="priceCode">
+              <option *ngFor="let opt of priceCodeOptions" [value]="opt.value">{{ priceCodeLabel(opt.labelKey) }}</option>
+            </select>
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryRoomType" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.roomType" name="roomType">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-bed rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryRoomCategory" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.roomCategory" name="roomCategory">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-layer-group rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceInquiryRoomStatus" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.roomStatus" name="roomStatus">
+              <option value=""></option>
+            </select>
+            <i class="fas fa-info-circle rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-check-field pi-negotiable-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceCodeColNegotiable" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="filter.negotiable" name="negotiable" />
+          </div>
+        </label>
+      </div>
+
+      <div class="pi-filter__actions">
+        <button type="submit" class="pi-filter__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceInquirySearch" />
+        </button>
+        <button type="button" class="pi-filter__reset" (click)="resetFilter()">
+          <i class="fas fa-undo" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceInquiryReset" />
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="pi-panel pi-panel--results">
+    <header class="pi-results__head">
+      <ui-inline-text kind="screen" screen="settings" key="priceInquiryResultsTitle" />
+    </header>
+
+    <div class="hc-page__empty" *ngIf="!results.length">
+      <i class="fas fa-search-dollar" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="priceInquiryEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="results.length">
+      <table class="hc-page__table pi-table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="priceInquiryColPricePlan" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="priceInquiryColRoomType" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceInquiryColAvailableRooms" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceCodeColCurrency" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceInquiryColFirstNight" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceInquiryColTotal" /></th>
+            <th class="pi-flag-col"><ui-inline-text kind="screen" screen="settings" key="priceInquiryColHasPackages" /></th>
+            <th class="pi-flag-col"><ui-inline-text kind="screen" screen="settings" key="priceInquiryColFixedPrice" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of results">
+            <td>{{ row.pricePlan }}</td>
+            <td>{{ row.roomType }}</td>
+            <td dir="ltr">{{ row.availableRooms }}</td>
+            <td dir="ltr">{{ row.currency }}</td>
+            <td dir="ltr">{{ row.firstNightAmount }}</td>
+            <td dir="ltr">{{ row.totalAmount }}</td>
+            <td class="pi-flag-col">
+              <span class="pc-flag" [class.pc-flag--yes]="row.hasPackages" [class.pc-flag--no]="!row.hasPackages">
+                <i class="fas" [ngClass]="row.hasPackages ? 'fa-check' : 'fa-times'" aria-hidden="true"></i>
+              </span>
+            </td>
+            <td class="pi-flag-col">
+              <span class="pc-flag" [class.pc-flag--yes]="row.fixedPrice" [class.pc-flag--no]="!row.fixedPrice">
+                <i class="fas" [ngClass]="row.fixedPrice ? 'fa-check' : 'fa-times'" aria-hidden="true"></i>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

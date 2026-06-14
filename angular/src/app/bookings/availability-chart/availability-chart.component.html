@@ -1,0 +1,67 @@
+<div class="av-page" dir="rtl">
+  <div class="av-filters-card">
+    <div class="av-field av-field--hotel">
+      <label>
+        <i class="fas fa-hotel av-field__icon"></i>
+        <ui-inline-text kind="screen" screen="availabilityChart" key="fieldHotel" />
+      </label>
+      <button type="button" class="av-hotel-select">
+        <i class="fas fa-cog"></i>
+        <span>{{ hotelsSelectedLabel() }}</span>
+        <i class="fas fa-chevron-down av-hotel-select__chev"></i>
+      </button>
+    </div>
+    <div class="av-field">
+      <label><ui-inline-text kind="screen" screen="availabilityChart" key="fieldFromDate" /></label>
+      <div class="av-date-wrap">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <input type="date" class="av-control" [(ngModel)]="fromDate" (change)="applyDates()" />
+      </div>
+    </div>
+    <div class="av-field">
+      <label><ui-inline-text kind="screen" screen="availabilityChart" key="fieldToDate" /></label>
+      <div class="av-date-wrap">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <input type="date" class="av-control" [(ngModel)]="toDate" (change)="applyDates()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="av-chart-shell">
+    <button type="button" class="av-scroll-btn" [disabled]="!canScrollPrev" (click)="scrollPrev()">
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <div class="av-chart-wrap">
+      <table class="av-chart">
+        <thead>
+          <tr>
+            <th class="av-chart__hotel-head" rowspan="2" aria-hidden="true"></th>
+            <th *ngFor="let day of visibleDays; trackBy: trackByDay" class="av-chart__date-head">{{ dayHeading(day) }}</th>
+          </tr>
+          <tr>
+            <th *ngFor="let day of visibleDays; trackBy: trackByDay" class="av-chart__sub-head">
+              <ui-inline-text kind="screen" screen="availabilityChart" key="colAvailReserved" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hotel of hotels; trackBy: trackByHotel">
+            <th scope="row" class="av-chart__hotel">{{ hotelLabel(hotel) }}</th>
+            <td *ngFor="let day of visibleDays; let i = index; trackBy: trackByDay" class="av-chart__cell">
+              <span class="av-ratio">
+                <span class="av-ratio__reserved">{{ cellFor(hotel, i).reserved | localeNumber }}</span>
+                <span class="av-ratio__sep">/</span>
+                <span class="av-ratio__available">{{ cellFor(hotel, i).available | localeNumber }}</span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button type="button" class="av-scroll-btn" [disabled]="!canScrollNext" (click)="scrollNext()">
+      <i class="fas fa-chevron-left" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

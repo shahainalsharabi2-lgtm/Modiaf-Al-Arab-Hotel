@@ -1,0 +1,59 @@
+<div class="ui-toast-host" aria-live="polite" aria-relevant="additions">
+  <div
+    *ngFor="let toast of uiMsg.toasts()"
+    class="ui-toast"
+    [class.ui-toast--success]="toast.tone === 'success'"
+    [class.ui-toast--error]="toast.tone === 'error'"
+    [class.ui-toast--warning]="toast.tone === 'warning'"
+    [class.ui-toast--info]="toast.tone === 'info'"
+    [style.--toast-duration.ms]="toast.durationMs"
+    role="status">
+    <div class="ui-toast-accent" aria-hidden="true"></div>
+    <div class="ui-toast-body">
+      <div class="ui-toast-icon-wrap" aria-hidden="true">
+        <i class="fas" [ngClass]="toastIcon(toast.tone)"></i>
+      </div>
+      <div class="ui-toast-copy">
+        <strong *ngIf="toast.title" class="ui-toast-title">{{ toast.title }}</strong>
+        <p class="ui-toast-text">{{ toast.message }}</p>
+      </div>
+      <button
+        type="button"
+        class="ui-toast-close"
+        (click)="uiMsg.dismissToast(toast.id)"
+        [attr.aria-label]="ui.chromeLabel('messageClose')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="ui-toast-progress" aria-hidden="true"></div>
+  </div>
+</div>
+
+<div
+  *ngIf="uiMsg.confirmRequest() as req"
+  class="ui-confirm-backdrop"
+  role="presentation"
+  (click)="onConfirm(false)">
+  <div
+    class="ui-confirm-panel"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="ui-confirm-title"
+    (click)="$event.stopPropagation()">
+    <div class="ui-confirm-icon" aria-hidden="true">
+      <i class="fas fa-question-circle"></i>
+    </div>
+    <h2 id="ui-confirm-title" class="ui-confirm-title">
+      <ui-inline-text kind="chrome" key="messageConfirmTitle" />
+    </h2>
+    <p class="ui-confirm-message">{{ req.message }}</p>
+    <div class="ui-confirm-actions">
+      <button type="button" class="ui-confirm-btn ui-confirm-btn--ghost" (click)="onConfirm(false)">
+        <ui-inline-text kind="chrome" key="messageCancel" />
+      </button>
+      <button type="button" class="ui-confirm-btn ui-confirm-btn--primary" (click)="onConfirm(true)">
+        <ui-inline-text kind="chrome" key="messageConfirm" />
+      </button>
+    </div>
+  </div>
+</div>

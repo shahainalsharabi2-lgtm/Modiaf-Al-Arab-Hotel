@@ -1,0 +1,238 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.nap-page {
+  padding: 1rem 1.25rem 1.5rem;
+  background: linear-gradient(168deg, var(--app-bg-soft) 0%, var(--app-bg) 52%, #e3f2fd 100%);
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nap-panel {
+  background: var(--app-surface);
+  border: var(--app-card-border);
+  border-radius: 14px;
+  box-shadow: var(--app-shadow-sm), var(--app-card-inset-ring);
+}
+
+.nap-dashboard {
+  padding: 1.25rem 1.35rem 1.5rem;
+}
+
+.nap-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.nap-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.nap-stat__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+
+.nap-stat__icon--calendar {
+  background: rgba(21, 101, 192, 0.12);
+  color: var(--app-primary-mid);
+}
+
+.nap-stat__icon--clock {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+.nap-stat__icon--robot {
+  background: rgba(245, 127, 23, 0.12);
+  color: #ef6c00;
+}
+
+.nap-stat__icon--door {
+  background: rgba(251, 192, 45, 0.18);
+  color: #f57f17;
+}
+
+.nap-stat__body {
+  min-width: 0;
+}
+
+.nap-stat__label {
+  margin: 0 0 0.25rem;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.nap-stat__value {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text);
+}
+
+.nap-stat__clock {
+  margin: 0;
+  font-size: 1.65rem;
+  line-height: 1.1;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.nap-stat__sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.nap-action-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.35rem;
+}
+
+.nap-start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-width: 280px;
+  padding: 0.85rem 1.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--app-primary-mid);
+  color: var(--app-on-primary);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: var(--fw-semibold, 700);
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(21, 101, 192, 0.22);
+}
+
+.nap-start-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.nap-archive {
+  overflow: hidden;
+}
+
+.nap-archive__head {
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.nap-archive__head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text);
+}
+
+.nap-table-wrap {
+  overflow-x: auto;
+}
+
+.nap-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.nap-table thead th {
+  padding: 0.75rem 0.85rem;
+  text-align: center;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text-muted);
+  background: var(--app-bg-soft);
+  border-bottom: 1px solid var(--app-border);
+  white-space: nowrap;
+}
+
+.nap-table tbody td {
+  padding: 0.72rem 0.85rem;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.nap-table tbody tr:hover {
+  background: rgba(21, 101, 192, 0.05);
+}
+
+.nap-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: var(--fw-semibold, 700);
+  white-space: nowrap;
+}
+
+.nap-badge--status-completed {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.nap-badge--status-in_progress {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.nap-badge--mode-automatic {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.nap-badge--mode-manual {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.nap-empty {
+  text-align: center;
+  padding: 2rem 1rem !important;
+  color: var(--app-text-muted);
+}
+
+@media (max-width: 1100px) {
+  .nap-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .nap-page {
+    padding: 0.75rem;
+  }
+
+  .nap-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .nap-start-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}

@@ -1,0 +1,120 @@
+<div class="hkt-page" dir="rtl">
+  <header class="hkt-page-head">
+    <div class="hkt-page-head__icon" aria-hidden="true">
+      <i class="fas fa-list"></i>
+    </div>
+    <div class="hkt-page-head__text">
+      <h1 class="hkt-page-head__title"><ui-inline-text kind="screen" screen="hkTasks" key="pageTitle" /></h1>
+      <p class="hkt-page-head__desc"><ui-inline-text kind="screen" screen="hkTasks" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <section class="hkt-chrome">
+    <div class="hkt-toolbar">
+      <label class="hkt-search">
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="label('searchPlaceholder')"
+          [attr.aria-label]="label('searchPlaceholder')" />
+        <i class="fas fa-search" aria-hidden="true"></i>
+      </label>
+
+      <button type="button" class="hkt-btn hkt-btn--new" (click)="addNew()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkTasks" key="newBtn" />
+      </button>
+    </div>
+  </section>
+
+  <section class="hkt-table-card">
+    <div class="hkt-table-wrap">
+      <table class="hkt-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('rowNo')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colRowNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('rowNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('name')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colName" /></span>
+                <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('foreignName')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colForeignName" /></span>
+                <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('code')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colCode" /></span>
+                <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('description')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colDescription" /></span>
+                <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('points')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colPoints" /></span>
+                <i class="fas" [ngClass]="sortIcon('points')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th><ui-inline-text kind="screen" screen="hkTasks" key="colColor" /></th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('timeUnit')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colTimeUnit" /></span>
+                <i class="fas" [ngClass]="sortIcon('timeUnit')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('requiredTime')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colRequiredTime" /></span>
+                <i class="fas" [ngClass]="sortIcon('requiredTime')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkt-sort" (click)="toggleSort('displayOrder')">
+                <span><ui-inline-text kind="screen" screen="hkTasks" key="colDisplayOrder" /></span>
+                <i class="fas" [ngClass]="sortIcon('displayOrder')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="hkt-col-actions"><ui-inline-text kind="screen" screen="hkTasks" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.rowNo | localeNumber }}</td>
+            <td class="hkt-name">{{ cellValue(row.name) }}</td>
+            <td>{{ cellValue(row.foreignName) }}</td>
+            <td>{{ row.code | localeNumber }}</td>
+            <td>{{ cellValue(row.description) }}</td>
+            <td>{{ row.points | localeNumber }}</td>
+            <td>
+              <span class="hkt-color" [style.background]="row.color" [attr.aria-label]="label('colorSwatchAria')"></span>
+            </td>
+            <td>{{ row.timeUnit | localeNumber }}</td>
+            <td>{{ row.requiredTime | localeNumber }}</td>
+            <td>{{ row.displayOrder | localeNumber }}</td>
+            <td class="hkt-col-actions">
+              <button type="button" class="hkt-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="11" class="hkt-empty"><ui-inline-text kind="screen" screen="hkTasks" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,297 @@
+<div class="ky-page">
+  <section class="ky-hero ky-panel">
+    <div class="ky-hero__top">
+      <div class="ky-hero__title">
+        <i class="fas fa-id-card" aria-hidden="true"></i>
+        <h1><ui-inline-text kind="screen" screen="keys" key="pageTitle" /></h1>
+      </div>
+
+      <div class="ky-hero__actions">
+        <button type="button" class="ky-btn ky-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="refresh" />
+        </button>
+        <button type="button" class="ky-btn ky-btn--verify" (click)="verifyCard()">
+          <i class="fas fa-check-circle" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="verifyCard" />
+        </button>
+        <button type="button" class="ky-btn ky-btn--read" (click)="readCard()">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="readCard" />
+        </button>
+        <button type="button" class="ky-btn ky-btn--temp" (click)="temporaryKey()">
+          <i class="fas fa-wrench" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="temporaryKey" />
+        </button>
+        <button type="button" class="ky-btn ky-btn--primary" (click)="issueKey()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="issueKey" />
+        </button>
+        <button type="button" class="ky-btn ky-btn--danger" (click)="offlineService()">
+          <i class="fas fa-times-circle" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="keys" key="offlineService" />
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="ky-table-card ky-panel">
+    <div class="ky-table-wrap">
+      <table class="ky-table">
+        <thead>
+          <tr class="ky-table__head-row">
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('guestName')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colGuestName" /></span>
+                <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('keyNo')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colKeyNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('keyNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('type')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colType" /></span>
+                <i class="fas" [ngClass]="sortIcon('type')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('status')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colStatus" /></span>
+                <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="ky-sort" (click)="toggleSort('expiry')">
+                <span><ui-inline-text kind="screen" screen="keys" key="colExpiry" /></span>
+                <i class="fas" [ngClass]="sortIcon('expiry')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="ky-col-actions"><ui-inline-text kind="screen" screen="keys" key="colActions" /></th>
+          </tr>
+          <tr class="ky-table__filter-row">
+            <th>
+              <label class="ky-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterRoomNo" [attr.aria-label]="label('filterRoomNoAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ky-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterGuestName" [attr.aria-label]="label('filterGuestNameAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ky-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterKeyNo" [attr.aria-label]="label('filterKeyNoAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ky-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterType" [attr.aria-label]="label('filterTypeAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ky-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterStatus" [attr.aria-label]="label('filterStatusAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="ky-filter ky-filter--date">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <input type="date" [(ngModel)]="filterExpiry" [attr.aria-label]="label('filterExpiryAria')" />
+              </label>
+            </th>
+            <th class="ky-col-actions">
+              <div class="ky-filter-actions">
+                <button type="button" class="ky-filter-icon-btn" [attr.title]="label('filterLayoutAria')" [attr.aria-label]="label('filterLayoutAria')">
+                  <i class="fas fa-columns" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="ky-filter-icon-btn" [attr.title]="label('filterSearchAria')" [attr.aria-label]="label('filterSearchAria')">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                </button>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td>{{ row.guestName }}</td>
+            <td dir="ltr">{{ row.keyNo }}</td>
+            <td>{{ typeLabel(row.typeKey) }}</td>
+            <td>{{ statusLabel(row.statusKey) }}</td>
+            <td dir="ltr">{{ formatDate(row.expiry) }}</td>
+            <td class="ky-col-actions">
+              <button type="button" class="ky-view-btn" (click)="viewRow(row)" [attr.aria-label]="label('viewRowAria')">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="7" class="ky-empty"><ui-inline-text kind="screen" screen="keys" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+@if (activeModal) {
+  <div class="ky-modal-backdrop" (click)="closeModal()"></div>
+  <div class="ky-modal" role="dialog" aria-modal="true" [attr.aria-label]="modalTitle()">
+    <header class="ky-modal__header">
+      <h2 class="ky-modal__title">{{ modalTitle() }}</h2>
+      <button type="button" class="ky-modal__close" (click)="closeModal()" [attr.aria-label]="label('modalCloseAria')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    @if (activeModal === 'issue') {
+      <form class="ky-modal__body" (ngSubmit)="submitIssueKey()">
+        <div class="ky-form-grid">
+          <div class="ky-field">
+            <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="issueBookingNo" /></label>
+            <div class="ky-input-composite">
+              <input type="text" class="ky-input ky-input--flat" [(ngModel)]="issueBookingNo" name="issueBookingNo" [placeholder]="label('issueBookingNoPlaceholder')" />
+              <button type="button" class="ky-input-composite__btn" [attr.title]="label('searchBookingAria')">
+                <i class="fas fa-search" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="ky-field">
+            <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="colRoomNo" /></label>
+            <div class="ky-input-composite">
+              <input type="text" class="ky-input ky-input--flat" [(ngModel)]="issueRoomNo" name="issueRoomNo" [placeholder]="label('issueRoomNoPlaceholder')" />
+              <button type="button" class="ky-input-composite__btn" [attr.title]="label('searchRoomAria')">
+                <i class="fas fa-search" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="issueSelectReservation" /></label>
+          <div class="ky-combobox">
+            <input
+              type="search"
+              class="ky-input"
+              [(ngModel)]="reservationSearch"
+              name="reservationSearch"
+              [placeholder]="label('issueReservationPlaceholder')"
+              (focus)="openReservationList()"
+              (blur)="closeReservationList()"
+              (input)="openReservationList()"
+            />
+            @if (reservationListOpen) {
+              <ul class="ky-combobox__list" role="listbox">
+                @if (reservationBookingsLoading) {
+                  <li class="ky-combobox__empty"><ui-inline-text kind="screen" screen="keys" key="bookingsLoading" /></li>
+                } @else if (filteredReservationOptions.length === 0) {
+                  <li class="ky-combobox__empty"><ui-inline-text kind="screen" screen="keys" key="noReservations" /></li>
+                } @else {
+                  @for (option of filteredReservationOptions; track option.id) {
+                    <li>
+                      <button type="button" class="ky-combobox__option" (mousedown)="selectReservation(option)">
+                        {{ option.label }}
+                      </button>
+                    </li>
+                  }
+                }
+              </ul>
+            }
+          </div>
+        </div>
+
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="colGuestName" /></label>
+          <input type="text" class="ky-input" [(ngModel)]="issueGuestName" name="issueGuestName" [placeholder]="label('issueGuestNamePlaceholder')" />
+        </div>
+
+        <div class="ky-form-grid ky-form-grid--dates">
+          <div class="ky-field">
+            <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="issueArrival" /></label>
+            <input type="datetime-local" class="ky-input" [(ngModel)]="issueArrival" name="issueArrival" />
+          </div>
+          <div class="ky-field">
+            <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="issueDeparture" /></label>
+            <input type="datetime-local" class="ky-input" [(ngModel)]="issueDeparture" name="issueDeparture" />
+          </div>
+        </div>
+
+        @if (modalError) {
+          <p class="ky-form-error" role="alert">{{ modalError }}</p>
+        }
+
+        <footer class="ky-modal__footer">
+          <button type="button" class="ky-btn ky-btn--outline" (click)="closeModal()"><ui-inline-text kind="screen" screen="keys" key="modalCancel" /></button>
+          <button type="submit" class="ky-btn ky-btn--primary"><ui-inline-text kind="screen" screen="keys" key="modalExecute" /></button>
+        </footer>
+      </form>
+    }
+
+    @if (activeModal === 'verify' || activeModal === 'read') {
+      <form class="ky-modal__body" (ngSubmit)="activeModal === 'verify' ? submitVerifyCard() : submitReadCard()">
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="colRoomNo" /></label>
+          <input type="text" class="ky-input" [(ngModel)]="actionRoomNo" name="actionRoomNo" [placeholder]="label('issueRoomNoPlaceholder')" />
+        </div>
+
+        @if (modalError) {
+          <p class="ky-form-error" role="alert">{{ modalError }}</p>
+        }
+
+        <footer class="ky-modal__footer">
+          <button type="button" class="ky-btn ky-btn--outline" (click)="closeModal()"><ui-inline-text kind="screen" screen="keys" key="modalCancel" /></button>
+          <button type="submit" class="ky-btn ky-btn--primary"><ui-inline-text kind="screen" screen="keys" key="modalExecute" /></button>
+        </footer>
+      </form>
+    }
+
+    @if (activeModal === 'temp') {
+      <form class="ky-modal__body" (ngSubmit)="submitTemporaryKey()">
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="colRoomNo" /></label>
+          <div class="ky-input-composite">
+            <input type="text" class="ky-input ky-input--flat" [(ngModel)]="tempRoomNo" name="tempRoomNo" [placeholder]="label('issueRoomNoPlaceholder')" />
+            <button type="button" class="ky-input-composite__btn" [attr.title]="label('searchRoomAria')">
+              <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="tempDuration" /></label>
+          <input type="number" min="1" class="ky-input" [(ngModel)]="tempDurationHours" name="tempDurationHours" />
+        </div>
+
+        <div class="ky-field ky-field--full">
+          <label class="ky-field__label"><ui-inline-text kind="screen" screen="keys" key="tempPurpose" /></label>
+          <input type="text" class="ky-input" [(ngModel)]="tempPurpose" name="tempPurpose" [placeholder]="label('tempPurposePlaceholder')" />
+        </div>
+
+        @if (modalError) {
+          <p class="ky-form-error" role="alert">{{ modalError }}</p>
+        }
+
+        <footer class="ky-modal__footer">
+          <button type="button" class="ky-btn ky-btn--outline" (click)="closeModal()"><ui-inline-text kind="screen" screen="keys" key="modalCancel" /></button>
+          <button type="submit" class="ky-btn ky-btn--primary"><ui-inline-text kind="screen" screen="keys" key="modalExecute" /></button>
+        </footer>
+      </form>
+    }
+  </div>
+}

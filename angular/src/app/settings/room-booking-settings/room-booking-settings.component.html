@@ -1,0 +1,329 @@
+<div class="rbs-page" dir="rtl">
+  <section class="rbs-page__panel">
+    <nav class="rbs-tabs" role="tablist" [attr.aria-label]="ui.screenText('settings', 'roomBookingSettingsTabsAria')">
+      <button
+        type="button"
+        role="tab"
+        class="rbs-tabs__btn"
+        [class.rbs-tabs__btn--active]="activeSection === 'statuses'"
+        [attr.aria-selected]="activeSection === 'statuses'"
+        (click)="setSection('statuses')">
+        <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsTabStatuses" />
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="rbs-tabs__btn"
+        [class.rbs-tabs__btn--active]="activeSection === 'filterPerms'"
+        [attr.aria-selected]="activeSection === 'filterPerms'"
+        (click)="setSection('filterPerms')">
+        <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsTabFilterPerms" />
+      </button>
+    </nav>
+
+    <ng-container *ngIf="activeSection === 'statuses'">
+      <div class="rbs-display-filter">
+        <i class="fas fa-filter" aria-hidden="true"></i>
+        <span><ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsDisplayBy" /></span>
+        <select [(ngModel)]="displayBy">
+          <option value="rooms"><ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsDisplayRooms" /></option>
+        </select>
+      </div>
+
+      <div class="rbs-table-wrap" *ngIf="filteredStatusRows().length">
+        <table class="rbs-table">
+          <thead>
+            <tr>
+              <th class="rbs-table__sortable" (click)="toggleStatusSort('serial')">
+                <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsColSerial" />
+                <i class="fas" [ngClass]="statusSortIcon('serial')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" (click)="toggleStatusSort('statusName')">
+                <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsColStatusName" />
+                <i class="fas" [ngClass]="statusSortIcon('statusName')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" (click)="toggleStatusSort('usedIn')">
+                <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsColUsedIn" />
+                <i class="fas" [ngClass]="statusSortIcon('usedIn')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" (click)="toggleStatusSort('statusType')">
+                <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsColStatusType" />
+                <i class="fas" [ngClass]="statusSortIcon('statusType')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" (click)="toggleStatusSort('colorHex')">
+                <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsColPathColor" />
+                <i class="fas" [ngClass]="statusSortIcon('colorHex')" aria-hidden="true"></i>
+              </th>
+            </tr>
+            <tr class="rbs-table__filters">
+              <th>
+                <div class="rbs-table__filter-field">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="filterSerial" (ngModelChange)="onSearchChange()" />
+                </div>
+              </th>
+              <th>
+                <div class="rbs-table__filter-field">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="filterStatusName" (ngModelChange)="onSearchChange()" />
+                </div>
+              </th>
+              <th>
+                <div class="rbs-table__filter-field">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="filterUsedIn" (ngModelChange)="onSearchChange()" />
+                </div>
+              </th>
+              <th>
+                <div class="rbs-table__filter-field">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="filterStatusType" (ngModelChange)="onSearchChange()" />
+                </div>
+              </th>
+              <th>
+                <div class="rbs-table__filter-field">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="filterColor" (ngModelChange)="onSearchChange()" />
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedStatusRows()">
+              <td>{{ row.serial }}</td>
+              <td>{{ row.statusName }}</td>
+              <td><span class="rbs-badge">{{ row.usedIn }}</span></td>
+              <td>
+                <span class="rbs-type-tag">
+                  <i class="fas fa-tag" aria-hidden="true"></i>
+                  {{ row.statusType }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="rbs-color-pill"
+                  [class.rbs-color-pill--empty]="!row.colorHex"
+                  [ngStyle]="colorPillStyle(row.colorHex)">
+                  {{ row.colorHex || '' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="rbs-footer" *ngIf="filteredStatusRows().length">
+        <div class="rbs-footer__info">
+          <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsPage" />
+          {{ pageIndex }}
+          <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsPageOf" />
+          {{ totalPages() }}
+          ({{ activeRowsCount() }}
+          <ui-inline-text kind="screen" screen="settings" key="roomBookingSettingsItemsCount" />)
+        </div>
+
+        <div class="rbs-footer__pages">
+          <button type="button" class="rbs-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+            <i class="fas fa-angle-right" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="rbs-page-btn"
+            *ngFor="let page of pageNumbers()"
+            [class.rbs-page-btn--active]="pageIndex === page"
+            (click)="setPage(page)">
+            {{ page }}
+          </button>
+          <button type="button" class="rbs-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="rbs-footer__sizes">
+          <button
+            type="button"
+            class="rbs-size-btn"
+            *ngFor="let size of pageSizeOptions"
+            [class.rbs-size-btn--active]="pageSize === size"
+            (click)="setPageSize(size)">
+            {{ size }}
+          </button>
+        </div>
+      </footer>
+    </ng-container>
+
+    <ng-container *ngIf="activeSection === 'filterPerms'">
+      <header class="rbs-hero">
+        <div class="rbs-hero__main">
+          <div class="rbs-hero__icon" aria-hidden="true">
+            <i class="fas fa-filter"></i>
+          </div>
+          <div class="rbs-hero__text">
+            <h2><ui-inline-text kind="screen" screen="settings" key="filterPermsTitle" /></h2>
+            <p><ui-inline-text kind="screen" screen="settings" key="filterPermsUserLabel" /></p>
+          </div>
+        </div>
+        <div class="rbs-hero__total">
+          <strong>{{ filterPermRows.length }}</strong>
+          <span><ui-inline-text kind="screen" screen="settings" key="filterPermsTotal" /></span>
+        </div>
+      </header>
+
+      <div class="rbs-user-filter">
+        <label>
+          <span><ui-inline-text kind="screen" screen="settings" key="filterPermsUserLabel" /></span>
+          <div class="rbs-user-filter__field">
+            <input type="text" [(ngModel)]="userQuery" />
+            <button type="button" class="rbs-user-filter__clear" *ngIf="userQuery" (click)="clearUserQuery()" aria-label="clear">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>
+        </label>
+        <button type="button" class="rbs-user-filter__search" [attr.aria-label]="ui.screenText('settings', 'filterPermsUserSearch')">
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="rbs-section-head">
+        <i class="fas fa-th" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="filterPermsSectionTitle" />
+      </div>
+
+      <div class="rbs-toolbar">
+        <div class="rbs-toolbar__filters">
+          <div class="rbs-toolbar__search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+              type="search"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()"
+              [placeholder]="ui.screenText('settings', 'filterPermsSearchPh')" />
+          </div>
+          <label class="rbs-toolbar__select">
+            <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="filterPermsFilterStatus" /></span>
+            <select [(ngModel)]="statusFilter" (ngModelChange)="onSearchChange()">
+              <option value="all"><ui-inline-text kind="screen" screen="settings" key="filterPermsFilterAll" /></option>
+              <option value="active"><ui-inline-text kind="screen" screen="settings" key="filterPermsFilterActive" /></option>
+              <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="filterPermsFilterInactive" /></option>
+            </select>
+          </label>
+        </div>
+
+        <div class="rbs-view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'filterPermsViewToggleAria')">
+          <button
+            type="button"
+            class="rbs-view-btn"
+            [class.rbs-view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'filterPermsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="rbs-view-btn"
+            [class.rbs-view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'filterPermsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="rbs-table-wrap" *ngIf="viewMode === 'list' && filteredPermRows().length">
+        <table class="rbs-table">
+          <thead>
+            <tr>
+              <th class="rbs-table__sortable" (click)="togglePermSort('id')">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColSerial" />
+                <i class="fas" [ngClass]="permSortIcon('id')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" dir="ltr" (click)="togglePermSort('code')">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColCode" />
+                <i class="fas" [ngClass]="permSortIcon('code')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" (click)="togglePermSort('name')">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColName" />
+                <i class="fas" [ngClass]="permSortIcon('name')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-table__sortable" dir="ltr" (click)="togglePermSort('latinName')">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColLatinName" />
+                <i class="fas" [ngClass]="permSortIcon('latinName')" aria-hidden="true"></i>
+              </th>
+              <th class="rbs-check">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColAllowed" />
+              </th>
+              <th class="rbs-col-actions" *ngIf="canEdit">
+                <ui-inline-text kind="screen" screen="settings" key="filterPermsColActions" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedPermRows()">
+              <td>{{ row.id }}</td>
+              <td dir="ltr">{{ row.code }}</td>
+              <td>{{ row.name }}</td>
+              <td dir="ltr">{{ row.latinName }}</td>
+              <td class="rbs-check">
+                <input type="checkbox" [checked]="row.allowed" [disabled]="!canEdit" (change)="toggleAllowed(row)" />
+              </td>
+              <td class="rbs-col-actions" *ngIf="canEdit">
+                <button
+                  type="button"
+                  class="rbs-actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'filterPermsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="rbs-footer" *ngIf="viewMode === 'list' && filteredPermRows().length">
+        <div class="rbs-footer__info">
+          <ui-inline-text kind="screen" screen="settings" key="filterPermsShowing" />
+          {{ rangeFrom() }}
+          <ui-inline-text kind="screen" screen="settings" key="filterPermsTo" />
+          {{ rangeTo() }}
+          <ui-inline-text kind="screen" screen="settings" key="filterPermsOf" />
+          {{ activeRowsCount() }}
+          <ui-inline-text kind="screen" screen="settings" key="filterPermsRecords" />
+        </div>
+
+        <div class="rbs-footer__pages">
+          <button type="button" class="rbs-page-btn" (click)="setPage(1)" [disabled]="pageIndex === 1">
+            <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="rbs-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+            <i class="fas fa-angle-right" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="rbs-page-btn"
+            *ngFor="let page of pageNumbers()"
+            [class.rbs-page-btn--active]="pageIndex === page"
+            (click)="setPage(page)">
+            {{ page }}
+          </button>
+          <button type="button" class="rbs-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="rbs-page-btn" (click)="setPage(totalPages())" [disabled]="pageIndex === totalPages()">
+            <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <label class="rbs-footer__size-select">
+          <span><ui-inline-text kind="screen" screen="settings" key="filterPermsPageSize" /></span>
+          <select [(ngModel)]="pageSize" (ngModelChange)="onSearchChange()">
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="25">25</option>
+            <option [ngValue]="50">50</option>
+          </select>
+        </label>
+      </footer>
+    </ng-container>
+  </section>
+</div>

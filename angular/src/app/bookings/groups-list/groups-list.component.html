@@ -1,0 +1,153 @@
+<div class="gr-page" dir="rtl">
+  <div class="gr-chrome">
+    <div class="gr-top-bar">
+      <nav class="gr-tabs" role="tablist" [attr.aria-label]="label('tabsAria')">
+        <button
+          *ngFor="let tab of tabs"
+          type="button"
+          role="tab"
+          class="gr-tab"
+          [class.gr-tab--active]="activeTab === tab"
+          [attr.aria-selected]="activeTab === tab"
+          (click)="setTab(tab)">
+          <span class="gr-tab-label">{{ tabLabel(tab) }}</span>
+          <span class="gr-tab-count">{{ tabCount(tab) | localeNumber }}</span>
+        </button>
+      </nav>
+
+      <a routerLink="/nav/bookings/navGroupBooking" class="gr-new-btn">
+        <span><ui-inline-text kind="screen" screen="groupsList" key="newBtn" /></span>
+        <i class="fas fa-plus" aria-hidden="true"></i>
+      </a>
+
+      <div class="gr-toolbar">
+        <div class="gr-view-toggle" role="group" [attr.aria-label]="label('viewToggleAria')">
+          <button
+            type="button"
+            class="gr-view-btn"
+            [class.gr-view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [attr.aria-pressed]="viewMode === 'grid'">
+            <i class="fas fa-th" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="gr-view-btn"
+            [class.gr-view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [attr.aria-pressed]="viewMode === 'list'">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="gr-filter-group">
+          <label class="gr-scope-wrap">
+            <select class="gr-scope-select" [(ngModel)]="scopeFilter">
+              <option value=""><ui-inline-text kind="screen" screen="groupsList" key="filterAll" /></option>
+            </select>
+            <i class="fas fa-chevron-down gr-scope-chev" aria-hidden="true"></i>
+          </label>
+          <div class="gr-search">
+            <input
+              type="search"
+              class="gr-search-input"
+              [(ngModel)]="searchTerm"
+              [placeholder]="label('searchPh')" />
+            <button type="button" class="gr-search-submit" [attr.aria-label]="label('searchBtn')">
+              <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gr-content" *ngIf="viewMode === 'grid'; else listView">
+    <article class="gr-card" *ngFor="let group of filteredGroups; trackBy: trackById">
+      <div class="gr-card__ribbon" [class.gr-card__ribbon--finished]="group.status === 'finished'">
+        {{ statusLabel(group.status) }}
+      </div>
+
+      <div class="gr-card__top">
+        <button type="button" class="gr-card__menu" [attr.aria-label]="label('cardMenuAria')">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <i class="fas fa-users gr-card__group-icon" aria-hidden="true"></i>
+      </div>
+
+      <div class="gr-card__identity">
+        <div class="gr-card__avatar">{{ groupInitial(group.groupName) }}</div>
+        <h2 class="gr-card__title">{{ group.groupName }}</h2>
+        <div class="gr-card__meta">
+          <span class="gr-card__id-pill">#{{ group.id | localeNumber }}</span>
+          <span class="gr-card__created">{{ formatDisplayDate(group.createdDate) }}</span>
+        </div>
+      </div>
+
+      <div class="gr-card__stats-panel">
+        <div class="gr-card__stats">
+          <div class="gr-stat">
+            <span class="gr-stat__label"><ui-inline-text kind="screen" screen="groupsList" key="statNights" /></span>
+            <strong class="gr-stat__value">{{ group.nights | localeNumber }}</strong>
+          </div>
+          <div class="gr-stat">
+            <span class="gr-stat__label"><ui-inline-text kind="screen" screen="groupsList" key="statRooms" /></span>
+            <strong class="gr-stat__value">{{ group.totalRooms | localeNumber }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="gr-card__dates-panel">
+        <div class="gr-card__dates">
+          <span class="gr-card__date">
+            <small><ui-inline-text kind="screen" screen="groupsList" key="arrivalDate" /></small>
+            <strong>{{ formatDisplayDate(group.arrivalDate) }}</strong>
+          </span>
+          <i class="fas fa-long-arrow-alt-left gr-card__arrow" aria-hidden="true"></i>
+          <span class="gr-card__date gr-card__date--departure">
+            <small><ui-inline-text kind="screen" screen="groupsList" key="departureDate" /></small>
+            <strong>{{ formatDisplayDate(group.departureDate) }}</strong>
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <p class="gr-empty" *ngIf="!filteredGroups.length">
+      <ui-inline-text kind="screen" screen="groupsList" key="noData" />
+    </p>
+  </div>
+
+  <ng-template #listView>
+    <div class="gr-table-wrap">
+      <table class="gr-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="colGroupName" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="colContact" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="statNights" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="statRooms" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="arrivalDate" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="departureDate" /></th>
+            <th><ui-inline-text kind="screen" screen="groupsList" key="colStatus" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let group of filteredGroups; trackBy: trackById">
+            <td>{{ group.id | localeNumber }}</td>
+            <td>{{ group.groupName }}</td>
+            <td>{{ group.contactName }}</td>
+            <td>{{ group.nights | localeNumber }}</td>
+            <td>{{ group.totalRooms | localeNumber }}</td>
+            <td>{{ formatDisplayDate(group.arrivalDate) }}</td>
+            <td>{{ formatDisplayDate(group.departureDate) }}</td>
+            <td>{{ statusLabel(group.status) }}</td>
+          </tr>
+          <tr *ngIf="!filteredGroups.length">
+            <td colspan="8" class="gr-table-empty"><ui-inline-text kind="screen" screen="groupsList" key="noData" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,80 @@
+<div class="rr-page">
+  <div *ngIf="loading" class="rr-state rr-state--loading">
+    <div class="rr-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="roomsRack" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="rr-state rr-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="rr-btn rr-btn--outline" (click)="loadData()"><ui-inline-text kind="screen" screen="roomsRack" key="retryLoad" /></button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <section class="rr-stats">
+      <button
+        *ngFor="let stat of stats; trackBy: trackStat"
+        type="button"
+        class="rr-stat"
+        [ngClass]="statToneClass(stat.tone)"
+        [class.rr-stat--active]="activeStatFilter === stat.key"
+        (click)="toggleStatFilter(stat.key)"
+      >
+        <span class="rr-stat__label"><ui-inline-text kind="screen" screen="roomsRack" [key]="stat.labelKey" /></span>
+        <strong class="rr-stat__value">{{ stat.count | localeNumber }}</strong>
+      </button>
+    </section>
+
+    <section class="rr-board rr-panel">
+      <header class="rr-board__head">
+        <div class="rr-tabs">
+          <button
+            *ngFor="let building of buildings"
+            type="button"
+            class="rr-tab"
+            [class.rr-tab--active]="activeBuildingId === building.id"
+            (click)="setBuilding(building.id)"
+          >
+            <span><ui-inline-text kind="screen" screen="roomsRack" [key]="building.labelKey" /></span>
+            <em>{{ building.count | localeNumber }}</em>
+          </button>
+        </div>
+
+        <label class="rr-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </header>
+
+      <div class="rr-grid-wrap">
+        <div class="rr-grid">
+          <button
+            *ngFor="let tile of filteredTiles; trackBy: trackTile"
+            type="button"
+            class="rr-tile"
+            [ngClass]="tileClass(tile)"
+            (click)="selectTile(tile)"
+            [attr.aria-label]="tile.number"
+          >
+            <i *ngIf="tile.showInfo" class="fas fa-info-circle rr-tile__info" aria-hidden="true"></i>
+            <span class="rr-tile__no">{{ tile.number | localeNumber }}</span>
+            <span class="rr-tile__type">{{ tile.typeLabel }}</span>
+          </button>
+        </div>
+        <p *ngIf="filteredTiles.length === 0" class="rr-empty"><ui-inline-text kind="screen" screen="roomsRack" key="emptyRooms" /></p>
+      </div>
+    </section>
+
+    <footer class="rr-type-bar">
+      <button
+        *ngFor="let opt of typeFilters; trackBy: trackTypeFilter"
+        type="button"
+        class="rr-type-btn"
+        [class.rr-type-btn--active]="typeFilter === opt.id"
+        (click)="setTypeFilter(opt.id)"
+      >
+        <span><ui-inline-text kind="screen" screen="roomsRack" [key]="opt.labelKey" /></span>
+        <em>{{ opt.count | localeNumber }}</em>
+      </button>
+    </footer>
+  </ng-container>
+</div>

@@ -1,0 +1,120 @@
+<div class="rs-page" dir="rtl">
+  <header class="rs-toolbar">
+    <div class="rs-toolbar__center">
+      <div class="rs-view-modes" role="group" [attr.aria-label]="label('viewModesAria')">
+        <button
+          *ngFor="let mode of viewModes"
+          type="button"
+          class="rs-view-mode"
+          [class.rs-view-mode--active]="viewMode === mode"
+          (click)="setViewMode(mode)">
+          {{ viewModeLabel(mode) }}
+        </button>
+      </div>
+      <button type="button" class="rs-search-btn" [attr.aria-label]="label('searchBtn')">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="rs-toolbar__dates">
+      <button type="button" class="rs-nav-btn" (click)="shiftRange(-1)" [attr.aria-label]="label('prevRange')">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <div class="rs-month">
+        <i class="fas fa-calendar-alt"></i>
+        <span>{{ monthLabel() }}</span>
+      </div>
+      <button type="button" class="rs-nav-btn" (click)="shiftRange(1)" [attr.aria-label]="label('nextRange')">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button type="button" class="rs-today-btn" (click)="goToday()">
+        <ui-inline-text kind="screen" screen="roomsSchedule" key="todayBtn" />
+      </button>
+    </div>
+  </header>
+
+  <div class="rs-subhead">
+    <div class="rs-view-by">
+      <span class="rs-view-by__label"><ui-inline-text kind="screen" screen="roomsSchedule" key="viewByLabel" /></span>
+      <label class="rs-radio">
+        <input type="radio" name="viewBy" value="roomType" [(ngModel)]="viewBy" />
+        <ui-inline-text kind="screen" screen="roomsSchedule" key="viewByRoomType" />
+      </label>
+      <label class="rs-radio">
+        <input type="radio" name="viewBy" value="floor" [(ngModel)]="viewBy" />
+        <ui-inline-text kind="screen" screen="roomsSchedule" key="viewByFloor" />
+      </label>
+    </div>
+  </div>
+
+  <div class="rs-legend">
+    <span class="rs-legend__item" *ngFor="let item of legend; trackBy: trackByLegend">
+      <i class="rs-legend__dot" [ngStyle]="legendDot(item)"></i>
+      <ui-inline-text kind="screen" screen="roomsSchedule" [key]="item.labelKey" />
+    </span>
+  </div>
+
+  <div class="rs-schedule">
+    <div class="rs-schedule__rooms">
+      <div class="rs-schedule__rooms-head"></div>
+      <ng-container *ngFor="let group of visibleGroups; trackBy: trackByGroup">
+        <button type="button" class="rs-group-head" (click)="toggleGroup(group.id)">
+          <i class="fas" [class.fa-chevron-down]="!isGroupCollapsed(group.id)" [class.fa-chevron-left]="isGroupCollapsed(group.id)"></i>
+          <ui-inline-text kind="screen" screen="roomsSchedule" [key]="group.labelKey" />
+        </button>
+        <ng-container *ngIf="!isGroupCollapsed(group.id)">
+          <div class="rs-room-row" *ngFor="let room of group.rooms; trackBy: trackByRoom">
+            <span class="rs-room-row__indicator" aria-hidden="true"></span>
+            <div class="rs-room-row__info">
+              <strong>{{ room.number }}</strong>
+              <span class="rs-room-row__status">
+                <i class="fas fa-check-circle"></i>
+                <ui-inline-text kind="screen" screen="roomsSchedule" key="roomClean" />
+              </span>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+
+    <div class="rs-schedule__grid-wrap">
+      <div class="rs-schedule__grid">
+        <div class="rs-timeline">
+          <div class="rs-timeline__row rs-timeline__row--weekday">
+            <span *ngFor="let day of days; trackBy: trackByDay" [class.rs-timeline__today]="day.isToday">
+              <ui-inline-text kind="screen" screen="roomsSchedule" [key]="day.weekdayKey" />
+            </span>
+          </div>
+          <div class="rs-timeline__row rs-timeline__row--date">
+            <span *ngFor="let day of days; trackBy: trackByDay" [class.rs-timeline__today]="day.isToday">
+              <em *ngIf="day.isToday">{{ day.dayNum | localeNumber }}</em>
+              <ng-container *ngIf="!day.isToday">{{ day.dayNum | localeNumber }}</ng-container>
+            </span>
+          </div>
+          <div class="rs-timeline__row rs-timeline__row--avail">
+            <span *ngFor="let day of days; trackBy: trackByDay">{{ day.availability | localeNumber }}</span>
+          </div>
+        </div>
+
+        <ng-container *ngFor="let group of visibleGroups; trackBy: trackByGroup">
+          <div class="rs-grid-group-head"></div>
+          <ng-container *ngIf="!isGroupCollapsed(group.id)">
+            <div class="rs-grid-row" *ngFor="let room of group.rooms; trackBy: trackByRoom">
+              <div class="rs-grid-cells">
+                <span *ngFor="let day of days; trackBy: trackByDay" class="rs-grid-cell" [class.rs-grid-cell--today]="day.isToday"></span>
+                <span class="rs-today-line" *ngIf="todayDayIndex >= 0" [ngStyle]="todayLineStyle()"></span>
+                <span
+                  *ngFor="let bar of barsForRoom(room.id)"
+                  class="rs-booking-bar"
+                  [ngStyle]="barStyle(bar)"
+                  [title]="bar.guestName">
+                  {{ bar.guestName }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

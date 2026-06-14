@@ -1,0 +1,177 @@
+<div class="hktrs-page" dir="rtl">
+  <header class="hktrs-page-head">
+    <div class="hktrs-page-head__icon" aria-hidden="true">
+      <i class="fas fa-clipboard-list"></i>
+    </div>
+    <div class="hktrs-page-head__text">
+      <h1 class="hktrs-page-head__title"><ui-inline-text kind="screen" screen="hkTaskRequests" key="pageTitle" /></h1>
+      <p class="hktrs-page-head__desc"><ui-inline-text kind="screen" screen="hkTaskRequests" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <nav class="hktrs-tabs" role="tablist" [attr.aria-label]="label('tabsAria')">
+    <button
+      *ngFor="let tab of tabs"
+      type="button"
+      role="tab"
+      class="hktrs-tab"
+      [class.hktrs-tab--active]="activeTab === tab"
+      [attr.aria-selected]="activeTab === tab"
+      (click)="setTab(tab)">
+      <span>{{ tabLabel(tab) }}</span>
+      <span class="hktrs-tab__count">({{ tabCount(tab) | localeNumber }})</span>
+    </button>
+  </nav>
+
+  <section class="hktrs-date-card">
+    <div class="hktrs-date-grid">
+      <label class="hktrs-date-field">
+        <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="filterFrom" /></span>
+        <div class="hktrs-date-input">
+          <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+          <input type="date" [(ngModel)]="filterFromDate" />
+        </div>
+      </label>
+      <label class="hktrs-date-field">
+        <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="filterTo" /></span>
+        <div class="hktrs-date-input">
+          <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+          <input type="date" [(ngModel)]="filterToDate" />
+        </div>
+      </label>
+      <button type="button" class="hktrs-search-btn" (click)="applyDateFilter()">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkTaskRequests" key="searchBtn" />
+      </button>
+    </div>
+  </section>
+
+  <section class="hktrs-chrome">
+    <div class="hktrs-toolbar">
+      <div class="hktrs-toolbar__actions">
+        <label class="hktrs-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value=""><ui-inline-text kind="screen" screen="hkTaskRequests" key="filterAll" /></option>
+            <option value="withNotes"><ui-inline-text kind="screen" screen="hkTaskRequests" key="filterWithNotes" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="hktrs-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+
+        <a routerLink="/nav/housekeeping/navHkTaskRequest" class="hktrs-btn hktrs-btn--new">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="hkTaskRequests" key="addNew" />
+        </a>
+      </div>
+
+      <div class="hktrs-toolbar__views">
+        <button type="button" class="hktrs-view-btn" [class.hktrs-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="hktrs-view-btn" [class.hktrs-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'table'" class="hktrs-table-card">
+    <div class="hktrs-table-wrap">
+      <table class="hktrs-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('serial')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colSerial" /></span>
+                <i class="fas" [ngClass]="sortIcon('serial')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('taskName')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colTaskName" /></span>
+                <i class="fas" [ngClass]="sortIcon('taskName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('taskDate')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colTaskDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('taskDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('notes')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colNotes" /></span>
+                <i class="fas" [ngClass]="sortIcon('notes')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('roomCount')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colRoomCount" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomCount')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hktrs-sort" (click)="toggleSort('employeeName')">
+                <span><ui-inline-text kind="screen" screen="hkTaskRequests" key="colEmployeeName" /></span>
+                <i class="fas" [ngClass]="sortIcon('employeeName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th><ui-inline-text kind="screen" screen="hkTaskRequests" key="colExecute" /></th>
+            <th class="hktrs-col-actions"><ui-inline-text kind="screen" screen="hkTaskRequests" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.serial | localeNumber }}</td>
+            <td class="hktrs-task-name">{{ row.taskName }}</td>
+            <td dir="ltr">{{ formatDate(row.taskDate) }}</td>
+            <td>{{ cellValue(row.notes) }}</td>
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td>{{ row.roomCount | localeNumber }}</td>
+            <td>{{ cellValue(row.employeeName) }}</td>
+            <td>
+              <button type="button" class="hktrs-exec-btn" (click)="executeTask(row)">
+                <i class="fas fa-play" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="hkTaskRequests" key="executeBtn" />
+              </button>
+            </td>
+            <td class="hktrs-col-actions">
+              <button type="button" class="hktrs-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="9" class="hktrs-empty"><ui-inline-text kind="screen" screen="hkTaskRequests" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="hktrs-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="hktrs-grid-card">
+      <h3>{{ row.taskName }}</h3>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="hkTaskRequests" key="colTaskDate" /></dt><dd dir="ltr">{{ formatDate(row.taskDate) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="hkTaskRequests" key="colRoomNo" /></dt><dd>{{ row.roomNo }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="hkTaskRequests" key="colEmployeeName" /></dt><dd>{{ cellValue(row.employeeName) }}</dd></div>
+      </dl>
+      <button type="button" class="hktrs-exec-btn" (click)="executeTask(row)">
+        <i class="fas fa-play" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkTaskRequests" key="executeBtn" />
+      </button>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="hktrs-grid-empty"><ui-inline-text kind="screen" screen="hkTaskRequests" key="emptyRows" /></p>
+  </section>
+</div>

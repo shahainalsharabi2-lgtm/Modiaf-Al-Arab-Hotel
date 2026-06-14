@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>شرح تحديث قاعدة البيانات — مضياف العرب</title>
+  <style>
+    @page { margin: 12mm 11mm; size: A4; }
+    body {
+      font-family: 'Segoe UI', Tahoma, 'Arabic Typesetting', Arial, sans-serif;
+      font-size: 9pt;
+      line-height: 1.45;
+      color: #1a1a1a;
+      direction: rtl;
+      text-align: right;
+    }
+    h1 {
+      color: #0d47a1;
+      font-size: 17pt;
+      border-bottom: 3px solid #0d47a1;
+      padding-bottom: 6px;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      color: #1565c0;
+      font-size: 12pt;
+      margin-top: 14px;
+      page-break-after: avoid;
+      border-right: 4px solid #1976d2;
+      padding-right: 8px;
+    }
+    h3 { color: #37474f; font-size: 10pt; page-break-after: avoid; }
+    code {
+      direction: ltr;
+      unicode-bidi: embed;
+      font-family: Consolas, monospace;
+      font-size: 7.5pt;
+      background: #e3f2fd;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0d47a1;
+    }
+    pre {
+      direction: ltr;
+      text-align: left;
+      background: #f5f7fa;
+      border: 1px solid #cfd8dc;
+      padding: 7px 9px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 7pt;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0 10px;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #90a4ae;
+      padding: 3px 5px;
+      vertical-align: top;
+    }
+    th { background: #0d47a1; color: #fff; }
+    tr:nth-child(even) td { background: #f5f9fc; }
+    ul { margin: 4px 0; padding-right: 16px; }
+    li { margin: 2px 0; }
+    hr { border: none; border-top: 1px solid #b0bec5; margin: 12px 0; }
+    .meta { color: #546e7a; font-size: 8.5pt; }
+    strong { color: #0d47a1; }
+  </style>
+</head>
+<body>
+<h1>شرح عملية «تحديث قاعدة البيانات» — فرونت-اند + باك-اند</h1>
+
+<p class="meta"><em>*مشروع مضياف العرب للفنادق v2.3.3*</em></p>
+
+<hr/>
+
+<h2>1. نظرة عامة</h2>
+
+<p>عند الضغط على <strong>«تحديث قاعدة البيانات»</strong> في لوحة إعدادات DB، تمر العملية عبر:</p>
+
+<p>1. <strong>الواجهة (Angular)</strong> — زر → خدمة HTTP → طلب PUT</p>
+<p>2. <strong>الشبكة</strong> — proxy محلي أو Cloudflare Worker</p>
+<p>3. <strong>الخادم (ASP.NET + ABP)</strong> — App Service → Migrations → Seed</p>
+<p>4. <strong>قاعدة البيانات</strong> — PostgreSQL (إنتاج) أو SQL Server (محلي)</p>
+
+<p class="meta"><em><strong>العملية = خطوتان على الخادم:</strong></em></p>
+<ul>
+<li><strong>Migrations</strong> — تحديث هيكل الجداول والأعمدة</li>
+<li><strong>Seed</strong> — إكمال البيانات الافتراضية الناقصة</li>
+</ul>
+
+<hr/>
+
+<h2>2. الفرونت-اند — الملفات والتسلسل</h2>
+
+<h3>2.1 فتح اللوحة</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>angular/src/app/shared/app-top-bar/app-top-bar.component.html</code></td><td>زر الحساب في الشريط العلوي</td></tr>
+<tr><td><code>angular/src/app/shared/app-top-bar/app-top-bar.component.ts</code></td><td><code>toggleDbPanel()</code> يفتح/يغلق اللوحة</td></tr>
+<tr><td><code>angular/src/app/shared/app-top-bar/app-top-bar.component.ts</code></td><td>يستورد <code>DbSettingsPanelComponent</code></td></tr>
+</table>
+
+<p><strong>الدالة:</strong> <code>toggleDbPanel(event)</code> — تعيين <code>dbPanelOpen = true/false</code></p>
+
+<h3>2.2 لوحة إعدادات قاعدة البيانات</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>angular/src/app/shared/db-settings-panel/db-settings-panel.component.html</code></td><td>زر «تحديث قاعدة البيانات» + spinner + رسالة الحالة</td></tr>
+<tr><td><code>angular/src/app/shared/db-settings-panel/db-settings-panel.component.ts</code></td><td>منطق <code>updateDatabase()</code></td></tr>
+<tr><td><code>angular/src/app/shared/db-settings-panel/db-settings-panel.component.css</code></td><td>تنسيق اللوحة الجانبية</td></tr>
+</table>
+
+<p class="meta"><em><strong>عند الضغط على التحديث:</strong></em></p>
+<p>1. <code>updateLoading = true</code> — إظهار مؤشر التحميل</p>
+<p>2. استدعاء <code>this.dbAdmin.updateDatabase()</code></p>
+<p>3. عند النجاح: عرض <code>result.message</code> في <code>db-panel__status</code></p>
+<p>4. عند الخطأ: <code>resolveOpError()</code> يترجم أخطاء HTTP (404, 405, JSON…)</p>
+
+<h3>2.3 خدمة HTTP</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>angular/src/app/services/hotel-database-admin.service.ts</code></td><td>يرسل الطلب للـ API</td></tr>
+</table>
+
+<p class="meta"><em><strong>الطلب:</strong></em></p>
+
+<pre><code>
+PUT {API_URL}/api/app/hotel-database-admin/database
+Body: {}
+</code></pre>
+
+<p class="meta"><em><strong>الاستجابة:</strong></em></p>
+
+<pre><code>
+{ "success": true, "message": "تم تحديث قاعدة البيانات..." }
+</code></pre>
+
+<p class="meta"><em><strong>زر النسخ الاحتياطي (مرتبط):</strong></em></p>
+
+<pre><code>
+POST {API_URL}/api/app/hotel-database-admin/backup
+</code></pre>
+
+<h3>2.4 البيئة والشبكة</h3>
+
+<table>
+<tr><th>الملف</th><th>البيئة</th><th>سلوك</th></tr>
+<tr><td><code>angular/src/environments/environment.ts</code></td><td>تطوير</td><td><code>apis.default.url = ''</code></td></tr>
+<tr><td><code>angular/src/environments/environment.prod.ts</code></td><td>إنتاج</td><td><code>url = baseUrl</code> (Workers)</td></tr>
+<tr><td><code>angular/proxy.conf.json</code></td><td>محلي</td><td><code>/api</code> → <code>https://localhost:44367</code></td></tr>
+<tr><td><code>angular/worker.ts</code></td><td>إنتاج</td><td><code>/api/*</code> → <code>hotel-api-fo0z.onrender.com</code></td></tr>
+</table>
+
+<p><strong>محلي:</strong> <code>localhost:4200/api/...</code> → proxy → API محلي  </p>
+<p><strong>إنتاج:</strong> <code>hotel-management...workers.dev/api/...</code> → Worker → Render</p>
+
+<hr/>
+
+<h2>3. الباك-اند — الملفات والتسلسل</h2>
+
+<h3>3.1 إنشاء REST API تلقائياً (ABP)</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>aspnet-core/.../HttpApi.Host/HotelHttpApiHostModule.cs</code></td><td><code>ConfigureConventionalControllers()</code></td></tr>
+</table>
+
+<p>ABP يحوّل App Services إلى Controllers HTTP تلقائياً:</p>
+
+<table>
+<tr><th>App Service</th><th>المسار HTTP</th></tr>
+<tr><td><code>HotelDatabaseAdminAppService</code></td><td><code>/api/app/hotel-database-admin</code></td></tr>
+<tr><td><code>UpdateDatabaseAsync()</code></td><td><code>PUT .../database</code></td></tr>
+<tr><td><code>CreateBackupAsync()</code></td><td><code>POST .../backup</code></td></tr>
+</table>
+
+<h3>3.2 العقود (Contracts)</h3>
+
+<table>
+<tr><th>الملف</th><th>المحتوى</th></tr>
+<tr><td><code>Application.Contracts/DatabaseAdmin/IHotelDatabaseAdminAppService.cs</code></td><td>واجهة الخدمة</td></tr>
+<tr><td><code>Application.Contracts/DatabaseAdmin/HotelDatabaseOperationResultDto.cs</code></td><td><code>{ success, message }</code></td></tr>
+<tr><td><code>Application.Contracts/DatabaseAdmin/HotelDatabaseBackupDto.cs</code></td><td>نتيجة النسخ الاحتياطي</td></tr>
+</table>
+
+<h3>3.3 التنفيذ الرئيسي</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>Application/DatabaseAdmin/HotelDatabaseAdminAppService.cs</code></td><td><strong>قلب العملية</strong></td></tr>
+</table>
+
+<p class="meta"><em><strong>UpdateDatabaseAsync() — خطوتان:</strong></em></p>
+
+<pre><code>
+// 1) تطبيق Migrations
+foreach (var migrator in dbSchemaMigrators)
+    await migrator.MigrateAsync();
+
+// 2) بذر البيانات
+await dataSeeder.SeedAsync(new DataSeedContext()...);
+</code></pre>
+
+<p><strong>ملاحظة:</strong> الخدمة عليها <code>[AllowAnonymous]</code> — لا تتطلب توكن حالياً.</p>
+
+<hr/>
+
+<h2>4. المرحلة الأولى: Migrations</h2>
+
+<h3>4.1 الملفات</h3>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>Domain/Data/IHotelDbSchemaMigrator.cs</code></td><td>واجهة «طبّق الترحيلات»</td></tr>
+<tr><td><code>EntityFrameworkCore/.../EntityFrameworkCoreHotelDbSchemaMigrator.cs</code></td><td>التنفيذ عبر EF Core</td></tr>
+<tr><td><code>EntityFrameworkCore/.../HotelDbContext.cs</code></td><td>DbSets + تعريف الجداول</td></tr>
+<tr><td><code>EntityFrameworkCore/Migrations/*.cs</code></td><td>ملفات الترحيل</td></tr>
+<tr><td><code>Domain/Data/NullHotelDbSchemaMigrator.cs</code></td><td>بديل فارغ (احتياطي)</td></tr>
+</table>
+
+<h3>4.2 التنفيذ</h3>
+
+<pre><code>
+await serviceProvider
+    .GetRequiredService&lt;HotelDbContext&gt;()
+    .Database
+    .MigrateAsync();
+</code></pre>
+
+<p class="meta"><em><strong>ماذا يحدث؟</strong></em></p>
+<p>1. EF Core يقرأ جدول <code>__EFMigrationsHistory</code></p>
+<p>2. يقارن مع ملفات <code>Migrations/</code></p>
+<p>3. ينفّذ كل migration معلّق (CREATE TABLE, ALTER COLUMN…)</p>
+
+<h3>4.3 أمثلة Migrations في المشروع</h3>
+
+<table>
+<tr><th>الملف</th><th>الغرض</th></tr>
+<tr><td><code>20260602175955_Initial_PostgreSql.cs</code></td><td>القاعدة الأولية</td></tr>
+<tr><td><code>20260603105602_Add_HotelAppUsers.cs</code></td><td>مستخدمي الفندق</td></tr>
+<tr><td><code>20260603141349_Add_HotelAppUserRole.cs</code></td><td>حقل الدور</td></tr>
+<tr><td><code>20260604120136_Add_GuestRegistryCodingFields.cs</code></td><td>ترميز الضيوف</td></tr>
+<tr><td><code>20260604140602_Add_RoomView.cs</code></td><td>إطلالة الغرفة</td></tr>
+<tr><td><code>20260604145038_Add_RoomArchitectureLocationFeatures.cs</code></td><td>معمار، موقع، مميزات</td></tr>
+<tr><td><code>20260605163000_Add_GeneralCodePrefCategoryFields.cs</code></td><td>فئة اللغة العربية</td></tr>
+<tr><td><code>20260606150021_Add_GeneralCodeRoomClassCounts.cs</code></td><td>عدد الغرف والأسرّة</td></tr>
+<tr><td><code>20260606151057_Replace_GeneralCodeBedCountWithBedTypes.cs</code></td><td>أسرّة عادية/عائلية</td></tr>
+</table>
+
+<h3>4.4 جداول DbContext الرئيسية</h3>
+
+<table>
+<tr><th>DbSet</th><th>الكيان</th></tr>
+<tr><td><code>Rooms</code></td><td>الغرف</td></tr>
+<tr><td><code>Bookings</code></td><td>الحجوزات</td></tr>
+<tr><td><code>Floors</code></td><td>الطوابق</td></tr>
+<tr><td><code>GuestRegistries</code></td><td>سجل الضيوف</td></tr>
+<tr><td><code>GeneralCodeItems</code></td><td>المدخلات</td></tr>
+<tr><td><code>HotelAppUsers</code></td><td>المستخدمون</td></tr>
+<tr><td><code>HotelSettingsDocuments</code></td><td>إعدادات الفندق</td></tr>
+<tr><td><code>PaymentMethods</code></td><td>طرق الدفع</td></tr>
+<tr><td><code>UiTranslationsStores</code></td><td>ترجمات الواجهة</td></tr>
+</table>
+
+<hr/>
+
+<h2>5. المرحلة الثانية: Seed (البيانات الافتراضية)</h2>
+
+<p>ABP يستدعي كل <code>IDataSeedContributor</code>:</p>
+
+<table>
+<tr><th>الملف</th><th>ماذا يفعل</th></tr>
+<tr><td><code>Domain/HotelUsers/HotelAppUserDataSeedContributor.cs</code></td><td>مستخدم مدير <code>123/123</code></td></tr>
+<tr><td><code>Domain/HotelSettings/HotelSettingsDataSeedContributor.cs</code></td><td>سجل إعدادات singleton</td></tr>
+<tr><td><code>Domain/GeneralCodes/HotelCurrencyDataSeedContributor.cs</code></td><td>عملات YER, SAR, USD, EUR…</td></tr>
+<tr><td><code>Domain/HotelDataSeedContributor.cs</code></td><td>غرف تجريبية + أنواع هوية (إن فارغة)</td></tr>
+<tr><td><code>Domain/OpenIddict/OpenIddictDataSeedContributor.cs</code></td><td>OAuth clients</td></tr>
+<tr><td>ABP Identity (مدمج)</td><td>admin@abp.io</td></tr>
+</table>
+
+<p class="meta"><em><strong>سلوك البذور:</strong></em></p>
+<ul>
+<li>معظمها <strong>لا تكرر</strong> — تتحقق «هل موجود؟» ثم تُدرِج</li>
+<li><code>HotelAppUserDataSeedContributor</code> قد <strong>يحدّث</strong> كلمة مرور المستخدم <code>123</code></li>
+</ul>
+
+<hr/>
+
+<h2>6. مسار بديل: DbMigrator (CLI)</h2>
+
+<table>
+<tr><th>الملف</th><th>الدور</th></tr>
+<tr><td><code>DbMigrator/Program.cs</code></td><td>نقطة تشغيل</td></tr>
+<tr><td><code>DbMigrator/appsettings.json</code></td><td>Connection String</td></tr>
+<tr><td><code>DbMigrator/appsettings.secrets.json</code></td><td>أسرار محلية</td></tr>
+<tr><td><code>Domain/Data/HotelDbMigrationService.cs</code></td><td>Migrations + Seed + Tenants</td></tr>
+</table>
+
+<pre><code>
+cd aspnet-core/src/Modiaf.Al.Arab.Hotel.DbMigrator
+dotnet run
+</code></pre>
+
+<table>
+<tr><th></th><th>زر الواجهة</th><th>DbMigrator</th></tr>
+<tr><td>Migrations</td><td>نعم</td><td>نعم</td></tr>
+<tr><td>Seed</td><td>نعم</td><td>نعم</td></tr>
+<tr><td>Tenants متعددة</td><td>لا</td><td>نعم</td></tr>
+</table>
+
+<hr/>
+
+<h2>7. شجرة الملفات الكاملة</h2>
+
+<h3>فرونت-اند</h3>
+
+<pre><code>
+angular/
+├── src/app/shared/app-top-bar/
+│   ├── app-top-bar.component.html
+│   └── app-top-bar.component.ts
+├── src/app/shared/db-settings-panel/
+│   ├── db-settings-panel.component.html
+│   ├── db-settings-panel.component.ts
+│   └── db-settings-panel.component.css
+├── src/app/services/
+│   └── hotel-database-admin.service.ts
+├── src/environments/
+│   ├── environment.ts
+│   └── environment.prod.ts
+├── proxy.conf.json
+└── worker.ts
+</code></pre>
+
+<h3>باك-اند</h3>
+
+<pre><code>
+aspnet-core/src/
+├── Application.Contracts/DatabaseAdmin/
+│   ├── IHotelDatabaseAdminAppService.cs
+│   ├── HotelDatabaseOperationResultDto.cs
+│   └── HotelDatabaseBackupDto.cs
+├── Application/DatabaseAdmin/
+│   └── HotelDatabaseAdminAppService.cs
+├── Domain/Data/
+│   ├── IHotelDbSchemaMigrator.cs
+│   ├── HotelDbMigrationService.cs
+│   └── NullHotelDbSchemaMigrator.cs
+├── EntityFrameworkCore/
+│   ├── EntityFrameworkCore/HotelDbContext.cs
+│   ├── EntityFrameworkCore/EntityFrameworkCoreHotelDbSchemaMigrator.cs
+│   └── Migrations/202606*.cs
+├── HttpApi.Host/
+│   ├── HotelHttpApiHostModule.cs
+│   └── appsettings.json
+└── DbMigrator/
+</code></pre>
+
+<hr/>
+
+<h2>8. التسلسل الزمني (خطوة بخطوة)</h2>
+
+<pre><code>
+1. المستخدم يضغط زر الحساب → toggleDbPanel()
+2. تفتح لوحة db-settings-panel
+3. يضغط «تحديث قاعدة البيانات»
+4. updateDatabase() → updateLoading = true
+5. PUT /api/app/hotel-database-admin/database
+6. proxy (محلي) أو worker.ts (إنتاج) → Render API
+7. HotelDatabaseAdminAppService.UpdateDatabaseAsync()
+8. EntityFrameworkCoreHotelDbSchemaMigrator.MigrateAsync()
+9. EF Core يطبّق Migrations على PostgreSQL
+10. IDataSeeder → كل DataSeedContributor
+11. JSON { success, message } → Angular
+12. عرض الرسالة في db-panel__status
+</code></pre>
+
+<hr/>
+
+<h2>9. ماذا يحدث لبياناتك؟</h2>
+
+<table>
+<tr><th>العملية</th><th>التأثير</th></tr>
+<tr><td>Migrations</td><td>يضيف/يعدّل أعمدة وجداول — لا يحذف الغرف أو الحجوزات</td></tr>
+<tr><td>Seed</td><td>يكمّل الناقص فقط</td></tr>
+<tr><td>لا يوجد</td><td>DROP TABLE، مسح حجوزات، استبدال كامل</td></tr>
+</table>
+
+<p><strong>نصيحة:</strong> قبل التحديث على الإنتاج → «إنشاء نسخة احتياطية» (POST <code>/backup</code>).</p>
+
+<hr/>
+
+<h2>10. إعادة توليد هذا PDF</h2>
+
+<pre><code>
+node docs/generate-db-update-guide-pdf.mjs
+</code></pre>
+
+<hr/>
+
+<p class="meta"><em>*نهاية المستند — مضياف العرب للفنادق*</em></p>
+
+</body>
+</html>

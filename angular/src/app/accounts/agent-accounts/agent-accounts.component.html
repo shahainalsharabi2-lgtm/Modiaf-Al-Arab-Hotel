@@ -1,0 +1,114 @@
+<div class="hc-page aa-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="label('searchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="agentAccounts" key="filterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="agentAccounts" key="filterAll" /></option>
+            <option value="open"><ui-inline-text kind="screen" screen="agentAccounts" key="statusOpen" /></option>
+            <option value="closed"><ui-inline-text kind="screen" screen="agentAccounts" key="statusClosed" /></option>
+            <option value="settled"><ui-inline-text kind="screen" screen="agentAccounts" key="statusSettled" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="label('viewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="label('viewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="label('viewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-inbox" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="agentAccounts" key="empty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap aa-table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table aa-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('agentName')">
+              <ui-inline-text kind="screen" screen="agentAccounts" key="colAgent" />
+              <i class="fas" [ngClass]="sortIcon('agentName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable aa-num-col" (click)="toggleSort('totalCommissionsDue')">
+              <ui-inline-text kind="screen" screen="agentAccounts" key="colTotalDue" />
+              <i class="fas" [ngClass]="sortIcon('totalCommissionsDue')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable aa-num-col" (click)="toggleSort('totalCommissionsPaid')">
+              <ui-inline-text kind="screen" screen="agentAccounts" key="colTotalPaid" />
+              <i class="fas" [ngClass]="sortIcon('totalCommissionsPaid')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable aa-num-col" (click)="toggleSort('balance')">
+              <ui-inline-text kind="screen" screen="agentAccounts" key="colBalance" />
+              <i class="fas" [ngClass]="sortIcon('balance')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('status')">
+              <ui-inline-text kind="screen" screen="agentAccounts" key="colStatus" />
+              <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td>{{ row.agentName }}</td>
+            <td class="aa-num-col" dir="ltr">{{ row.totalCommissionsDue | localeNumber:'int' }}</td>
+            <td class="aa-num-col" dir="ltr">{{ row.totalCommissionsPaid | localeNumber:'int' }}</td>
+            <td class="aa-num-col" dir="ltr">
+              <span [ngClass]="balanceClass(row.balance)">{{ row.balance | localeNumber:'int' }}</span>
+            </td>
+            <td>{{ statusLabel(row.status) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hc-page__grid" *ngIf="viewMode === 'grid' && filteredRows().length">
+      <article class="hc-page__card aa-card" *ngFor="let row of filteredRows()">
+        <h3>{{ row.agentName }}</h3>
+        <dl class="aa-card__meta">
+          <div>
+            <dt><ui-inline-text kind="screen" screen="agentAccounts" key="colTotalDue" /></dt>
+            <dd dir="ltr">{{ row.totalCommissionsDue | localeNumber:'int' }}</dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="agentAccounts" key="colTotalPaid" /></dt>
+            <dd dir="ltr">{{ row.totalCommissionsPaid | localeNumber:'int' }}</dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="agentAccounts" key="colBalance" /></dt>
+            <dd dir="ltr"><span [ngClass]="balanceClass(row.balance)">{{ row.balance | localeNumber:'int' }}</span></dd>
+          </div>
+          <div>
+            <dt><ui-inline-text kind="screen" screen="agentAccounts" key="colStatus" /></dt>
+            <dd>{{ statusLabel(row.status) }}</dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+</div>

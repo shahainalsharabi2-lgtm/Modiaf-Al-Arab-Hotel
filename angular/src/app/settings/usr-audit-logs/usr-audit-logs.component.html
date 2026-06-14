@@ -1,0 +1,165 @@
+<div class="ual-page" dir="rtl">
+  <section class="ual-panel">
+    <form class="ual-filter" (ngSubmit)="runSearch()">
+      <div class="ual-filter__row ual-filter__row--5">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditFromDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="filter.fromDate" name="fromDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditToDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="filter.toDate" name="toDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditUserName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="filter.userName" name="userName" [placeholder]="ui.screenText('settings', 'usrAuditUserName')" />
+            <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditUrl" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="filter.url" name="url" [placeholder]="ui.screenText('settings', 'usrAuditUrl')" />
+            <i class="fas fa-link rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditMinDuration" /></span>
+          <div class="rt-field__control">
+            <input type="number" min="0" dir="ltr" [(ngModel)]="filter.minDuration" name="minDuration" />
+            <i class="fas fa-stopwatch rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+
+      <div class="ual-filter__row ual-filter__row--4">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditHttpMethod" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.httpMethod" name="httpMethod">
+              <option value=""><ui-inline-text kind="screen" screen="settings" key="usrAuditFilterAll" /></option>
+              <option *ngFor="let method of httpMethods" [value]="method">{{ method }}</option>
+            </select>
+            <i class="fas fa-exchange-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditApplicationName" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="filter.applicationName" name="applicationName">
+              <option value=""><ui-inline-text kind="screen" screen="settings" key="usrAuditFilterAll" /></option>
+              <option *ngFor="let app of applications" [value]="app">{{ app }}</option>
+            </select>
+            <i class="fas fa-desktop rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditIpAddress" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="filter.ipAddress" name="ipAddress" [placeholder]="ui.screenText('settings', 'usrAuditIpAddress')" />
+            <i class="fas fa-network-wired rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrAuditCorrelationId" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="filter.correlationId" name="correlationId" [placeholder]="ui.screenText('settings', 'usrAuditCorrelationId')" />
+            <i class="fas fa-fingerprint rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+
+      <div class="ual-filter__actions">
+        <button type="submit" class="ual-filter__search">
+          <ui-inline-text kind="screen" screen="settings" key="usrAuditSearchBtn" />
+        </button>
+        <button type="button" class="ual-filter__reset" (click)="clearFilter()">
+          <ui-inline-text kind="screen" screen="settings" key="usrAuditClearBtn" />
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="ual-panel hc-page__panel">
+    <div class="hc-page__empty" *ngIf="!rows.length">
+      <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="usrAuditEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="rows.length">
+      <table class="hc-page__table ual-table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColApplication" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColDuration" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColDate" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColIp" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColUserName" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="usrAuditColHttpRequest" /></th>
+            <th class="hc-page__col-actions"><ui-inline-text kind="screen" screen="settings" key="usrAuditColActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows">
+            <td>{{ row.applicationName }}</td>
+            <td dir="ltr">{{ row.durationMs }}</td>
+            <td>{{ formatDate(row.occurredAt) }}</td>
+            <td dir="ltr">{{ displayValue(row.ipAddress) }}</td>
+            <td>{{ displayValue(row.userName) }}</td>
+            <td>
+              <span class="ual-http-badge" [class.ual-http-badge--post]="row.httpMethod === 'POST'" dir="ltr">
+                {{ row.httpMethod }}
+              </span>
+            </td>
+            <td class="hc-page__col-actions">
+              <button type="button" class="ual-details-btn" (click)="openDetails(row)">
+                <ui-inline-text kind="screen" screen="settings" key="usrAuditActionDetails" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div
+  class="ual-modal"
+  *ngIf="detailsRow"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', 'usrAuditDetailsTitle')">
+  <div class="ual-modal__backdrop" (click)="closeDetails()"></div>
+  <div class="ual-modal__card">
+    <header class="ual-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" key="usrAuditDetailsTitle" /></h3>
+      <button type="button" class="ual-modal__close" (click)="closeDetails()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="ual-modal__body">
+      <dl class="ual-details">
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColApplication" /></dt><dd>{{ detailsRow.applicationName }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColDuration" /></dt><dd dir="ltr">{{ detailsRow.durationMs }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColDate" /></dt><dd>{{ formatDate(detailsRow.occurredAt) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColIp" /></dt><dd dir="ltr">{{ displayValue(detailsRow.ipAddress) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColUserName" /></dt><dd>{{ displayValue(detailsRow.userName) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditColHttpRequest" /></dt><dd dir="ltr">{{ detailsRow.httpMethod }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditUrl" /></dt><dd dir="ltr">{{ detailsRow.url }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="settings" key="usrAuditCorrelationId" /></dt><dd dir="ltr">{{ detailsRow.correlationId }}</dd></div>
+      </dl>
+    </div>
+    <footer class="ual-modal__foot">
+      <button type="button" class="ual-filter__reset" (click)="closeDetails()">
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="cp-page">
+  <ul class="cp-field-list">
+    <li *ngFor="let field of pagedFields; trackBy: trackField" class="cp-field-block">
+      <div class="cp-field-row">
+        <div class="cp-field-actions">
+          <button
+            *ngIf="hasSubItems(field)"
+            type="button"
+            class="cp-expand-btn"
+            (click)="toggleExpand(field)"
+            [attr.aria-expanded]="field.expanded"
+            [attr.aria-label]="subItemsLabel(field)">
+            <i class="fas" [ngClass]="field.expanded ? 'fa-chevron-down' : 'fa-chevron-left'" aria-hidden="true"></i>
+          </button>
+          <span *ngIf="hasSubItems(field)" class="cp-sub-count">{{ subItemsLabel(field) }}</span>
+          <button
+            type="button"
+            class="cp-edit-btn"
+            (click)="editField(field)"
+            [attr.aria-label]="label('editFieldAria').replace('{field}', label(field.labelKey))">
+            <i class="fas fa-pen" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="cp-field-body">
+          <div class="cp-field-head">
+            <div class="cp-field-title">
+              <i class="far fa-folder-open cp-field-title__icon" aria-hidden="true"></i>
+              <span><ui-inline-text kind="screen" screen="crmProfileSettings" [key]="field.labelKey" /></span>
+            </div>
+
+            <label class="cp-used">
+              <span class="cp-used__label"><ui-inline-text kind="screen" screen="crmProfileSettings" key="usedLabel" /></span>
+              <span class="cp-switch" [class.cp-switch--on]="field.used">
+                <input
+                  type="checkbox"
+                  class="cp-switch__input"
+                  [checked]="field.used"
+                  (change)="setUsed(field, $any($event.target).checked)"
+                  [attr.aria-label]="label('toggleUsedAria').replace('{field}', label(field.labelKey))" />
+                <span class="cp-switch__track" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
+
+          <div class="cp-reqs">
+            <button
+              *ngFor="let reqKey of requirementKeys"
+              type="button"
+              class="cp-req"
+              [class.cp-req--disabled]="!field.used"
+              [disabled]="!field.used"
+              (click)="toggleRequirement(field, reqKey)"
+              [attr.aria-label]="label('toggleReqAria').replace('{field}', label(field.labelKey)).replace('{req}', requirementLabel(reqKey))">
+              <span class="cp-req__label">{{ requirementLabel(reqKey) }}</span>
+              <span class="cp-req__icon" [class.cp-req__icon--on]="requirementActive(field, reqKey)" aria-hidden="true">
+                <i class="fas" [ngClass]="requirementActive(field, reqKey) ? 'fa-check' : 'fa-minus'"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="hasSubItems(field) && field.expanded" class="cp-sub-panel">
+        <p class="cp-sub-panel__hint"><ui-inline-text kind="screen" screen="crmProfileSettings" key="subItemsHint" /></p>
+      </div>
+    </li>
+  </ul>
+
+  <footer class="cp-pager">
+    <label class="cp-pager__size">
+      <span><ui-inline-text kind="screen" screen="crmProfileSettings" key="itemsPerPage" /></span>
+      <select [ngModel]="pageSize" (ngModelChange)="setPageSize($event)">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size | localeNumber }}</option>
+      </select>
+    </label>
+
+    <div class="cp-pager__nav">
+      <button type="button" class="cp-page-btn" [disabled]="currentPage <= 1" (click)="goFirstPage()">
+        <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="cp-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+      <button
+        *ngFor="let page of pageNumbers"
+        type="button"
+        class="cp-page-num"
+        [class.cp-page-num--active]="currentPage === page"
+        (click)="goToPage(page)">
+        {{ page | localeNumber }}
+      </button>
+      <button type="button" class="cp-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="cp-page-btn" [disabled]="currentPage >= totalPages" (click)="goLastPage()">
+        <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <p class="cp-pager__summary">{{ pageRangeSummary() }}</p>
+  </footer>
+</div>

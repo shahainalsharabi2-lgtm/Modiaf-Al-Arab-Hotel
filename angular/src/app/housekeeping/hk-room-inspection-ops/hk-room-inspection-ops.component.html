@@ -1,0 +1,100 @@
+<div class="hkrio-page" dir="rtl">
+  <header class="hkrio-page-head">
+    <div class="hkrio-page-head__icon" aria-hidden="true">
+      <i class="fas fa-door-open"></i>
+    </div>
+    <div class="hkrio-page-head__text">
+      <h1 class="hkrio-page-head__title"><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="pageTitle" /></h1>
+      <p class="hkrio-page-head__desc"><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <section class="hkrio-chrome">
+    <div class="hkrio-toolbar">
+      <label class="hkrio-search">
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="label('searchPlaceholder')"
+          [attr.aria-label]="label('searchPlaceholder')" />
+        <i class="fas fa-search" aria-hidden="true"></i>
+      </label>
+
+      <button type="button" class="hkrio-btn hkrio-btn--new" (click)="addNewInspection()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="newBtn" />
+      </button>
+    </div>
+  </section>
+
+  <section class="hkrio-table-card">
+    <div class="hkrio-table-wrap">
+      <table class="hkrio-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="hkrio-sort" (click)="toggleSort('rowNo')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colRowNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('rowNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrio-sort" (click)="toggleSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrio-sort" (click)="toggleSort('inspectionDate')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colInspectionDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('inspectionDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrio-sort" (click)="toggleSort('status')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colStatus" /></span>
+                <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkrio-sort" (click)="toggleSort('totalFines')">
+                <span><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colTotalFines" /></span>
+                <i class="fas" [ngClass]="sortIcon('totalFines')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colFinesPosted" /></th>
+            <th class="hkrio-col-actions"><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.rowNo | localeNumber }}</td>
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td dir="ltr">{{ formatDateTime(row.inspectionDate) }}</td>
+            <td>
+              <span class="hkrio-status" [ngClass]="'hkrio-status--' + row.status">
+                {{ statusLabel(row.status) }}
+              </span>
+            </td>
+            <td>{{ row.totalFines | localeNumber }}</td>
+            <td>
+              <i
+                class="fas hkrio-posted-icon"
+                [ngClass]="row.finesPosted ? 'fa-check-circle hkrio-posted-icon--yes' : 'fa-times-circle hkrio-posted-icon--no'"
+                [attr.aria-label]="label(row.finesPosted ? 'finesPostedYes' : 'finesPostedNo')"
+                aria-hidden="true"></i>
+            </td>
+            <td class="hkrio-col-actions">
+              <button type="button" class="hkrio-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="7" class="hkrio-empty"><ui-inline-text kind="screen" screen="hkRoomInspectionOps" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

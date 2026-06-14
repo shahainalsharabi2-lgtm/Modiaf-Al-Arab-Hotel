@@ -1,0 +1,259 @@
+<div class="adv-reports" dir="rtl">
+  <header class="adv-reports__head">
+    <div class="adv-reports__head-copy">
+      <p class="adv-reports__crumb">
+        <ui-inline-text kind="sidebar" key="reports" />
+        <span aria-hidden="true">/</span>
+        <ui-inline-text kind="screen" screen="reports" key="hubAdvancedTitle" />
+      </p>
+      <h1><ui-inline-text kind="screen" screen="reports" key="hubAdvancedTitle" /></h1>
+      <p class="adv-reports__subtitle" *ngIf="selectedLeaf()">
+        <ui-inline-text kind="screen" screen="reports" [key]="reportSubtitleKey()" />
+      </p>
+    </div>
+    <a
+      class="adv-reports__back"
+      routerLink="/reports"
+      [attr.aria-label]="ui.screenText('reports', 'hubBackAria')">
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="reports" key="hubBack" />
+    </a>
+  </header>
+
+  <div class="adv-reports__workspace">
+    <aside class="adv-reports__tree-panel">
+      <div class="adv-reports__panel-head">
+        <h2><ui-inline-text kind="screen" screen="reports" key="advTreeTitle" /></h2>
+      </div>
+      <div class="adv-reports__tree-search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="treeSearch"
+          [placeholder]="ui.screenText('reports', 'advTreeSearchPh')" />
+      </div>
+      <div class="adv-reports__tree">
+        <section
+          *ngFor="let category of categories"
+          class="adv-reports__category"
+          [class.adv-reports__category--hidden]="!categoryVisible(category)">
+          <button
+            type="button"
+            class="adv-reports__category-head"
+            (click)="toggleCategory(category.id)"
+            [attr.aria-expanded]="isCategoryOpen(category.id)">
+            <i class="fas fa-folder adv-reports__folder-icon" aria-hidden="true"></i>
+            <span><ui-inline-text kind="screen" screen="reports" [key]="category.labelKey" /></span>
+            <i
+              class="fas adv-reports__chevron"
+              [class.fa-chevron-up]="isCategoryOpen(category.id)"
+              [class.fa-chevron-down]="!isCategoryOpen(category.id)"
+              aria-hidden="true"></i>
+          </button>
+          <div class="adv-reports__category-body" *ngIf="isCategoryOpen(category.id)">
+            <p class="adv-reports__category-empty" *ngIf="!category.reports.length">
+              <ui-inline-text kind="screen" screen="reports" key="advNoReportsInCategory" />
+            </p>
+            <button
+              *ngFor="let report of category.reports"
+              type="button"
+              class="adv-reports__leaf"
+              [class.adv-reports__leaf--active]="isReportSelected(report.id)"
+              [class.adv-reports__leaf--hidden]="!reportVisible(report)"
+              (click)="selectReport(report.id)">
+              <i class="fas fa-file-alt" aria-hidden="true"></i>
+              <span><ui-inline-text kind="screen" screen="reports" [key]="report.labelKey" /></span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <div class="adv-reports__main">
+      <section class="adv-reports__criteria">
+        <div class="adv-reports__panel-head">
+          <h2><ui-inline-text kind="screen" screen="reports" key="advCriteriaTitle" /></h2>
+          <span class="adv-reports__report-name" *ngIf="selectedLeaf()">
+            <ui-inline-text kind="screen" screen="reports" [key]="reportTitleKey()" />
+          </span>
+        </div>
+
+        <div class="adv-reports__criteria-empty" *ngIf="!selectedLeaf()">
+          <ui-inline-text kind="screen" screen="reports" key="advSelectReport" />
+        </div>
+
+        <div class="adv-reports__criteria-form" *ngIf="selectedLeaf()">
+          <div class="adv-reports__date-row">
+            <label>
+              <span><ui-inline-text kind="screen" screen="reports" key="fromDate" /></span>
+              <input type="date" [(ngModel)]="fromDate" [disabled]="usesLiveSnapshot()" />
+            </label>
+            <label>
+              <span><ui-inline-text kind="screen" screen="reports" key="toDate" /></span>
+              <input type="date" [(ngModel)]="toDate" [disabled]="usesLiveSnapshot()" />
+            </label>
+            <button type="button" class="adv-reports__ghost-btn" (click)="clearFilters()">
+              <ui-inline-text kind="screen" screen="reports" key="clearFilter" />
+            </button>
+          </div>
+          <p class="adv-reports__hint" *ngIf="usesLiveSnapshot()">
+            <ui-inline-text kind="screen" screen="reports" key="snapshotDateHint" />
+          </p>
+          <p class="adv-reports__hint" *ngIf="!usesLiveSnapshot()">
+            <ui-inline-text kind="screen" screen="reports" key="periodDateHint" />
+          </p>
+
+          <div class="adv-reports__search-block">
+            <label class="adv-reports__search-type">
+              <span><ui-inline-text kind="screen" screen="reports" key="searchTypeLabel" /></span>
+              <select [(ngModel)]="searchMode">
+                <option value="all"><ui-inline-text kind="screen" screen="reports" key="searchAllInPeriod" /></option>
+                <option value="lastHour"><ui-inline-text kind="screen" screen="reports" key="searchLastHour" /></option>
+                <option value="guest"><ui-inline-text kind="screen" screen="reports" key="searchGuest" /></option>
+                <option value="room"><ui-inline-text kind="screen" screen="reports" key="searchRoom" /></option>
+                <option value="floor"><ui-inline-text kind="screen" screen="reports" key="searchFloor" /></option>
+              </select>
+            </label>
+            <label *ngIf="searchMode === 'guest'">
+              <span><ui-inline-text kind="screen" screen="reports" key="searchLabel" /></span>
+              <input type="search" [(ngModel)]="searchGuest" [placeholder]="ui.screenText('reports', 'searchGuestPh')" />
+            </label>
+            <label *ngIf="searchMode === 'room'">
+              <span><ui-inline-text kind="screen" screen="reports" key="searchRoom" /></span>
+              <input type="search" [(ngModel)]="searchRoom" [placeholder]="ui.screenText('reports', 'searchRoomPh')" />
+            </label>
+            <label *ngIf="searchMode === 'floor'">
+              <span><ui-inline-text kind="screen" screen="reports" key="searchFloor" /></span>
+              <input type="search" [(ngModel)]="searchFloor" [placeholder]="ui.screenText('reports', 'searchFloorPh')" />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="adv-reports__preview" id="adv-reports-preview">
+        <div class="adv-reports__panel-head">
+          <h2><ui-inline-text kind="screen" screen="reports" key="advPreviewTitle" /></h2>
+          <span class="adv-reports__rows-count" *ngIf="previewRan">
+            <ui-inline-text kind="screen" screen="reports" key="reportRowsCount" />
+            {{ previewRows.length }}
+          </span>
+        </div>
+
+        <div class="adv-reports__preview-empty" *ngIf="!previewRan">
+          <i class="fas fa-chart-area" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="reports" key="advPreviewEmpty" /></p>
+        </div>
+
+        <div class="adv-reports__preview-empty" *ngIf="previewRan && !isBookingReport()">
+          <i class="fas fa-file-alt" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="reports" key="tmplCatalogPlaceholder" /></p>
+        </div>
+
+        <div class="adv-reports__preview-loading" *ngIf="loading && previewRan">
+          <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="loading" />
+        </div>
+
+        <div
+          class="adv-reports__summary-grid"
+          *ngIf="previewRan && isBookingReport() && selectedReportId === 'staying-summary' && previewRows.length">
+          <article>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryGuests" /></span>
+            <strong>{{ stayingSummaryGuests() }}</strong>
+          </article>
+          <article>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryTotal" /></span>
+            <strong>{{ stayingSummaryTotal() | number }}</strong>
+          </article>
+          <article>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryPaid" /></span>
+            <strong>{{ stayingSummaryPaid() | number }}</strong>
+          </article>
+          <article>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryRemaining" /></span>
+            <strong>{{ stayingSummaryRemaining() | number }}</strong>
+          </article>
+        </div>
+
+        <div class="adv-reports__table-wrap" *ngIf="previewRan && isBookingReport() && selectedReportId !== 'staying-summary'">
+          <table class="adv-reports__table" *ngIf="previewRows.length; else previewNoRows">
+            <thead>
+              <tr>
+                <th><ui-inline-text kind="screen" screen="reports" key="colGuest" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colRoom" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colDate" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colPaid" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colRemaining" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colTotal" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colStatus" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of previewRows">
+                <td>{{ guestName(row) }}</td>
+                <td>{{ row.room_Number }}</td>
+                <td>{{ row.booking_Date }}</td>
+                <td>{{ row.payment_Amount | number }}</td>
+                <td>{{ row.remaining_Amount | number }}</td>
+                <td>{{ row.total_Price | number }}</td>
+                <td>{{ statusLabel(row.status) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <ng-template #previewNoRows>
+            <p class="adv-reports__preview-empty-inline">
+              <ui-inline-text kind="screen" screen="reports" key="emptyBookings" />
+            </p>
+          </ng-template>
+        </div>
+      </section>
+    </div>
+
+    <aside class="adv-reports__actions">
+      <section class="adv-reports__action-block">
+        <h2><ui-inline-text kind="screen" screen="reports" key="advExecutionTitle" /></h2>
+        <button type="button" class="adv-reports__run-btn" (click)="runReport()" [disabled]="!selectedLeaf() || loading">
+          <i class="fas fa-bolt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="advRunReport" />
+        </button>
+        <div class="adv-reports__export-row">
+          <button type="button" class="adv-reports__icon-btn" (click)="refreshReport()" [title]="ui.screenText('reports', 'refresh')">
+            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="adv-reports__icon-btn" (click)="printPreview()" [title]="ui.screenText('reports', 'print')">
+            <i class="fas fa-print" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="adv-reports__icon-btn" disabled [title]="ui.screenText('reports', 'advExportPdf')">
+            <i class="fas fa-file-pdf" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="adv-reports__icon-btn" disabled [title]="ui.screenText('reports', 'advExportExcel')">
+            <i class="fas fa-file-excel" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <section class="adv-reports__action-block adv-reports__action-block--muted">
+        <h2><ui-inline-text kind="screen" screen="reports" key="advQuickActionsTitle" /></h2>
+        <button type="button" class="adv-reports__secondary-btn" disabled>
+          <i class="fas fa-expand" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="advFullScreen" />
+        </button>
+        <button type="button" class="adv-reports__secondary-btn" disabled>
+          <i class="fas fa-star" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="advAddFavorite" />
+        </button>
+      </section>
+
+      <section class="adv-reports__action-block adv-reports__action-block--info">
+        <h2><ui-inline-text kind="screen" screen="reports" key="advReportInfoTitle" /></h2>
+        <p class="adv-reports__info-line" *ngIf="selectedLeaf()">
+          <strong>{{ hotelBranding.displayName() }}</strong>
+        </p>
+        <p class="adv-reports__info-line" *ngIf="previewRan && selectedLeaf()">
+          <ui-inline-text kind="screen" screen="reports" key="reportRowsCount" />
+          {{ previewRows.length }}
+        </p>
+      </section>
+    </aside>
+  </div>
+</div>

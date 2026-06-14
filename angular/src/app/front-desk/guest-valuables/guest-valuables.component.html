@@ -1,0 +1,378 @@
+<div class="gv-page">
+  <section class="gv-hero gv-panel">
+    <div class="gv-hero__top">
+      <div class="gv-hero__title">
+        <i class="fas fa-suitcase" aria-hidden="true"></i>
+        <div>
+          <h1> activeTab === 'valuables' ? <ui-inline-text kind="screen" screen="guestValuables" key="tabValuables" /> : <ui-inline-text kind="screen" screen="guestValuables" key="tabLostFound" /> </h1>
+          <p *ngIf="activeTab === 'lostFound'" class="gv-hero__subtitle"><ui-inline-text kind="screen" screen="guestValuables" key="lostFoundSubtitle" /></p>
+        </div>
+      </div>
+
+      <div class="gv-hero__actions">
+        <button type="button" class="gv-btn gv-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="guestValuables" key="refresh" />
+        </button>
+        <button *ngIf="activeTab === 'valuables'" type="button" class="gv-btn gv-btn--primary" (click)="addDeposit()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="guestValuables" key="addDeposit" />
+        </button>
+        <button *ngIf="activeTab === 'lostFound'" type="button" class="gv-btn gv-btn--primary" (click)="registerLost()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="guestValuables" key="registerLost" />
+        </button>
+      </div>
+    </div>
+
+    <nav class="gv-tabs" [attr.aria-label]="label('tabsAria')">
+      <button
+        *ngFor="let tab of tabs"
+        type="button"
+        class="gv-tab"
+        [class.gv-tab--active]="activeTab === tab"
+        (click)="setTab(tab)"
+      >
+        <i class="fas" [ngClass]="tab === 'valuables' ? 'fa-vault' : 'fa-briefcase'" aria-hidden="true"></i>
+        <span> tab === 'valuables' ? <ui-inline-text kind="screen" screen="guestValuables" key="tabValuables" /> : <ui-inline-text kind="screen" screen="guestValuables" key="tabLostFound" /> </span>
+      </button>
+    </nav>
+  </section>
+
+  <section class="gv-toolbar gv-panel">
+    <label class="gv-search">
+      <input
+        type="search"
+        [(ngModel)]="searchQuery"
+        [placeholder]="activeTab === 'valuables' ? label('searchGuestPlaceholder') : label('searchLostPlaceholder')"
+        [attr.aria-label]="activeTab === 'valuables' ? label('searchGuestPlaceholder') : label('searchLostPlaceholder')"
+      />
+      <i class="fas fa-search" aria-hidden="true"></i>
+    </label>
+
+    <div *ngIf="activeTab === 'valuables'" class="gv-scope">
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="valuablesScope === 'all'" (click)="valuablesScope = 'all'">
+        <ui-inline-text kind="screen" screen="guestValuables" key="filterAll" />
+      </button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="valuablesScope === 'inCustody'" (click)="valuablesScope = 'inCustody'">
+        <i class="fas fa-lock" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="guestValuables" key="filterInCustody" />
+      </button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="valuablesScope === 'delivered'" (click)="valuablesScope = 'delivered'">
+        <i class="fas fa-lock-open" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="guestValuables" key="filterDelivered" />
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'lostFound'" class="gv-scope gv-scope--wrap">
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="lostScope === 'all'" (click)="lostScope = 'all'"><ui-inline-text kind="screen" screen="guestValuables" key="filterAll" /></button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="lostScope === 'open'" (click)="lostScope = 'open'"><ui-inline-text kind="screen" screen="guestValuables" key="filterOpenOnly" /></button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="lostScope === 'delivered'" (click)="lostScope = 'delivered'"><ui-inline-text kind="screen" screen="guestValuables" key="filterDeliveredOnly" /></button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="lostScope === 'disposed'" (click)="lostScope = 'disposed'"><ui-inline-text kind="screen" screen="guestValuables" key="filterDisposed" /></button>
+      <button type="button" class="gv-scope-btn" [class.gv-scope-btn--active]="lostScope === 'expired'" (click)="lostScope = 'expired'">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="guestValuables" key="filterExpiredOnly" />
+      </button>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'valuables'" class="gv-table-card gv-panel">
+    <div class="gv-table-wrap">
+      <table class="gv-table">
+        <thead>
+          <tr>
+            <th class="gv-col-actions"><ui-inline-text kind="screen" screen="guestValuables" key="colActions" /></th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('receiptNo')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colReceiptNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('receiptNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('guestName')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colGuestName" /></span>
+                <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('category')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colCategory" /></span>
+                <i class="fas" [ngClass]="sortIcon('category')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('description')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colDescription" /></span>
+                <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('quantity')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colQuantity" /></span>
+                <i class="fas" [ngClass]="sortIcon('quantity')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleValuablesSort('safeBoxNo')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colSafeBoxNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('safeBoxNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredDeposits; trackBy: trackDeposit">
+            <td class="gv-col-actions">
+              <button type="button" class="gv-view-btn" (click)="viewDeposit(row)" [attr.aria-label]="label('viewRowAria')">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </button>
+            </td>
+            <td dir="ltr" class="gv-receipt">
+              <i class="fas fa-file-alt" aria-hidden="true"></i>
+              {{ row.receiptNo }}
+            </td>
+            <td>{{ row.guestName }}</td>
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td>
+              <span class="gv-category">
+                <i class="fas fa-gem" aria-hidden="true"></i>
+                {{ categoryLabel(row.categoryKey) }}
+              </span>
+            </td>
+            <td>{{ row.description }}</td>
+            <td>{{ row.quantity | localeNumber }}</td>
+            <td>{{ safeBoxLabel(row.safeBoxNo) }}</td>
+          </tr>
+          <tr *ngIf="filteredDeposits.length === 0">
+            <td colspan="8" class="gv-empty"><ui-inline-text kind="screen" screen="guestValuables" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'lostFound'" class="gv-table-card gv-panel">
+    <div class="gv-table-wrap">
+      <table class="gv-table">
+        <thead>
+          <tr>
+            <th class="gv-col-actions"><ui-inline-text kind="screen" screen="guestValuables" key="colActions" /></th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('referenceNo')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colReferenceNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('referenceNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('description')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colDescription" /></span>
+                <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('category')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colCategory" /></span>
+                <i class="fas" [ngClass]="sortIcon('category')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('foundLocation')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colFoundLocation" /></span>
+                <i class="fas" [ngClass]="sortIcon('foundLocation')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('safeBoxNo')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colSafeBoxNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('safeBoxNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('status')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colStatus" /></span>
+                <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="gv-sort" (click)="toggleLostSort('foundDate')">
+                <span><ui-inline-text kind="screen" screen="guestValuables" key="colFoundDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('foundDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredLostItems; trackBy: trackLost">
+            <td class="gv-col-actions">
+              <button type="button" class="gv-view-btn" (click)="viewLost(row)" [attr.aria-label]="label('viewRowAria')">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </button>
+            </td>
+            <td dir="ltr">{{ row.referenceNo }}</td>
+            <td>{{ row.description }}</td>
+            <td>{{ categoryLabel(row.categoryKey) }}</td>
+            <td>{{ row.foundLocation }}</td>
+            <td>{{ safeBoxLabel(row.safeBoxNo) }}</td>
+            <td>{{ lostStatusLabel(row.status) }}</td>
+            <td dir="ltr">{{ formatDate(row.foundDate) }}</td>
+          </tr>
+          <tr *ngIf="filteredLostItems.length === 0">
+            <td colspan="8" class="gv-empty"><ui-inline-text kind="screen" screen="guestValuables" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+@if (depositModalOpen) {
+  <div class="gv-modal-backdrop" (click)="closeDepositModal()"></div>
+  <div class="gv-modal" role="dialog" aria-modal="true" [attr.aria-label]="label('depositModalTitle')">
+    <header class="gv-modal__header">
+      <h2 class="gv-modal__title">
+        <i class="fas fa-plus-circle" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="guestValuables" key="depositModalTitle" />
+      </h2>
+      <button type="button" class="gv-modal__close" (click)="closeDepositModal()" [attr.aria-label]="label('depositModalCloseAria')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <form class="gv-modal__body" (ngSubmit)="submitDeposit()">
+      <div class="gv-field gv-field--full">
+        <label class="gv-field__label">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="guestValuables" key="depositSelectReservation" />
+        </label>
+        <div class="gv-combobox">
+          <input
+            type="search"
+            class="gv-input"
+            [(ngModel)]="reservationSearch"
+            name="reservationSearch"
+            [placeholder]="label('depositReservationPlaceholder')"
+            (focus)="openReservationList()"
+            (blur)="closeReservationList()"
+            (input)="openReservationList()"
+          />
+          @if (reservationListOpen) {
+            <ul class="gv-combobox__list" role="listbox">
+              @if (depositBookingsLoading) {
+                <li class="gv-combobox__empty"><ui-inline-text kind="screen" screen="guestValuables" key="depositBookingsLoading" /></li>
+              } @else if (filteredReservationOptions.length === 0) {
+                <li class="gv-combobox__empty"><ui-inline-text kind="screen" screen="guestValuables" key="depositNoReservations" /></li>
+              } @else {
+                @for (option of filteredReservationOptions; track option.id) {
+                  <li>
+                    <button type="button" class="gv-combobox__option" (mousedown)="selectReservation(option)">
+                      {{ option.label }}
+                    </button>
+                  </li>
+                }
+              }
+            </ul>
+          }
+        </div>
+        <p class="gv-field__hint"><ui-inline-text kind="screen" screen="guestValuables" key="depositReservationHint" /></p>
+      </div>
+
+      <div class="gv-form-grid">
+        <div class="gv-field">
+          <label class="gv-field__label">
+            <ui-inline-text kind="screen" screen="guestValuables" key="depositGuestName" />
+            <span class="gv-required">*</span>
+          </label>
+          <input
+            type="text"
+            class="gv-input"
+            [(ngModel)]="depositGuestName"
+            name="depositGuestName"
+            [placeholder]="label('depositGuestNamePlaceholder')"
+            required
+          />
+        </div>
+
+        <div class="gv-field">
+          <label class="gv-field__label"><ui-inline-text kind="screen" screen="guestValuables" key="depositRoomNo" /></label>
+          <input type="text" class="gv-input gv-input--readonly" [(ngModel)]="depositRoomNo" name="depositRoomNo" readonly />
+        </div>
+
+        <div class="gv-field gv-field--qty">
+          <label class="gv-field__label"><ui-inline-text kind="screen" screen="guestValuables" key="depositQuantity" /></label>
+          <input type="number" min="1" class="gv-input" [(ngModel)]="depositQuantity" name="depositQuantity" />
+        </div>
+
+        <div class="gv-field">
+          <label class="gv-field__label"><ui-inline-text kind="screen" screen="guestValuables" key="depositCategory" /></label>
+          <select class="gv-input gv-input--select" [(ngModel)]="depositCategoryKey" name="depositCategoryKey">
+            @for (key of categoryKeys; track key) {
+              <option [value]="key">{{ categoryLabel(key) }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="gv-field gv-field--span-2">
+          <label class="gv-field__label">
+            <ui-inline-text kind="screen" screen="guestValuables" key="depositSafeBoxNo" />
+            <span class="gv-required">*</span>
+          </label>
+          <select class="gv-input gv-input--select" [(ngModel)]="depositSafeBoxNo" name="depositSafeBoxNo" required>
+            <option value=""><ui-inline-text kind="screen" screen="guestValuables" key="depositSafeBoxPlaceholder" /></option>
+            @for (boxNo of safeBoxNumbers; track boxNo) {
+              <option [value]="boxNo" [disabled]="isSafeBoxDisabled(boxNo)">
+                {{ safeBoxLabel(boxNo) }}
+              </option>
+            }
+          </select>
+          <p class="gv-field__hint"><ui-inline-text kind="screen" screen="guestValuables" key="depositSafeBoxHint" /></p>
+        </div>
+
+        <div class="gv-field gv-field--full">
+          <label class="gv-field__label">
+            <ui-inline-text kind="screen" screen="guestValuables" key="depositDescription" />
+            <span class="gv-required">*</span>
+          </label>
+          <textarea
+            class="gv-input gv-input--textarea"
+            rows="3"
+            [(ngModel)]="depositDescription"
+            name="depositDescription"
+            [placeholder]="label('depositDescriptionPlaceholder')"
+            required
+          ></textarea>
+        </div>
+
+        <div class="gv-field gv-field--full">
+          <label class="gv-field__label"><ui-inline-text kind="screen" screen="guestValuables" key="depositStatement" /></label>
+          <textarea
+            class="gv-input gv-input--textarea"
+            rows="3"
+            [(ngModel)]="depositStatement"
+            name="depositStatement"
+            [placeholder]="label('depositStatementPlaceholder')"
+          ></textarea>
+        </div>
+      </div>
+
+      @if (depositFormError) {
+        <p class="gv-form-error" role="alert">{{ depositFormError }}</p>
+      }
+
+      <footer class="gv-modal__footer">
+        <button type="button" class="gv-btn gv-btn--outline" (click)="closeDepositModal()">
+          <ui-inline-text kind="screen" screen="guestValuables" key="depositCancel" />
+        </button>
+        <button type="submit" class="gv-btn gv-btn--primary">
+          <i class="fas fa-save" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="guestValuables" key="depositSubmit" />
+        </button>
+      </footer>
+    </form>
+  </div>
+}

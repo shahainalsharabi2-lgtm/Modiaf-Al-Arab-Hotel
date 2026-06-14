@@ -1,0 +1,351 @@
+<div class="psi-page rr-page" dir="rtl">
+  <section class="hc-page__panel" *ngIf="screenMode === 'list'">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'priceSoldItemsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="rr-outline-btn" *ngIf="canEdit" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsImportExport" />
+        </button>
+        <button type="button" class="rr-outline-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsNew" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'priceSoldItemsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'priceSoldItemsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'priceSoldItemsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-receipt" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table psi-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('itemType')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColItemType" />
+              <i class="fas" [ngClass]="sortIcon('itemType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.itemType }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'priceSoldItemsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rt-page__panel" *ngIf="screenMode === 'form'">
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormMainTitle" />
+      </header>
+
+      <div class="rr-form-layout">
+        <div class="rr-form-fields">
+          <div class="rr-form-grid psi-form-grid">
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColName" /></span>
+              <div class="rt-field__control">
+                <input type="text" [(ngModel)]="form.name" [disabled]="!canEdit" [placeholder]="ui.screenText('settings', 'priceSoldItemsColName')" />
+                <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColForeignName" /></span>
+              <div class="rt-field__control">
+                <input
+                  type="text"
+                  dir="ltr"
+                  [(ngModel)]="form.foreignName"
+                  [disabled]="!canEdit"
+                  [placeholder]="ui.screenText('settings', 'priceSoldItemsColForeignName')" />
+                <i class="fas fa-id-card rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColItemType" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.itemType" [disabled]="!canEdit">
+                  <option value=""><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormItemTypePlaceholder" /></option>
+                  <option *ngFor="let opt of itemTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+                </select>
+                <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormOrder" /></span>
+              <div class="rt-field__control">
+                <input type="number" min="0" [(ngModel)]="form.displayOrder" [disabled]="!canEdit" />
+                <i class="fas fa-sort-numeric-up rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="rr-form-upload" aria-hidden="false">
+          <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+          <strong><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormUploadTitle" /></strong>
+          <span><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormUploadHint" /></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormDetailsTitle" />
+      </header>
+
+      <div class="psi-details-grid">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormPrice" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.price" [disabled]="!canEdit" dir="ltr" />
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormDefaultQty" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.defaultQuantity" [disabled]="!canEdit" dir="ltr" />
+            <i class="fas fa-sort-numeric-up rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormStockQty" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.stockQuantity" [disabled]="!canEdit" dir="ltr" />
+            <i class="fas fa-boxes rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormPropertiesTitle" />
+      </header>
+
+      <div class="psi-props-grid">
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormDiscountable" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.discountable" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormSoldSeparately" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.soldSeparately" [disabled]="!canEdit" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormOutsideStay" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.availableOutsideStay" [disabled]="!canEdit" />
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <footer class="psi-form-foot">
+      <button type="button" class="psi-form-foot__save" (click)="saveForm()" [disabled]="!canEdit">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormSave" />
+      </button>
+      <button type="button" class="psi-form-foot__cancel" (click)="cancelForm()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </section>
+
+  <div
+    class="rr-ie-modal"
+    *ngIf="importExportOpen"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ui.screenText('settings', 'priceSoldItemsModalTitle')">
+    <div class="rr-ie-modal__backdrop" (click)="closeImportExport()"></div>
+    <div class="rr-ie-modal__card">
+      <header class="rr-ie-modal__head">
+        <h3><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsModalTitle" /></h3>
+        <button type="button" class="rr-ie-modal__close" (click)="closeImportExport()">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="rr-ie-modal__body">
+        <div class="rr-ie-toolbar">
+          <button type="button" class="rr-ie-btn rr-ie-btn--outline" (click)="ieImportFile()">
+            <i class="fas fa-folder-open" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeImportFile" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--template" (click)="ieDownloadTemplate()">
+            <i class="fas fa-file-download" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeDownloadTemplate" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--clear" (click)="ieClearTable()">
+            <i class="fas fa-broom" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeClearTable" />
+          </button>
+          <label class="rr-ie-format">
+            <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeFormatLabel" /></span>
+            <select [(ngModel)]="importExportFormat">
+              <option value="XLSX">XLSX</option>
+              <option value="CSV">CSV</option>
+            </select>
+          </label>
+          <button type="button" class="rr-ie-btn rr-ie-btn--export" (click)="ieExportData()">
+            <i class="fas fa-download" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeExportData" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--save" *ngIf="canEdit" (click)="ieSave()">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormSave" />
+          </button>
+        </div>
+
+        <div class="psi-ie-empty" *ngIf="!importExportRows.length">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsEmpty" /></p>
+        </div>
+
+        <div class="rr-ie-table-panel" *ngIf="importExportRows.length">
+          <div class="rr-ie-table-toolbar">
+            <div class="rr-ie-table-toolbar__start">
+              <button
+                type="button"
+                class="rr-ie-icon-btn"
+                (click)="ieToggleSelectAll()"
+                [title]="ui.screenText('settings', 'roomRoomsIeSelectAllAria')">
+                <i class="fas fa-check-double" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="rr-ie-icon-btn"
+                (click)="ieClearFormatting()"
+                [title]="ui.screenText('settings', 'roomRoomsIeClearFormatAria')">
+                <i class="fas fa-paint-brush" aria-hidden="true"></i>
+              </button>
+              <span class="rr-ie-selected-badge">
+                <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeSelected" />
+                {{ ieSelectedCount() }}
+              </span>
+            </div>
+            <div class="rr-ie-table-badge">
+              <i class="fas fa-table" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeDataTable" />
+              <span class="rr-ie-table-badge__count">{{ ieRowCount() }}</span>
+            </div>
+          </div>
+
+          <div class="rr-ie-table-wrap">
+            <table class="rr-ie-table">
+              <thead>
+                <tr>
+                  <th class="rr-ie-check-col">
+                    <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeSelectAllAria" /></span>
+                  </th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColSerial" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColName" /></th>
+                  <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColForeignName" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsColItemType" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="priceSoldItemsFormPrice" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColError" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of importExportRows; let i = index">
+                  <td class="rr-ie-check-col">
+                    <input type="checkbox" [checked]="row.selected" (change)="ieToggleRow(row)" />
+                  </td>
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ row.name }}</td>
+                  <td dir="ltr">{{ row.foreignName }}</td>
+                  <td>{{ row.itemType }}</td>
+                  <td dir="ltr">{{ row.price }}</td>
+                  <td>{{ row.error }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

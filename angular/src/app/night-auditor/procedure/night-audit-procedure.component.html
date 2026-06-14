@@ -1,0 +1,96 @@
+<div class="nap-page">
+  <section class="nap-dashboard nap-panel">
+    <div class="nap-stats">
+      <article class="nap-stat">
+        <div class="nap-stat__icon nap-stat__icon--calendar" aria-hidden="true">
+          <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="nap-stat__body">
+          <p class="nap-stat__label"><ui-inline-text kind="screen" screen="nightAuditProcedure" key="businessDateLabel" /></p>
+          <p class="nap-stat__value" dir="ltr">{{ businessDate }}</p>
+        </div>
+      </article>
+
+      <article class="nap-stat nap-stat--clock">
+        <div class="nap-stat__icon nap-stat__icon--clock" aria-hidden="true">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="nap-stat__body">
+          <p class="nap-stat__label"><ui-inline-text kind="screen" screen="nightAuditProcedure" key="systemDateTimeLabel" /></p>
+          <p class="nap-stat__clock" dir="ltr">{{ systemTime }}</p>
+          <p class="nap-stat__sub">{{ systemDateLabel }}</p>
+        </div>
+      </article>
+
+      <article class="nap-stat">
+        <div class="nap-stat__icon nap-stat__icon--robot" aria-hidden="true">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="nap-stat__body">
+          <p class="nap-stat__label"><ui-inline-text kind="screen" screen="nightAuditProcedure" key="autoCloseQuestion" /></p>
+          <p class="nap-stat__value">{{ autoCloseLabel }}</p>
+        </div>
+      </article>
+
+      <article class="nap-stat">
+        <div class="nap-stat__icon nap-stat__icon--door" aria-hidden="true">
+          <i class="fas fa-door-open"></i>
+        </div>
+        <div class="nap-stat__body">
+          <p class="nap-stat__label"><ui-inline-text kind="screen" screen="nightAuditProcedure" key="dayStatusLabel" /></p>
+          <p class="nap-stat__value">{{ dayStatusLabel }}</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="nap-action-wrap">
+      <button type="button" class="nap-start-btn" [disabled]="dayStatus === 'in_progress'" (click)="startProcedure()">
+        <i class="fas fa-play" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="nightAuditProcedure" key="startProcedure" />
+      </button>
+    </div>
+  </section>
+
+  <section class="nap-archive nap-panel">
+    <header class="nap-archive__head">
+      <h2><ui-inline-text kind="screen" screen="nightAuditProcedure" key="archiveTitle" /></h2>
+    </header>
+
+    <div class="nap-table-wrap">
+      <table class="nap-table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colBusinessDate" /></th>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colStartTime" /></th>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colEndTime" /></th>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colStatus" /></th>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colMode" /></th>
+            <th><ui-inline-text kind="screen" screen="nightAuditProcedure" key="colNotes" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of archiveRows; trackBy: trackRow">
+            <td dir="ltr">{{ row.businessDate }}</td>
+            <td dir="ltr">{{ cellValue(row.startAt) }}</td>
+            <td dir="ltr">{{ cellValue(row.endAt) }}</td>
+            <td>
+              <span class="nap-badge nap-badge--status" [ngClass]="'nap-badge--status-' + row.status">
+                {{ statusLabel(row.status) }}
+              </span>
+            </td>
+            <td>
+              <span class="nap-badge nap-badge--mode" [ngClass]="'nap-badge--mode-' + row.mode">
+                <i class="fas" [ngClass]="row.mode === 'automatic' ? 'fa-robot' : 'fa-user'" aria-hidden="true"></i>
+                {{ modeLabel(row.mode) }}
+              </span>
+            </td>
+            <td>{{ cellValue(row.notes) }}</td>
+          </tr>
+          <tr *ngIf="archiveRows.length === 0">
+            <td colspan="6" class="nap-empty"><ui-inline-text kind="screen" screen="nightAuditProcedure" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

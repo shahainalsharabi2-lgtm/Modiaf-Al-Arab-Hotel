@@ -1,0 +1,117 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'confirmationMessagesSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="confirmationMessagesFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="confirmationMessagesFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="confirmationMessagesFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="confirmationMessagesFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'confirmationMessagesViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'confirmationMessagesViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'confirmationMessagesViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="confirmationMessagesEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('messageTitle')">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColTitle" />
+              <i class="fas" [ngClass]="sortIcon('messageTitle')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('messageText')">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColText" />
+              <i class="fas" [ngClass]="sortIcon('messageText')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('messageFooter')">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColFooter" />
+              <i class="fas" [ngClass]="sortIcon('messageFooter')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.messageTitle }}</td>
+            <td>{{ row.messageText }}</td>
+            <td>{{ row.messageFooter }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'confirmationMessagesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="confirmationMessagesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

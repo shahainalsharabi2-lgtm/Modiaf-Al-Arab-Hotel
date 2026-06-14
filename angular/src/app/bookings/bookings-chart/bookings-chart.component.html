@@ -1,0 +1,47 @@
+<div class="bc-page" dir="rtl">
+  <div class="bc-filters">
+    <div class="bc-field">
+      <label><ui-inline-text kind="screen" screen="bookingsChart" key="fieldFromDate" /></label>
+      <div class="bc-date-wrap">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <input type="date" class="bc-control" [(ngModel)]="fromDate" (change)="applyDates()" />
+      </div>
+    </div>
+    <div class="bc-field">
+      <label><ui-inline-text kind="screen" screen="bookingsChart" key="fieldToDate" /></label>
+      <div class="bc-date-wrap">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <input type="date" class="bc-control" [(ngModel)]="toDate" (change)="applyDates()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="bc-chart-shell">
+    <button type="button" class="bc-scroll-btn bc-scroll-btn--prev" [disabled]="!canScrollPrev" (click)="scrollPrev()">
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <div class="bc-chart-wrap" #chartScroll>
+      <table class="bc-chart">
+        <thead>
+          <tr>
+            <th class="bc-chart__label-head"><ui-inline-text kind="screen" screen="bookingsChart" key="metricColumn" /></th>
+            <th *ngFor="let day of visibleDays; trackBy: trackByDayIso">{{ dayHeading(day) }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows; trackBy: trackByRowId" [ngClass]="rowToneClass(row)">
+            <th scope="row" class="bc-chart__label">
+              <ui-inline-text kind="screen" screen="bookingsChart" [key]="row.labelKey" />
+            </th>
+            <td *ngFor="let day of visibleDays; let i = index; trackBy: trackByDayIso">{{ formatCell(row, i) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button type="button" class="bc-scroll-btn bc-scroll-btn--next" [disabled]="!canScrollNext" (click)="scrollNext()">
+      <i class="fas fa-chevron-left" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

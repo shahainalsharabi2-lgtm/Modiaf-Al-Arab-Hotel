@@ -1,0 +1,151 @@
+<div class="si-page" dir="rtl">
+  <section class="si-filters-bar">
+    <div class="si-filters-bar__main">
+      <div class="si-filter-tags">
+        <span *ngIf="appliedFromDate" class="si-filter-tag">
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="filterFrom" />: {{ formatChipDate(appliedFromDate) }}
+          <button type="button" class="si-filter-tag__remove" (click)="removeFromDate()" [attr.aria-label]="label('removeFromDateAria')">×</button>
+        </span>
+        <span *ngIf="appliedToDate" class="si-filter-tag">
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="filterTo" />: {{ formatChipDate(appliedToDate) }}
+          <button type="button" class="si-filter-tag__remove" (click)="removeToDate()" [attr.aria-label]="label('removeToDateAria')">×</button>
+        </span>
+        <button *ngIf="hasActiveDateFilters" type="button" class="si-btn si-btn--ghost" (click)="clearDateFilters()">
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="clearFilters" />
+        </button>
+      </div>
+
+      <div class="si-toolbar">
+        <button type="button" class="si-btn si-btn--primary" [class.si-btn--active]="filterPanelOpen" (click)="toggleFilterPanel()">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="filter" />
+        </button>
+        <button type="button" class="si-btn si-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="refresh" />
+        </button>
+        <button type="button" class="si-btn si-btn--outline" (click)="printTable()">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="servicesInvoice" key="print" />
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="si-btn si-btn--new" (click)="addNew()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="servicesInvoice" key="newBtn" />
+    </button>
+  </section>
+
+  <section *ngIf="filterPanelOpen" class="si-filter-panel si-panel">
+    <label class="si-date-field">
+      <span><ui-inline-text kind="screen" screen="servicesInvoice" key="filterFrom" /></span>
+      <input type="date" [(ngModel)]="filterFromDate" />
+    </label>
+    <label class="si-date-field">
+      <span><ui-inline-text kind="screen" screen="servicesInvoice" key="filterTo" /></span>
+      <input type="date" [(ngModel)]="filterToDate" />
+    </label>
+    <button type="button" class="si-btn si-btn--primary" (click)="applyDateFilter()">
+      <ui-inline-text kind="screen" screen="servicesInvoice" key="applyFilter" />
+    </button>
+  </section>
+
+  <section class="si-table-card si-panel">
+    <div class="si-table-wrap">
+      <table class="si-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('invoiceNo')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colInvoiceNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('invoiceNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('invoiceDate')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colInvoiceDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('invoiceDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('statementPercent')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colStatement" /></span>
+                <i class="fas" [ngClass]="sortIcon('statementPercent')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('total')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colTotal" /></span>
+                <i class="fas" [ngClass]="sortIcon('total')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('createdAt')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colCreatedAt" /></span>
+                <i class="fas" [ngClass]="sortIcon('createdAt')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="si-sort" (click)="toggleSort('returnInvoiceNo')">
+                <span><ui-inline-text kind="screen" screen="servicesInvoice" key="colReturnInvoiceNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('returnInvoiceNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th><ui-inline-text kind="screen" screen="servicesInvoice" key="colHasReturn" /></th>
+            <th class="si-col-actions"><ui-inline-text kind="screen" screen="servicesInvoice" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows; trackBy: trackRow">
+            <td dir="ltr">{{ row.invoiceNo | localeNumber }}</td>
+            <td dir="ltr">{{ formatDate(row.invoiceDate) }}</td>
+            <td>{{ formatStatement(row.statementPercent) }}</td>
+            <td class="si-money">{{ formatAmount(row.total) }}</td>
+            <td dir="ltr">{{ formatDateTime(row.createdAt) }}</td>
+            <td dir="ltr">{{ cellValue(row.returnInvoiceNo) }}</td>
+            <td>
+              <span *ngIf="row.hasReturn" class="si-return-icon" [attr.aria-label]="label('hasReturnAria')">
+                <i class="fas fa-undo" aria-hidden="true"></i>
+              </span>
+              <span *ngIf="!row.hasReturn">—</span>
+            </td>
+            <td class="si-col-actions">
+              <button type="button" class="si-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="pagedRows.length === 0">
+            <td colspan="8" class="si-empty"><ui-inline-text kind="screen" screen="servicesInvoice" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="si-pager">
+      <div class="si-pager__sizes">
+        <button
+          *ngFor="let size of pageSizeOptions"
+          type="button"
+          class="si-size"
+          [class.si-size--active]="pageSize === size"
+          (click)="setPageSize(size)">
+          {{ size | localeNumber }}
+        </button>
+      </div>
+
+      <div class="si-pager__nav">
+        <button type="button" class="si-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="si-page-current">{{ currentPage | localeNumber }}</span>
+        <button type="button" class="si-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <p class="si-pager__summary">{{ pageSummary() }}</p>
+    </footer>
+  </section>
+</div>

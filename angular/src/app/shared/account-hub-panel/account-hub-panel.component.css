@@ -1,0 +1,159 @@
+.account-hub-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(13, 27, 42, 0.32);
+  backdrop-filter: blur(2px);
+}
+
+.account-hub-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(320px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1rem 1.25rem;
+  background: #ffffff;
+  border-inline-end: 1px solid #e5e7eb;
+  box-shadow: 12px 0 40px rgba(15, 23, 42, 0.16);
+}
+
+.account-hub-panel__close {
+  align-self: flex-end;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.account-hub-panel__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding-top: 0.15rem;
+}
+
+.account-hub-panel__avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.account-hub-panel__name {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.account-hub-panel__email {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.account-hub-panel__actions-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.account-hub-panel__theme {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.account-hub-panel__my-account {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: #166534;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-hub-panel__divider {
+  height: 1px;
+  background: #f1f5f9;
+}
+
+.account-hub-panel__favorites-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.account-hub-panel__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.72rem 0.85rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #374151;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.account-hub-panel__link:hover {
+  background: #f8fafc;
+}
+
+.account-hub-panel__link i {
+  color: #94a3b8;
+}
+
+.account-hub-panel__logout {
+  margin-top: auto;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-hub-panel__favorites {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.account-hub-panel__favorites nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}

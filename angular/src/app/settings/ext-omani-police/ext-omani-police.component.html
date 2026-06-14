@@ -1,0 +1,135 @@
+<div class="hc-page eop-page" dir="rtl">
+  <header class="eop-page__head">
+    <h1>
+      <i class="fas fa-code-branch" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="settings" key="extOmaniPolicePageTitle" />
+    </h1>
+  </header>
+
+  <div class="eop-layout">
+    <aside class="eop-categories">
+      <button
+        type="button"
+        class="eop-categories__item"
+        *ngFor="let cat of categories"
+        [class.eop-categories__item--active]="activeCategory === cat.id"
+        (click)="setCategory(cat.id)">
+        <ui-inline-text kind="screen" screen="settings" [key]="cat.labelKey" />
+      </button>
+    </aside>
+
+    <section class="hc-page__panel eop-main">
+      <div class="eop-toolbar">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceNewBtn" />
+        </button>
+
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceFilterType" /></span>
+          <select [(ngModel)]="typeFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceFilterAll" /></option>
+            <option *ngFor="let dt of dataTypes" [value]="dt">{{ dt }}</option>
+          </select>
+        </label>
+
+        <div class="hc-page__search eop-search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="label('extOmaniPoliceSearchPh')" />
+        </div>
+      </div>
+
+      <div class="hc-page__empty eop-empty" *ngIf="!filteredRows().length">
+        <i class="fas fa-inbox" aria-hidden="true"></i>
+        <p><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceEmpty" /></p>
+      </div>
+
+      <div class="hc-page__table-wrap" *ngIf="filteredRows().length">
+        <table class="hc-page__table eop-table">
+          <thead>
+            <tr>
+              <th class="eop-col-id">
+                <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColId" />
+              </th>
+              <th>
+                <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColServiceType" />
+              </th>
+              <th dir="ltr">
+                <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColCode" />
+              </th>
+              <th>
+                <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColExternalValue" />
+              </th>
+              <th>
+                <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColDataType" />
+              </th>
+              <th class="hc-page__col-actions" *ngIf="canEdit" aria-hidden="true"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows()" (dblclick)="openEdit(row)">
+              <td class="eop-col-id" dir="ltr">{{ row.id }}</td>
+              <td>{{ row.serviceType }}</td>
+              <td dir="ltr">{{ row.code }}</td>
+              <td dir="ltr">{{ row.externalValue }}</td>
+              <td dir="ltr">{{ row.dataType }}</td>
+              <td class="hc-page__col-actions" *ngIf="canEdit">
+                <div class="hc-page__actions">
+                  <button type="button" class="hc-page__actions-btn" (click)="openEdit(row)" [attr.aria-label]="label('extOmaniPoliceActionEdit')">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="hc-page__actions-btn" (click)="deleteRow(row)" [attr.aria-label]="label('extOmaniPoliceActionDelete')">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="hc-modal eop-modal" *ngIf="modalOpen" role="dialog" aria-modal="true">
+  <div class="hc-modal__backdrop" (click)="closeModal()"></div>
+  <form class="hc-modal__card" (ngSubmit)="saveRow()">
+    <header class="hc-modal__head eop-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceModalTitle" /></h3>
+      <button type="button" class="hc-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="hc-modal__body hc-modal__form eop-modal__form">
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColServiceType" /></span>
+        <input type="text" [(ngModel)]="form.serviceType" name="serviceType" />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColCode" /></span>
+        <input type="text" dir="ltr" [(ngModel)]="form.code" name="code" required />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColExternalValue" /></span>
+        <input type="text" dir="ltr" [(ngModel)]="form.externalValue" name="externalValue" required />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceColDataType" /></span>
+        <select [(ngModel)]="form.dataType" name="dataType">
+          <option *ngFor="let dt of dataTypes" [value]="dt">{{ dt }}</option>
+        </select>
+      </label>
+    </div>
+    <footer class="hc-modal__foot">
+      <button type="button" class="hc-page__add-btn hc-page__add-btn--ghost" (click)="closeModal()">
+        <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceCancelBtn" />
+      </button>
+      <button type="submit" class="hc-page__add-btn" [disabled]="saving">
+        <ui-inline-text kind="screen" screen="settings" key="extOmaniPoliceSaveBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,134 @@
+.bt-table {
+  min-width: 1180px;
+}
+
+.bt-check {
+  text-align: center;
+}
+
+.bt-check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+}
+
+.bt-order {
+  text-align: center;
+  font-weight: 700;
+}
+
+.bt-toggle {
+  position: relative;
+  display: inline-block;
+  width: 2.75rem;
+  height: 1.45rem;
+}
+
+.bt-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.bt-toggle__slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #d1d5db;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bt-toggle__slider::before {
+  content: '';
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.bt-toggle input:checked + .bt-toggle__slider {
+  background: #1a3a32;
+}
+
+.bt-toggle input:checked + .bt-toggle__slider::before {
+  transform: translateX(-1.3rem);
+}
+
+.bt-toggle input:disabled + .bt-toggle__slider {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.bt-group-head {
+  text-align: center;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.bt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--app-border);
+  background: #fff;
+  font-size: 0.84rem;
+}
+
+.bt-footer__info {
+  color: var(--app-text-muted);
+  font-weight: 700;
+}
+
+.bt-footer__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.bt-page-btn {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--app-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bt-page-btn--active {
+  background: #1a3a32;
+  border-color: #1a3a32;
+  color: #fff;
+}
+
+.bt-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bt-footer__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.bt-footer__size select {
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}

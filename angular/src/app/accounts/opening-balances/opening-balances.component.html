@@ -1,0 +1,98 @@
+<div class="hc-page ob-page" dir="rtl">
+  <section class="hc-page__panel">
+    <header class="ob-page__head">
+      <h1>
+        <i class="fas fa-table" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="openingBalances" key="pageTitle" />
+      </h1>
+    </header>
+
+    <div class="hc-page__toolbar ob-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="label('searchPh')" />
+        </div>
+      </div>
+
+      <div class="hc-page__toolbar-start ob-page__actions">
+        <button type="button" class="ob-btn ob-btn--primary" [disabled]="saving" (click)="saveBalances()">
+          <i class="fas fa-check" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="openingBalances" key="saveBtn" />
+        </button>
+        <button type="button" class="ob-btn ob-btn--outline" (click)="importExport()">
+          <i class="fas fa-file-upload" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="openingBalances" key="importExportBtn" />
+        </button>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-wallet" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="openingBalances" key="empty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap ob-table-wrap" *ngIf="filteredRows().length">
+      <table class="hc-page__table ob-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ob-num-col" (click)="toggleSort('credit')">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colCredit" />
+              <i class="fas" [ngClass]="sortIcon('credit')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ob-num-col" (click)="toggleSort('debit')">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colDebit" />
+              <i class="fas" [ngClass]="sortIcon('debit')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('reference')">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colReference" />
+              <i class="fas" [ngClass]="sortIcon('reference')" aria-hidden="true"></i>
+            </th>
+            <th class="ob-check-col">
+              <ui-inline-text kind="screen" screen="openingBalances" key="colHasBalance" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td class="ob-num-col">
+              <input
+                class="ob-input ob-input--num"
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="row.credit" />
+            </td>
+            <td class="ob-num-col">
+              <input
+                class="ob-input ob-input--num"
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="row.debit" />
+            </td>
+            <td>
+              <input class="ob-input" type="text" [(ngModel)]="row.reference" />
+            </td>
+            <td class="ob-check-col">
+              <input type="checkbox" [(ngModel)]="row.hasOpeningBalance" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

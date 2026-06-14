@@ -1,0 +1,71 @@
+<div class="db-modal-root" *ngIf="open" (click)="onBackdropClick()">
+  <div
+    class="db-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ui.chromeLabel('dbSettingsPanelAria')"
+    (click)="onPanelClick($event)">
+    <header class="db-modal__head">
+      <h2 class="db-modal__title"><ui-inline-text kind="chrome" key="dbSettingsTitle" /></h2>
+      <button
+        type="button"
+        class="db-modal__close"
+        (click)="requestClose()"
+        [attr.aria-label]="ui.chromeLabel('dbPanelCloseAria')">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="db-modal__body">
+      <article class="db-card db-card--backup">
+        <div class="db-card__icon" aria-hidden="true">
+          <i class="fas fa-cloud-arrow-down"></i>
+        </div>
+        <div class="db-card__content">
+          <h3 class="db-card__title"><ui-inline-text kind="chrome" key="dbBackupCardTitle" /></h3>
+          <p class="db-card__desc"><ui-inline-text kind="chrome" key="dbBackupCardDesc" /></p>
+          <button
+            type="button"
+            class="db-card__btn db-card__btn--backup"
+            [disabled]="backupLoading || updateLoading"
+            (click)="createBackup()">
+            @if (backupLoading) {
+              <i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+            }
+            <ui-inline-text kind="chrome" key="dbBackupBtn" />
+          </button>
+        </div>
+      </article>
+
+      <article class="db-card db-card--update">
+        <div class="db-card__icon db-card__icon--update" aria-hidden="true">
+          <i class="fas fa-database"></i>
+        </div>
+        <div class="db-card__content">
+          <h3 class="db-card__title"><ui-inline-text kind="chrome" key="dbUpdateCardTitle" /></h3>
+          <p class="db-card__desc"><ui-inline-text kind="chrome" key="dbUpdateCardDesc" /></p>
+          <button
+            type="button"
+            class="db-card__btn db-card__btn--update"
+            [disabled]="backupLoading || updateLoading"
+            (click)="updateDatabase()">
+            @if (updateLoading) {
+              <i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+            } @else {
+              <i class="fas fa-sync-alt" aria-hidden="true"></i>
+            }
+            <ui-inline-text kind="chrome" key="dbUpdateBtn" />
+          </button>
+        </div>
+      </article>
+
+      <p
+        class="db-modal__status"
+        *ngIf="statusMessage"
+        [class.db-modal__status--error]="statusError"
+        role="status">
+        {{ statusMessage }}
+      </p>
+    </div>
+  </div>
+</div>

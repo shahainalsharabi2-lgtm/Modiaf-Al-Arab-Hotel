@@ -1,0 +1,179 @@
+<div class="tmpl-reports" dir="rtl">
+  <header class="tmpl-reports__head">
+    <div class="tmpl-reports__head-copy">
+      <p class="tmpl-reports__crumb">
+        <ui-inline-text kind="sidebar" key="reports" />
+        <span aria-hidden="true">/</span>
+        <ui-inline-text kind="screen" screen="reports" key="hubTemplateTitle" />
+      </p>
+      <h1><ui-inline-text kind="screen" screen="reports" key="hubTemplateTitle" /></h1>
+    </div>
+    <a
+      class="tmpl-reports__back"
+      routerLink="/reports"
+      [attr.aria-label]="ui.screenText('reports', 'hubBackAria')">
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="reports" key="hubBack" />
+    </a>
+  </header>
+
+  <div class="tmpl-reports__workspace">
+    <aside class="tmpl-reports__tree-panel">
+      <div class="tmpl-reports__tree-search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="treeSearch"
+          [placeholder]="ui.screenText('reports', 'searchLabel')" />
+      </div>
+      <div class="tmpl-reports__tree">
+        <section
+          *ngFor="let category of categories"
+          class="tmpl-reports__category"
+          [class.tmpl-reports__category--hidden]="!categoryVisible(category)">
+          <button
+            type="button"
+            class="tmpl-reports__category-head"
+            (click)="toggleCategory(category.id)"
+            [attr.aria-expanded]="isCategoryOpen(category.id)">
+            <span><ui-inline-text kind="screen" screen="reports" [key]="category.labelKey" /></span>
+            <i
+              class="fas tmpl-reports__chevron"
+              [class.fa-chevron-up]="isCategoryOpen(category.id)"
+              [class.fa-chevron-down]="!isCategoryOpen(category.id)"
+              aria-hidden="true"></i>
+          </button>
+          <div class="tmpl-reports__category-body" *ngIf="isCategoryOpen(category.id)">
+            <p class="tmpl-reports__category-empty" *ngIf="!category.reports.length">
+              <ui-inline-text kind="screen" screen="reports" key="advNoReportsInCategory" />
+            </p>
+            <button
+              *ngFor="let report of category.reports"
+              type="button"
+              class="tmpl-reports__leaf"
+              [class.tmpl-reports__leaf--active]="isReportSelected(report.id)"
+              [class.tmpl-reports__leaf--hidden]="!reportVisible(report)"
+              (click)="selectReport(report.id)">
+              <i class="fas fa-file-alt" aria-hidden="true"></i>
+              <span><ui-inline-text kind="screen" screen="reports" [key]="report.labelKey" /></span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <div class="tmpl-reports__canvas">
+      <div class="tmpl-reports__toolbar">
+        <button type="button" class="tmpl-reports__tool-btn" (click)="resetTemplate()">
+          <i class="fas fa-undo" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="tmplReset" />
+        </button>
+        <button
+          type="button"
+          class="tmpl-reports__tool-btn"
+          (click)="printTemplate()"
+          [disabled]="!templateReady">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="reports" key="print" />
+        </button>
+      </div>
+
+      <div class="tmpl-reports__empty" *ngIf="!selectedLeaf()">
+        <i class="fas fa-file-invoice" aria-hidden="true"></i>
+        <p><ui-inline-text kind="screen" screen="reports" key="tmplCanvasEmpty" /></p>
+      </div>
+
+      <div class="tmpl-reports__loading" *ngIf="selectedLeaf() && loading">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="reports" key="loading" />
+      </div>
+
+      <article class="tmpl-reports__sheet" id="tmpl-reports-sheet" *ngIf="selectedLeaf() && templateReady && !loading">
+        <header class="tmpl-reports__sheet-head">
+          <div>
+            <p class="tmpl-reports__sheet-hotel">{{ hotelBranding.displayName() }}</p>
+            <h2><ui-inline-text kind="screen" screen="reports" [key]="reportTitleKey()" /></h2>
+          </div>
+          <div class="tmpl-reports__sheet-meta">
+            <p>
+              <ui-inline-text kind="screen" screen="reports" key="printDate" />:
+              {{ printDateLabel() }}
+            </p>
+            <p *ngIf="fromDate || toDate">
+              <ui-inline-text kind="screen" screen="reports" key="reportPeriod" />:
+              {{ fromDate || '—' }} — {{ toDate || '—' }}
+            </p>
+            <p *ngIf="usesLiveSnapshot()">
+              <ui-inline-text kind="screen" screen="reports" key="snapshotDateHint" />
+            </p>
+          </div>
+        </header>
+
+        <div class="tmpl-reports__catalog-placeholder" *ngIf="!isBookingReport()">
+          <i class="fas fa-file-alt" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="reports" key="tmplCatalogPlaceholder" /></p>
+        </div>
+
+        <div
+          class="tmpl-reports__summary"
+          *ngIf="isBookingReport() && selectedReportId === 'staying-summary' && templateRows.length">
+          <div>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryGuests" /></span>
+            <strong>{{ stayingSummaryGuests() }}</strong>
+          </div>
+          <div>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryTotal" /></span>
+            <strong>{{ stayingSummaryTotal() | number }}</strong>
+          </div>
+          <div>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryPaid" /></span>
+            <strong>{{ stayingSummaryPaid() | number }}</strong>
+          </div>
+          <div>
+            <span><ui-inline-text kind="screen" screen="reports" key="stayingSummaryRemaining" /></span>
+            <strong>{{ stayingSummaryRemaining() | number }}</strong>
+          </div>
+        </div>
+
+        <div class="tmpl-reports__table-wrap" *ngIf="isBookingReport() && selectedReportId !== 'staying-summary'">
+          <table class="tmpl-reports__table" *ngIf="templateRows.length; else tmplNoRows">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colGuest" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colRoom" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colDate" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colPaid" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colRemaining" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colTotal" /></th>
+                <th><ui-inline-text kind="screen" screen="reports" key="colStatus" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of templateRows; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ guestName(row) }}</td>
+                <td>{{ row.room_Number }}</td>
+                <td>{{ row.booking_Date }}</td>
+                <td>{{ row.payment_Amount | number }}</td>
+                <td>{{ row.remaining_Amount | number }}</td>
+                <td>{{ row.total_Price | number }}</td>
+                <td>{{ statusLabel(row.status) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <ng-template #tmplNoRows>
+            <p class="tmpl-reports__no-rows">
+              <ui-inline-text kind="screen" screen="reports" key="emptyBookings" />
+            </p>
+          </ng-template>
+        </div>
+
+        <footer class="tmpl-reports__sheet-foot" *ngIf="isBookingReport()">
+          <ui-inline-text kind="screen" screen="reports" key="reportRowsCount" />
+          {{ templateRows.length }}
+        </footer>
+      </article>
+    </div>
+  </div>
+</div>

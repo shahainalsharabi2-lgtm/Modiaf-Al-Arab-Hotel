@@ -1,0 +1,103 @@
+<div class="crp-page" dir="rtl">
+  <div class="crp-chrome">
+    <header class="crp-toolbar">
+      <div class="crp-toolbar__actions">
+        <button type="button" class="crp-btn crp-btn--outline" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmRepresentatives" key="importExport" />
+        </button>
+        <button type="button" class="crp-btn crp-btn--outline" (click)="addRepresentative()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmRepresentatives" key="addRepresentative" />
+        </button>
+
+        <label class="crp-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value=""><ui-inline-text kind="screen" screen="crmRepresentatives" key="filterAll" /></option>
+            <option value="withMobile"><ui-inline-text kind="screen" screen="crmRepresentatives" key="filterWithMobile" /></option>
+            <option value="withForeignName"><ui-inline-text kind="screen" screen="crmRepresentatives" key="filterWithForeignName" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="crp-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </div>
+
+      <div class="crp-toolbar__views">
+        <button type="button" class="crp-view-btn" [class.crp-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="crp-view-btn" [class.crp-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <section *ngIf="viewMode === 'table'" class="crp-table-card">
+    <div class="crp-table-wrap">
+      <table class="crp-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="crp-sort" (click)="toggleSort('name')">
+                <span><ui-inline-text kind="screen" screen="crmRepresentatives" key="colName" /></span>
+                <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="crp-sort" (click)="toggleSort('foreignName')">
+                <span><ui-inline-text kind="screen" screen="crmRepresentatives" key="colForeignName" /></span>
+                <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="crp-sort" (click)="toggleSort('mobile')">
+                <span><ui-inline-text kind="screen" screen="crmRepresentatives" key="colMobile" /></span>
+                <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="crp-sort" (click)="toggleSort('email')">
+                <span><ui-inline-text kind="screen" screen="crmRepresentatives" key="colEmail" /></span>
+                <i class="fas" [ngClass]="sortIcon('email')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="crp-col-actions"><ui-inline-text kind="screen" screen="crmRepresentatives" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ cellValue(row.name) }}</td>
+            <td>{{ cellValue(row.foreignName) }}</td>
+            <td dir="ltr">{{ cellValue(row.mobile) | localeNumber }}</td>
+            <td>{{ cellValue(row.email) }}</td>
+            <td class="crp-col-actions">
+              <button type="button" class="crp-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="5" class="crp-empty"><ui-inline-text kind="screen" screen="crmRepresentatives" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="crp-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="crp-grid-card">
+      <h3>{{ cellValue(row.name) }}</h3>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="crmRepresentatives" key="colForeignName" /></dt><dd>{{ cellValue(row.foreignName) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="crmRepresentatives" key="colMobile" /></dt><dd dir="ltr">{{ cellValue(row.mobile) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="crmRepresentatives" key="colEmail" /></dt><dd>{{ cellValue(row.email) }}</dd></div>
+      </dl>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="crp-grid-empty"><ui-inline-text kind="screen" screen="crmRepresentatives" key="emptyRows" /></p>
+  </section>
+</div>

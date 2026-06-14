@@ -1,0 +1,524 @@
+{
+  "meta": {
+    "projectName": "Hotel Premio PMS",
+    "projectNameAr": "نظام إدارة فندق Hotel Premio",
+    "version": "1.0.0",
+    "generatedAt": "2026-06-08",
+    "descriptionAr": "فهرس أدوات وخدمات ومكوّنات مشروع إدارة الفندق (واجهة Angular + خادم ABP/ASP.NET Core)",
+    "techStack": {
+      "frontend": "Angular 21 (standalone components)",
+      "backend": "ABP Framework / ASP.NET Core",
+      "database": "Entity Framework Core",
+      "uiTheme": "Lepton X + Bootstrap"
+    }
+  },
+  "npmScripts": [
+    {
+      "id": "start",
+      "command": "npm start",
+      "purposeAr": "تشغيل واجهة التطوير على HTTPS مع بروكسي API إلى الخادم المحلي",
+      "path": "angular/package.json"
+    },
+    {
+      "id": "build",
+      "command": "npm run build",
+      "purposeAr": "بناء التطبيق للتطوير",
+      "path": "angular/package.json"
+    },
+    {
+      "id": "build-prod",
+      "command": "npm run build:prod",
+      "purposeAr": "بناء نسخة الإنتاج",
+      "path": "angular/package.json"
+    },
+    {
+      "id": "test",
+      "command": "npm test",
+      "purposeAr": "تشغيل اختبارات الوحدة (Vitest)",
+      "path": "angular/package.json"
+    },
+    {
+      "id": "lint",
+      "command": "npm run lint",
+      "purposeAr": "فحص جودة الكود عبر ESLint",
+      "path": "angular/package.json"
+    },
+    {
+      "id": "ui-translations-split",
+      "command": "npm run ui-translations:split",
+      "purposeAr": "تقسيم ملف الترجمات المدمج إلى ملفات لغة منفصلة على الخادم",
+      "path": "angular/scripts/split-ui-translations-locale-files.mjs"
+    },
+    {
+      "id": "ui-translations-merge",
+      "command": "npm run ui-translations:merge",
+      "purposeAr": "دمج ملفات اللغات في ملف ui-translations-default.json",
+      "path": "angular/scripts/merge-ui-locale-files-to-default.mjs"
+    },
+    {
+      "id": "ui-translations-sync",
+      "command": "npm run ui-translations:sync",
+      "purposeAr": "مزامنة هيكل ملفات الترجمة ثم دمجها",
+      "path": "angular/scripts/sync-ui-locale-structure.mjs"
+    }
+  ],
+  "devScripts": [
+    {
+      "id": "migrate-ui-inline-text",
+      "file": "angular/scripts/migrate-ui-inline-text.mjs",
+      "purposeAr": "تحويل نصوص القوالب (screenText/label/chromeLabel) إلى مكوّن ui-inline-text للترجمة المباشرة"
+    },
+    {
+      "id": "fix-ui-inline-imports",
+      "file": "angular/scripts/fix-ui-inline-imports.mjs",
+      "purposeAr": "إضافة استيراد UiInlineTextComponent في المكوّنات التي تحتاجه"
+    },
+    {
+      "id": "fix-inline-key-bindings",
+      "file": "angular/scripts/fix-inline-key-bindings.mjs",
+      "purposeAr": "إصلاح ربط مفاتيح الترجمة في قوالب ui-inline-text"
+    },
+    {
+      "id": "bootstrap-fr-id-locales",
+      "file": "angular/scripts/bootstrap-fr-id-locales.mjs",
+      "purposeAr": "إنشاء ملفات fr.json و id.json من هيكل ar.json"
+    },
+    {
+      "id": "simplify-translations-tab",
+      "file": "angular/scripts/simplify-translations-tab.mjs",
+      "purposeAr": "تبسيط تبويب الترجمات في صفحة الإعدادات"
+    },
+    {
+      "id": "fix-light-theme-text",
+      "file": "angular/scripts/fix-light-theme-text.ps1",
+      "purposeAr": "تصحيح ألوان النص في الثيم الفاتح داخل ملفات CSS"
+    }
+  ],
+  "guards": [
+    {
+      "id": "authGuard",
+      "file": "angular/src/app/guards/auth.guard.ts",
+      "purposeAr": "يمنع دخول الصفحات المحمية بدون تسجيل دخول ويوجّه إلى /login"
+    },
+    {
+      "id": "loginPageGuard",
+      "file": "angular/src/app/guards/auth.guard.ts",
+      "purposeAr": "يمنع دخول صفحة تسجيل الدخول إذا كان المستخدم مسجّلاً"
+    },
+    {
+      "id": "inlineTranslationNavGuard",
+      "file": "angular/src/app/guards/inline-translation-nav.guard.ts",
+      "purposeAr": "يمنع التنقل بين الصفحات أثناء وضع الترجمة المباشرة على الصفحة"
+    }
+  ],
+  "interceptors": [
+    {
+      "id": "loadingInterceptor",
+      "file": "angular/src/app/interceptors/loading.interceptor.ts",
+      "purposeAr": "يعرض مؤشر التحميل العام أثناء طلبات API"
+    },
+    {
+      "id": "apiTimeoutInterceptor",
+      "file": "angular/src/app/interceptors/api-timeout.interceptor.ts",
+      "purposeAr": "يحدّد مهلة 60 ثانية لطلبات API لتجنب تعليق الواجهة"
+    }
+  ],
+  "pipes": [
+    {
+      "id": "HotelSymbolPipe",
+      "file": "angular/src/app/pipes/hotel-symbol.pipe.ts",
+      "purposeAr": "يعرض رمز العملة الحالي من HotelCurrencyService"
+    },
+    {
+      "id": "LocaleNumberPipe",
+      "file": "angular/src/app/shared/pipes/locale-number.pipe.ts",
+      "purposeAr": "تنسيق الأرقام والمبالغ حسب لغة الواجهة المختارة"
+    }
+  ],
+  "frontendServices": [
+    {
+      "id": "UiTranslationsService",
+      "file": "angular/src/app/services/ui-translations.service.ts",
+      "category": "translation",
+      "purposeAr": "إدارة لغة العرض وترجمات الواجهة (قائمة، شريط، شاشات) من API أو أصول محلية",
+      "keyMethods": ["setDisplayLocale", "screenText", "sidebarLabel", "chromeLabel", "toggleInlineTranslationMode", "patchLocaleField", "savePayload", "fetchFromBackend"]
+    },
+    {
+      "id": "UiMessageService",
+      "file": "angular/src/app/services/ui-message.service.ts",
+      "category": "ui",
+      "purposeAr": "رسائل تنبيه وتأكيد للمستخدم (Toast و Confirm)",
+      "keyMethods": ["show", "success", "error", "warning", "info", "confirm"]
+    },
+    {
+      "id": "AppLoadingService",
+      "file": "angular/src/app/services/app-loading.service.ts",
+      "category": "ui",
+      "purposeAr": "عداد طلبات API لمؤشر التحميل العام",
+      "keyMethods": ["begin", "end"]
+    },
+    {
+      "id": "SystemNotificationsService",
+      "file": "angular/src/app/services/system-notifications.service.ts",
+      "category": "ui",
+      "purposeAr": "إشعارات النظام (حجز، غرفة، دفع) مع تخزين محلي",
+      "keyMethods": ["record", "markAllRead", "clearAll", "message"]
+    },
+    {
+      "id": "HotelAuthService",
+      "file": "angular/src/app/services/hotel-auth.service.ts",
+      "category": "auth",
+      "purposeAr": "تسجيل الدخول والجلسة والصلاحيات",
+      "keyMethods": ["login", "logout", "isLoggedIn", "currentUser", "canManageUsers", "canManageSettings"]
+    },
+    {
+      "id": "HotelAppUserService",
+      "file": "angular/src/app/services/hotel-app-user.service.ts",
+      "category": "auth",
+      "purposeAr": "إدارة مستخدمي التطبيق (CRUD)",
+      "keyMethods": ["get", "getAll", "create", "update", "delete"]
+    },
+    {
+      "id": "BookingService",
+      "file": "angular/src/app/services/booking.service.ts",
+      "category": "pms",
+      "api": "/api/app/booking",
+      "purposeAr": "عمليات الحجوزات: عرض، إنشاء، تعديل، حذف",
+      "keyMethods": ["getBookings", "saveBooking", "updateBooking", "deleteBooking"]
+    },
+    {
+      "id": "RoomService",
+      "file": "angular/src/app/services/room.service.ts",
+      "category": "pms",
+      "api": "/api/app/room",
+      "purposeAr": "إدارة الغرف",
+      "keyMethods": ["getRooms", "getRoomById", "addRoom", "updateRoom", "deleteRoom"]
+    },
+    {
+      "id": "FloorService",
+      "file": "angular/src/app/services/floor.service.ts",
+      "category": "pms",
+      "api": "/api/app/floor",
+      "purposeAr": "إدارة طوابق الفندق",
+      "keyMethods": ["getFloors", "addFloor", "updateFloor", "deleteFloor"]
+    },
+    {
+      "id": "GuestRegistryService",
+      "file": "angular/src/app/services/guest-registry.service.ts",
+      "category": "pms",
+      "api": "/api/app/guest-registry",
+      "purposeAr": "سجل الضيوف وملفاتهم",
+      "keyMethods": ["getGuests", "saveProfile"]
+    },
+    {
+      "id": "IdentityTypeService",
+      "file": "angular/src/app/services/identity-type.service.ts",
+      "category": "pms",
+      "api": "/api/app/identity-type",
+      "purposeAr": "أنواع الهوية (جواز، بطاقة، إلخ)",
+      "keyMethods": ["getIdentityTypes", "addIdentityType", "deleteIdentityType"]
+    },
+    {
+      "id": "PaymentMethodService",
+      "file": "angular/src/app/services/payment-method.service.ts",
+      "category": "pms",
+      "api": "/api/app/payment-method",
+      "purposeAr": "طرق الدفع",
+      "keyMethods": ["getAll", "create", "update", "delete"]
+    },
+    {
+      "id": "HotelSettingsService",
+      "file": "angular/src/app/services/hotel-settings.service.ts",
+      "category": "settings",
+      "purposeAr": "قراءة وحفظ إعدادات الفندق من API",
+      "keyMethods": ["get", "save"]
+    },
+    {
+      "id": "HotelSystemSettingsLoader",
+      "file": "angular/src/app/services/hotel-system-settings.loader.ts",
+      "category": "settings",
+      "purposeAr": "تحميل إعدادات النظام وربط العملة تلقائياً",
+      "keyMethods": ["load", "save", "syncAutomaticCurrency"]
+    },
+    {
+      "id": "HotelBrandingStoreService",
+      "file": "angular/src/app/services/hotel-branding-store.service.ts",
+      "category": "settings",
+      "purposeAr": "اسم الفندق والعنوان والشعار",
+      "keyMethods": ["applyFromDto", "displayName", "displayAddress", "brandingView"]
+    },
+    {
+      "id": "HotelCurrencyService",
+      "file": "angular/src/app/services/hotel-currency.service.ts",
+      "category": "settings",
+      "purposeAr": "رمز وكود العملة وتنسيق المبالغ",
+      "keyMethods": ["selectPreset", "setCustom", "formatWithSymbol", "syncForUiLocale"]
+    },
+    {
+      "id": "ArabicPreferenceCategoryService",
+      "file": "angular/src/app/services/arabic-preference-category.service.ts",
+      "category": "locale",
+      "purposeAr": "فئات اللهجة/المنطقة العربية وتأثيرها على الهاتف والعملة",
+      "keyMethods": ["selectCategory", "phoneDisplay", "localeTag"]
+    },
+    {
+      "id": "ArabicCategoryPickerService",
+      "file": "angular/src/app/services/arabic-category-picker.service.ts",
+      "category": "locale",
+      "purposeAr": "ورقة اختيار الفئة العربية عند التبديل للعربية",
+      "keyMethods": ["requestArabicLocaleSwitch", "confirmSelection", "cancel"]
+    },
+    {
+      "id": "HotelDatabaseAdminService",
+      "file": "angular/src/app/services/hotel-database-admin.service.ts",
+      "category": "database",
+      "api": "/api/app/hotel-database-admin",
+      "purposeAr": "نسخ احتياطي وتحديث قاعدة البيانات",
+      "keyMethods": ["createBackup", "updateDatabase"]
+    },
+    {
+      "id": "GeneralCodesService",
+      "file": "angular/src/app/general-codes/general-codes.service.ts",
+      "category": "settings",
+      "api": "/api/app/general-codes",
+      "purposeAr": "الأكواد العامة: فئات غرف، مواقع، أكواد أسعار، فئات تفضيل",
+      "keyMethods": ["getList", "create", "update", "delete"]
+    }
+  ],
+  "sharedComponents": [
+    {
+      "id": "UiInlineTextComponent",
+      "selector": "ui-inline-text",
+      "file": "angular/src/app/shared/ui-inline-text/ui-inline-text.component.ts",
+      "purposeAr": "عرض نص مترجم أو تحريره مباشرة على الصفحة في وضع الترجمة"
+    },
+    {
+      "id": "AppTopBarComponent",
+      "selector": "app-top-bar",
+      "file": "angular/src/app/shared/app-top-bar/",
+      "purposeAr": "الشريط العلوي: لغة، إشعارات، اختصارات، حاسبة، حالة الغرف"
+    },
+    {
+      "id": "AppNotificationsPanelComponent",
+      "selector": "app-notifications-panel",
+      "file": "angular/src/app/shared/app-notifications-panel/",
+      "purposeAr": "لوحة إشعارات النظام"
+    },
+    {
+      "id": "AccountHubPanelComponent",
+      "selector": "app-account-hub-panel",
+      "file": "angular/src/app/shared/account-hub-panel/",
+      "purposeAr": "مركز الحساب: روابط سريعة وتسجيل خروج"
+    },
+    {
+      "id": "AppCalculatorModalComponent",
+      "selector": "app-calculator-modal",
+      "file": "angular/src/app/shared/app-calculator-modal/",
+      "purposeAr": "حاسبة منبثقة"
+    },
+    {
+      "id": "DbSettingsPanelComponent",
+      "selector": "app-db-settings-panel",
+      "file": "angular/src/app/shared/db-settings-panel/",
+      "purposeAr": "نسخ احتياطي وتحديث قاعدة البيانات من الواجهة"
+    },
+    {
+      "id": "RoomStatusPanelComponent",
+      "selector": "app-room-status-panel",
+      "file": "angular/src/app/shared/room-status-panel/",
+      "purposeAr": "ملخص حالة الغرف (نظيفة، مشغولة، محجوزة…)"
+    },
+    {
+      "id": "RoomPreviewSheetComponent",
+      "selector": "app-room-preview-sheet",
+      "file": "angular/src/app/shared/room-preview-sheet/",
+      "purposeAr": "معاينة غرفة منبثقة مع إجراءات سريعة"
+    },
+    {
+      "id": "PmsBookingCardComponent",
+      "selector": "app-pms-booking-card",
+      "file": "angular/src/app/shared/pms-booking-card/",
+      "purposeAr": "بطاقة حجز PMS مع تسكين وعدّ تنازلي وإجراءات"
+    },
+    {
+      "id": "ArabicCategoryPickerSheetComponent",
+      "selector": "app-arabic-category-picker-sheet",
+      "file": "angular/src/app/shared/arabic-category-picker-sheet/",
+      "purposeAr": "ورقة اختيار الفئة العربية (لهجة/منطقة)"
+    },
+    {
+      "id": "UiMessagesComponent",
+      "selector": "app-ui-messages",
+      "file": "angular/src/app/shared/ui-messages/",
+      "purposeAr": "عرض رسائل Toast والتأكيدات"
+    },
+    {
+      "id": "AppLoadingOverlayComponent",
+      "selector": "app-loading-overlay",
+      "file": "angular/src/app/shared/app-loading-overlay/",
+      "purposeAr": "طبقة تحميل عامة أثناء طلبات API"
+    },
+    {
+      "id": "AccountLocaleEditorComponent",
+      "selector": "app-account-locale-editor",
+      "file": "angular/src/app/shared/account-locale-editor/",
+      "purposeAr": "محرر JSON لملفات الترجمة حسب اللغة"
+    }
+  ],
+  "utils": {
+    "translation": [
+      { "file": "ui-translation.constants.ts", "purposeAr": "ثوابت اللغات ومفاتيح chrome/sidebar" },
+      { "file": "ui-translations-locale.util.ts", "purposeAr": "تحويل بين payload API وملف لغة واحد" },
+      { "file": "ui-translation-groups.config.ts", "purposeAr": "تجميعات محرر الترجمة حسب الأقسام" },
+      { "file": "ui-locale-file-structure.ts", "purposeAr": "هيكل JSON لكل ملف لغة" },
+      { "file": "ui-locale-editor-labels.ts", "purposeAr": "عناوين عربية لأقسام محرر الترجمة" },
+      { "file": "ui-locale-picker.util.ts", "purposeAr": "خيارات منتقي اللغة في الشريط" },
+      { "file": "ui-screen-i18n.helper.ts", "purposeAr": "إعادة رسم المكوّن عند تغيير اللغة" },
+      { "file": "room-type-i18n.ts", "purposeAr": "مفتاح ترجمة نوع الغرفة" }
+    ],
+    "currencyAndLocale": [
+      { "file": "hotel-currency.presets.ts", "purposeAr": "قوالب العملات الافتراضية" },
+      { "file": "booking-currency.ts", "purposeAr": "عملة الحجز عند الحفظ" },
+      { "file": "room-currency.ts", "purposeAr": "عملة الغرفة" },
+      { "file": "locale-format.util.ts", "purposeAr": "تنسيق أرقام Intl حسب اللغة" },
+      { "file": "locale-phone.ts", "purposeAr": "عرض رقم الهاتف حسب المنطقة" },
+      { "file": "arabic-region-profile.util.ts", "purposeAr": "ملف منطقة عربية (علم، اتصال)" },
+      { "file": "pref-category.util.ts", "purposeAr": "فئات التفضيل والأعلام" }
+    ],
+    "booking": [
+      { "file": "booking-display.util.ts", "purposeAr": "منطق عرض الحجز: محجوز، مقيم، مغادر، عدّ تنازلي" },
+      { "file": "booking-api-map.util.ts", "purposeAr": "تحويل بيانات API ↔ نموذج الحجز" },
+      { "file": "booking-meta.options.ts", "purposeAr": "خيارات نوع/مصدر/تأكيد الحجز" },
+      { "file": "booking-room-pick.util.ts", "purposeAr": "اختيار غرفة من شاشة أخرى" },
+      { "file": "booking-notify-params.util.ts", "purposeAr": "معاملات إشعارات الحجز" },
+      { "file": "price-code.util.ts", "purposeAr": "أكواد الأسعار والخصومات" }
+    ],
+    "guests": [
+      { "file": "guest-profile.util.ts", "purposeAr": "ملف ضيف مضمّن في ملاحظات الحجز" },
+      { "file": "guest-registry-api-map.util.ts", "purposeAr": "تحويل API سجل الضيوف" },
+      { "file": "guest-picker.util.ts", "purposeAr": "ضيوف معروفون من الحجوزات والسجل" },
+      { "file": "identity-number-rules.ts", "purposeAr": "قواعد طول رقم الهوية" }
+    ],
+    "rooms": [
+      { "file": "room-features.util.ts", "purposeAr": "مميزات الغرفة (JSON)" },
+      { "file": "room-cleaning.util.ts", "purposeAr": "مؤقت جاهزية التنظيف" },
+      { "file": "room-transfer-display.util.ts", "purposeAr": "سجل نقل الغرف" },
+      { "file": "general-code-item.util.ts", "purposeAr": "أكواد عامة: فئات غرف ومواقع" }
+    ],
+    "misc": [
+      { "file": "reports-filter.util.ts", "purposeAr": "فلترة الحجوزات للتقارير" },
+      { "file": "hotel-user-role.ts", "purposeAr": "أدوار المستخدمين والصلاحيات" },
+      { "file": "hotel-local-storage.util.ts", "purposeAr": "مفاتيح وقراءة/كتابة localStorage" },
+      { "file": "date-only.ts", "purposeAr": "تواريخ YYYY-MM-DD بدون وقت" },
+      { "file": "scroll-chrome-hide.util.ts", "purposeAr": "إخفاء الشريط العلوي عند التمرير" },
+      { "file": "dev-outlines.ts", "purposeAr": "أعلام تطوير (حدود ملونة، عرض متقدم)" }
+    ]
+  },
+  "pages": [
+    { "route": "/dashboard", "component": "DashboardComponent", "purposeAr": "لوحة التحكم والإحصائيات" },
+    { "route": "/booking", "component": "BookingFormComponent", "purposeAr": "نموذج حجز / تسكين / تعديل" },
+    { "route": "/bookings", "component": "BookingListComponent", "purposeAr": "قائمة الحجوزات وسجل PMS" },
+    { "route": "/front-desk/room-plan", "component": "RoomPlanComponent", "purposeAr": "خطة الغرف" },
+    { "route": "/front-desk/rooms-rack", "component": "RoomsRackComponent", "purposeAr": "رف الغرف" },
+    { "route": "/front-desk/guest-valuables", "component": "GuestValuablesComponent", "purposeAr": "أمانات الضيوف" },
+    { "route": "/front-desk/keys", "component": "KeysComponent", "purposeAr": "مفاتيح الغرف" },
+    { "route": "/front-desk/key-services", "component": "KeyServicesComponent", "purposeAr": "خدمات المفاتيح" },
+    { "route": "/cashier/rent-posting", "component": "RentPostingComponent", "purposeAr": "ترحيل الإيجار" },
+    { "route": "/cashier/previous-invoices", "component": "PreviousInvoicesComponent", "purposeAr": "الفواتير السابقة" },
+    { "route": "/cashier/invoices-notifications", "component": "InvoicesNotificationsComponent", "purposeAr": "إشعارات الفواتير" },
+    { "route": "/crm/profile-settings", "component": "CrmProfileSettingsComponent", "purposeAr": "إعدادات ملف CRM" },
+    { "route": "/crm/individuals", "component": "CrmIndividualsComponent", "purposeAr": "أفراد CRM" },
+    { "route": "/crm/companies", "component": "CrmCompaniesComponent", "purposeAr": "شركات CRM" },
+    { "route": "/crm/agents", "component": "CrmAgentsComponent", "purposeAr": "وكلاء CRM" },
+    { "route": "/night-auditor/settings", "component": "NightAuditSettingsComponent", "purposeAr": "إعدادات المراجعة الليلية" },
+    { "route": "/night-auditor/reservations-review", "component": "NightAuditReservationsComponent", "purposeAr": "مراجعة الحجوزات الليلية" },
+    { "route": "/night-auditor/procedure", "component": "NightAuditProcedureComponent", "purposeAr": "إجراء المراجعة الليلية" },
+    { "route": "/night-auditor/room-movement", "component": "NightAuditRoomMovementComponent", "purposeAr": "حركة الغرف الليلية" },
+    { "route": "/rooms", "component": "RoomsComponent", "purposeAr": "إدارة الغرف" },
+    { "route": "/database", "component": "DatabaseComponent", "purposeAr": "قاعدة البيانات والعرض المتقدم" },
+    { "route": "/reports", "component": "ReportsComponent", "purposeAr": "التقارير" },
+    { "route": "/settings", "component": "SettingsComponent", "purposeAr": "الإعدادات والترجمات والمستخدمين" },
+    { "route": "/my-account", "component": "MyAccountComponent", "purposeAr": "حسابي" },
+    { "route": "/login", "component": "LoginComponent", "purposeAr": "تسجيل الدخول" }
+  ],
+  "backendServices": [
+    {
+      "id": "HotelAuthAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/HotelAuth/HotelAuthAppService.cs",
+      "purposeAr": "تسجيل دخول باسم مستخدم وكلمة مرور"
+    },
+    {
+      "id": "BookingAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/Entities/Bookings.cs",
+      "purposeAr": "CRUD الحجوزات"
+    },
+    {
+      "id": "RoomAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/Entities/Rooms.cs",
+      "purposeAr": "CRUD الغرف"
+    },
+    {
+      "id": "FloorAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/Entities/Floors.cs",
+      "purposeAr": "CRUD الطوابق"
+    },
+    {
+      "id": "GuestRegistryAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/Entities/GuestRegistries.cs",
+      "purposeAr": "سجل الضيوف"
+    },
+    {
+      "id": "UiTranslationsBlobAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/UiTranslations/UiTranslationsBlobAppService.cs",
+      "purposeAr": "قراءة/كتابة ترجمات الواجهة (blob JSON)"
+    },
+    {
+      "id": "HotelSettingsAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/HotelSettings/HotelSettingsAppService.cs",
+      "purposeAr": "إعدادات الفندق"
+    },
+    {
+      "id": "GeneralCodesAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/GeneralCodes/GeneralCodesAppService.cs",
+      "purposeAr": "الأكواد العامة"
+    },
+    {
+      "id": "HotelDatabaseAdminAppService",
+      "file": "aspnet-core/src/Modiaf.Al.Arab.Hotel.Application/DatabaseAdmin/HotelDatabaseAdminAppService.cs",
+      "purposeAr": "نسخ احتياطي وتحديث قاعدة البيانات"
+    }
+  ],
+  "keyFeatures": [
+    {
+      "id": "inline-translation",
+      "titleAr": "الترجمة المباشرة على الصفحة",
+      "descriptionAr": "زر جانبي يفعّل وضع الترجمة: انقر النص العربي للتعديل، حفظ تلقائي، أيقونة حفظ للخروج والانتقال لصفحة أخرى",
+      "files": ["ui-inline-text.component.ts", "ui-translations.service.ts", "inline-translation-nav.guard.ts"]
+    },
+    {
+      "id": "ui-translations",
+      "titleAr": "ترجمات الواجهة",
+      "descriptionAr": "أقسام sidebarNav و chrome و screenCopy و brandSubtitle — لغات ar/en/fr مع ملفات JSON على الخادم",
+      "files": ["ui-translations.service.ts", "UiTranslationsBlobAppService.cs", "HttpApi.Host/UiTranslations/"]
+    },
+    {
+      "id": "arabic-categories",
+      "titleAr": "فئات اللهجة العربية",
+      "descriptionAr": "اختيار منطقة عربية يؤثر على تنسيق الهاتف والعملة الافتراضية",
+      "files": ["arabic-preference-category.service.ts", "arabic-category-picker-sheet.component.ts"]
+    },
+    {
+      "id": "pms-booking",
+      "titleAr": "إدارة الحجوزات PMS",
+      "descriptionAr": "حالات محجوز/واصل/مقيم/مغادر مع بطاقات وعدّ تنازلي وإجراءات سريعة",
+      "files": ["booking.service.ts", "booking-display.util.ts", "pms-booking-card.component.ts"]
+    }
+  ],
+  "customEvents": [
+    { "name": "hotelUiLocaleChanged", "purposeAr": "تغيير لغة عرض الواجهة" },
+    { "name": "hotelUiTranslationsUpdated", "purposeAr": "تحديث الترجمات من الخادم" },
+    { "name": "hotelUiInlineTranslationModeChanged", "purposeAr": "تفعيل/إيقاف وضع الترجمة المباشرة" },
+    { "name": "hotelCurrencyUpdated", "purposeAr": "تغيير عملة النظام" },
+    { "name": "hotelArabicCategoryChanged", "purposeAr": "تغيير الفئة العربية المختارة" }
+  ]
+}

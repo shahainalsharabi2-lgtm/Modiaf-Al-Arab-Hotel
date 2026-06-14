@@ -1,0 +1,130 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <nav class="ac-tabs" role="tablist" [attr.aria-label]="ui.screenText('settings', 'accountCodingTabsAria')">
+      <button
+        type="button"
+        role="tab"
+        class="ac-tabs__btn"
+        *ngFor="let tab of codingTabs"
+        [class.ac-tabs__btn--active]="activeCodingTab === tab"
+        [attr.aria-selected]="activeCodingTab === tab"
+        (click)="setCodingTab(tab)">
+        <ui-inline-text kind="screen" screen="settings" [key]="codingTabLabelKey(tab)" />
+      </button>
+    </nav>
+
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'accountCodingSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="accountCodingFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="accountCodingFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="accountCodingFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="accountCodingFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="accountCodingAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'accountCodingViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'accountCodingViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'accountCodingViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-cogs" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="accountCodingEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ac-col-type" (click)="toggleSort('type')">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColType" />
+              <i class="fas" [ngClass]="sortIcon('type')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ac-col-order" (click)="toggleSort('sortOrder')">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColOrder" />
+              <i class="fas" [ngClass]="sortIcon('sortOrder')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="accountCodingColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName }}</td>
+            <td class="ac-col-type">{{ row.type }}</td>
+            <td class="ac-col-order">{{ row.sortOrder }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'accountCodingColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="accountCodingActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="accountCodingActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,173 @@
+<div class="pi-page">
+  <div *ngIf="loading" class="pi-state pi-state--loading">
+    <div class="pi-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="previousInvoices" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="pi-state pi-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="pi-btn pi-btn--outline" (click)="loadRows()">
+      <ui-inline-text kind="screen" screen="previousInvoices" key="retryLoad" />
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <section class="pi-filters-bar">
+      <div class="pi-filter-tags">
+        <span *ngIf="appliedFromDate" class="pi-filter-tag">
+          <ui-inline-text kind="screen" screen="previousInvoices" key="filterFrom" />: {{ formatChipDate(appliedFromDate) }}
+          <button type="button" class="pi-filter-tag__remove" (click)="removeFromDate()" [attr.aria-label]="label('removeFromDateAria')">×</button>
+        </span>
+        <span *ngIf="appliedToDate" class="pi-filter-tag">
+          <ui-inline-text kind="screen" screen="previousInvoices" key="filterTo" />: {{ formatChipDate(appliedToDate) }}
+          <button type="button" class="pi-filter-tag__remove" (click)="removeToDate()" [attr.aria-label]="label('removeToDateAria')">×</button>
+        </span>
+        <button *ngIf="hasActiveDateFilters" type="button" class="pi-btn pi-btn--ghost" (click)="clearDateFilters()">
+          <ui-inline-text kind="screen" screen="previousInvoices" key="clearFilters" />
+        </button>
+      </div>
+
+      <div class="pi-toolbar">
+        <button type="button" class="pi-btn pi-btn--primary" [class.pi-btn--active]="filterPanelOpen" (click)="toggleFilterPanel()">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="previousInvoices" key="filter" />
+        </button>
+        <button type="button" class="pi-btn pi-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="previousInvoices" key="refresh" />
+        </button>
+        <button type="button" class="pi-btn pi-btn--outline" (click)="printTable()">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="previousInvoices" key="print" />
+        </button>
+      </div>
+    </section>
+
+    <section *ngIf="filterPanelOpen" class="pi-filter-panel pi-panel">
+      <label class="pi-date-field">
+        <span><ui-inline-text kind="screen" screen="previousInvoices" key="filterFrom" /></span>
+        <input type="date" [(ngModel)]="filterFromDate" />
+      </label>
+      <label class="pi-date-field">
+        <span><ui-inline-text kind="screen" screen="previousInvoices" key="filterTo" /></span>
+        <input type="date" [(ngModel)]="filterToDate" />
+      </label>
+      <button type="button" class="pi-btn pi-btn--primary" (click)="applyDateFilter()">
+        <ui-inline-text kind="screen" screen="previousInvoices" key="applyFilter" />
+      </button>
+    </section>
+
+    <section class="pi-table-card pi-panel">
+      <div class="pi-table-wrap">
+        <table class="pi-table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('serialNo')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colSerialNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('serialNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('issueDate')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colIssueDate" /></span>
+                  <i class="fas" [ngClass]="sortIcon('issueDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('guestName')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colGuestName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('payerName')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colPayerName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('payerName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('windowNo')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colWindowNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('windowNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('bookingNo')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colBookingNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('bookingNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('roomNo')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colRoomNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('arrivalDate')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colArrival" /></span>
+                  <i class="fas" [ngClass]="sortIcon('arrivalDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('departureDate')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colDeparture" /></span>
+                  <i class="fas" [ngClass]="sortIcon('departureDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="pi-sort" (click)="toggleSort('amount')">
+                  <span><ui-inline-text kind="screen" screen="previousInvoices" key="colAmount" /></span>
+                  <i class="fas" [ngClass]="sortIcon('amount')" aria-hidden="true"></i>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedRows; trackBy: trackRow">
+              <td>{{ row.serialNo | localeNumber }}</td>
+              <td dir="ltr">{{ formatDate(row.issueDate) }}</td>
+              <td>{{ row.guestName }}</td>
+              <td>{{ row.payerName }}</td>
+              <td>{{ row.windowNo | localeNumber }}</td>
+              <td>{{ row.bookingNo | localeNumber }}</td>
+              <td>{{ row.roomNo | localeNumber }}</td>
+              <td dir="ltr">{{ formatDate(row.arrivalDate) }}</td>
+              <td dir="ltr">{{ formatDate(row.departureDate) }}</td>
+              <td class="pi-money">{{ formatAmount(row.amount) }} {{ '' | hotelSymbol }}</td>
+            </tr>
+            <tr *ngIf="pagedRows.length === 0">
+              <td colspan="10" class="pi-empty"><ui-inline-text kind="screen" screen="previousInvoices" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pi-pager">
+        <div class="pi-pager__sizes">
+          <button
+            *ngFor="let size of pageSizeOptions"
+            type="button"
+            class="pi-size"
+            [class.pi-size--active]="pageSize === size"
+            (click)="setPageSize(size)">
+            {{ size | localeNumber }}
+          </button>
+        </div>
+
+        <div class="pi-pager__nav">
+          <button type="button" class="pi-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
+          <span class="pi-page-current">{{ currentPage | localeNumber }}</span>
+          <button type="button" class="pi-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <p class="pi-pager__summary">{{ pageSummary() }}</p>
+      </footer>
+    </section>
+  </ng-container>
+</div>

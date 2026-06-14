@@ -1,0 +1,119 @@
+<div class="hc-page es-page" dir="rtl">
+  <section class="coa-new-card" *ngIf="canEdit">
+    <button type="button" class="coa-new-card__btn" (click)="openCreate()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+    </button>
+    <div>
+      <strong><ui-inline-text kind="screen" screen="settings" key="extTourismNewLabel" /></strong>
+      <p><ui-inline-text kind="screen" screen="settings" key="extTourismNewHint" /></p>
+    </div>
+  </section>
+
+  <section class="hc-page__panel coa-panel">
+    <header class="coa-panel__head">
+      <h2>
+        <i class="fas fa-th" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="extTourismListTitle" />
+      </h2>
+      <div class="hc-page__search coa-panel__search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="label('extTourismSearchPh')" />
+      </div>
+    </header>
+
+    <div class="hc-page__empty coa-empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-inbox" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="extTourismEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="filteredRows().length">
+      <table class="hc-page__table es-table">
+        <thead>
+          <tr>
+            <th class="es-col-serial">
+              <ui-inline-text kind="screen" screen="settings" key="extTourismColNumber" />
+            </th>
+            <th>
+              <ui-inline-text kind="screen" screen="settings" key="extTourismColKeyName" />
+            </th>
+            <th>
+              <ui-inline-text kind="screen" screen="settings" key="extTourismColDescription" />
+            </th>
+            <th class="es-col-active">
+              <ui-inline-text kind="screen" screen="settings" key="extTourismColActive" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows(); let i = index" (dblclick)="openEdit(row)">
+            <td class="es-col-serial" dir="ltr">{{ row.number || (i + 1) }}</td>
+            <td dir="ltr">{{ row.keyName }}</td>
+            <td>{{ row.description || '—' }}</td>
+            <td class="es-col-active">{{ activeLabel(row.isActive) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="hc-modal coa-modal es-modal" *ngIf="modalOpen" role="dialog" aria-modal="true">
+  <div class="hc-modal__backdrop" (click)="closeModal()"></div>
+  <form class="hc-modal__card coa-modal__card" (ngSubmit)="saveRow()">
+    <header class="hc-modal__head coa-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" key="extTourismModalTitle" /></h3>
+      <button type="button" class="hc-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="hc-modal__body coa-modal__form es-modal__form">
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extTourismFieldNumber" /></span>
+        <div class="coa-field">
+          <i class="fas fa-hashtag" aria-hidden="true"></i>
+          <input type="text" dir="ltr" [(ngModel)]="form.number" name="number" />
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extTourismFieldKeyName" /></span>
+        <div class="coa-field">
+          <i class="fas fa-key" aria-hidden="true"></i>
+          <select [(ngModel)]="form.keyName" name="keyName" required>
+            <option value=""></option>
+            <option *ngFor="let opt of keyOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extTourismFieldValue" /></span>
+        <div class="coa-field">
+          <i class="fas fa-lock" aria-hidden="true"></i>
+          <input type="text" [(ngModel)]="form.value" name="value" />
+        </div>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="extTourismFieldDescription" /></span>
+        <div class="coa-field">
+          <i class="fas fa-font" aria-hidden="true"></i>
+          <input type="text" [(ngModel)]="form.description" name="description" />
+        </div>
+      </label>
+      <label class="es-toggle">
+        <span><ui-inline-text kind="screen" screen="settings" key="extTourismFieldActive" /></span>
+        <input type="checkbox" class="es-toggle__input" [(ngModel)]="form.isActive" name="isActive" />
+        <span class="es-toggle__track" aria-hidden="true"></span>
+      </label>
+    </div>
+    <footer class="hc-modal__foot coa-modal__foot">
+      <button type="button" class="coa-btn coa-btn--outline es-cancel-btn" (click)="closeModal()">
+        <ui-inline-text kind="screen" screen="settings" key="extTourismCancelBtn" />
+      </button>
+      <button type="submit" class="coa-btn coa-btn--primary" [disabled]="saving">
+        <ui-inline-text kind="screen" screen="settings" key="extTourismSaveBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,244 @@
+<div class="in-page">
+  <div *ngIf="loading" class="in-state in-state--loading">
+    <div class="in-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="invoicesNotifications" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="in-state in-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="in-btn in-btn--outline" (click)="loadRows()">
+      <ui-inline-text kind="screen" screen="invoicesNotifications" key="retryLoad" />
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <section class="in-filters-bar">
+      <div class="in-filter-tags">
+        <span *ngIf="appliedFromDate" class="in-filter-tag">
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="filterFrom" />: {{ formatChipDate(appliedFromDate) }}
+          <button type="button" class="in-filter-tag__remove" (click)="removeFromDate()" [attr.aria-label]="label('removeFromDateAria')">×</button>
+        </span>
+        <span *ngIf="appliedToDate" class="in-filter-tag">
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="filterTo" />: {{ formatChipDate(appliedToDate) }}
+          <button type="button" class="in-filter-tag__remove" (click)="removeToDate()" [attr.aria-label]="label('removeToDateAria')">×</button>
+        </span>
+        <button *ngIf="hasActiveDateFilters" type="button" class="in-btn in-btn--ghost" (click)="clearDateFilters()">
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="clearFilters" />
+        </button>
+      </div>
+
+      <div class="in-toolbar">
+        <button type="button" class="in-btn in-btn--excel" (click)="exportExcel()" [attr.title]="label('exportExcel')">
+          <i class="fas fa-file-excel" aria-hidden="true"></i>
+          <span class="sr-only"><ui-inline-text kind="screen" screen="invoicesNotifications" key="exportExcel" /></span>
+        </button>
+        <button type="button" class="in-btn in-btn--outline" (click)="printTable()">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="print" />
+        </button>
+        <button type="button" class="in-btn in-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="refresh" />
+        </button>
+        <button type="button" class="in-btn in-btn--primary" [class.in-btn--active]="filterPanelOpen" (click)="toggleFilterPanel()">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="invoicesNotifications" key="filter" />
+        </button>
+      </div>
+    </section>
+
+    <section *ngIf="filterPanelOpen" class="in-filter-panel in-panel">
+      <label class="in-date-field">
+        <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="filterFrom" /></span>
+        <input type="date" [(ngModel)]="filterFromDate" />
+      </label>
+      <label class="in-date-field">
+        <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="filterTo" /></span>
+        <input type="date" [(ngModel)]="filterToDate" />
+      </label>
+      <button type="button" class="in-btn in-btn--primary" (click)="applyDateFilter()">
+        <ui-inline-text kind="screen" screen="invoicesNotifications" key="applyFilter" />
+      </button>
+    </section>
+
+    <section class="in-table-card in-panel">
+      <div class="in-table-wrap">
+        <table class="in-table">
+          <thead>
+            <tr class="in-table__head-row">
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('invoiceNo')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colInvoiceNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('invoiceNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('invoiceDate')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colInvoiceDate" /></span>
+                  <i class="fas" [ngClass]="sortIcon('invoiceDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('currency')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colCurrency" /></span>
+                  <i class="fas" [ngClass]="sortIcon('currency')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('amount')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colAmount" /></span>
+                  <i class="fas" [ngClass]="sortIcon('amount')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('typeLabel')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colType" /></span>
+                  <i class="fas" [ngClass]="sortIcon('typeLabel')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('internalTypeLabel')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colInternalType" /></span>
+                  <i class="fas" [ngClass]="sortIcon('internalTypeLabel')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('invoiceTypeLabel')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colInvoiceType" /></span>
+                  <i class="fas" [ngClass]="sortIcon('invoiceTypeLabel')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('name')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('statusLabel')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colStatus" /></span>
+                  <i class="fas" [ngClass]="sortIcon('statusLabel')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="in-sort" (click)="toggleSort('uuid')">
+                  <span><ui-inline-text kind="screen" screen="invoicesNotifications" key="colUuid" /></span>
+                  <i class="fas" [ngClass]="sortIcon('uuid')" aria-hidden="true"></i>
+                </button>
+              </th>
+            </tr>
+            <tr class="in-table__filter-row">
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.invoiceNo" [attr.aria-label]="label('colInvoiceNo')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.invoiceDate" [attr.aria-label]="label('colInvoiceDate')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.currency" [attr.aria-label]="label('colCurrency')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.amount" [attr.aria-label]="label('colAmount')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.typeLabel" [attr.aria-label]="label('colType')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.internalTypeLabel" [attr.aria-label]="label('colInternalType')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.invoiceTypeLabel" [attr.aria-label]="label('colInvoiceType')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.name" [attr.aria-label]="label('colName')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.statusLabel" [attr.aria-label]="label('colStatus')" />
+                </label>
+              </th>
+              <th>
+                <label class="in-col-filter">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input type="search" [(ngModel)]="columnFilters.uuid" [attr.aria-label]="label('colUuid')" />
+                </label>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedRows; trackBy: trackRow">
+              <td>{{ row.invoiceNo | localeNumber }}</td>
+              <td dir="ltr">{{ formatDate(row.invoiceDate) }}</td>
+              <td>{{ row.currency }}</td>
+              <td class="in-money">{{ formatAmount(row.amount) }}</td>
+              <td>{{ row.typeLabel }}</td>
+              <td>{{ row.internalTypeLabel }}</td>
+              <td>{{ row.invoiceTypeLabel }}</td>
+              <td>{{ row.name }}</td>
+              <td [class.in-status--pending]="row.statusPending">{{ row.statusLabel }}</td>
+              <td class="in-uuid-cell">
+                <span dir="ltr" class="in-uuid">{{ row.uuid }}</span>
+                <button type="button" class="in-uuid-btn" (click)="viewUuid(row)" [attr.title]="label('copyUuid')" [attr.aria-label]="label('copyUuid')">
+                  <i class="fas fa-file-alt" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="pagedRows.length === 0">
+              <td colspan="10" class="in-empty"><ui-inline-text kind="screen" screen="invoicesNotifications" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="in-pager">
+        <div class="in-pager__sizes">
+          <button
+            *ngFor="let size of pageSizeOptions"
+            type="button"
+            class="in-size"
+            [class.in-size--active]="pageSize === size"
+            (click)="setPageSize(size)">
+            {{ size | localeNumber }}
+          </button>
+        </div>
+
+        <div class="in-pager__nav">
+          <button type="button" class="in-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
+          <span class="in-page-current">{{ currentPage | localeNumber }}</span>
+          <button type="button" class="in-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <p class="in-pager__summary">{{ pageSummary() }}</p>
+      </footer>
+    </section>
+  </ng-container>
+</div>

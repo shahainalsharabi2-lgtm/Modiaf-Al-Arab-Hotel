@@ -1,0 +1,106 @@
+<div class="ss-page" dir="rtl">
+  <section class="ss-page__panel">
+    <div class="ss-filters">
+      <label class="ss-filters__field">
+        <span><ui-inline-text kind="screen" screen="settings" key="systemSettingsFilterType" /></span>
+        <select [(ngModel)]="typeFilter" (ngModelChange)="onFilterChange()">
+          <option value="all"><ui-inline-text kind="screen" screen="settings" key="systemSettingsFilterAll" /></option>
+          <option value="toggle"><ui-inline-text kind="screen" screen="settings" key="systemSettingsFilterToggle" /></option>
+          <option value="select"><ui-inline-text kind="screen" screen="settings" key="systemSettingsFilterSelect" /></option>
+        </select>
+      </label>
+
+      <label class="ss-filters__field">
+        <span><ui-inline-text kind="screen" screen="settings" key="systemSettingsSearchName" /></span>
+        <div class="ss-filters__search">
+          <input
+            type="search"
+            [(ngModel)]="nameQuery"
+            (keyup.enter)="applySearch()"
+            [placeholder]="ui.screenText('settings', 'systemSettingsSearchPh')" />
+          <button type="button" class="ss-filters__search-btn" (click)="applySearch()" [attr.aria-label]="ui.screenText('settings', 'systemSettingsSearchBtn')">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </button>
+        </div>
+      </label>
+    </div>
+
+    <div class="ss-table-wrap" *ngIf="totalRows()">
+      <table class="ss-table">
+        <thead>
+          <tr>
+            <th class="ss-table__id"><ui-inline-text kind="screen" screen="settings" key="systemSettingsColSerial" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="systemSettingsColName" /></th>
+            <th class="ss-table__value"><ui-inline-text kind="screen" screen="settings" key="systemSettingsColValue" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows()">
+            <td class="ss-table__id">{{ row.id }}</td>
+            <td class="ss-table__name">{{ row.name }}</td>
+            <td class="ss-table__value">
+              <label class="ss-toggle" *ngIf="row.controlType === 'toggle'">
+                <input
+                  type="checkbox"
+                  [checked]="row.toggleValue"
+                  [disabled]="!canEdit"
+                  (change)="toggleValue(row)" />
+                <span class="ss-toggle__slider"></span>
+              </label>
+              <select
+                class="ss-select"
+                *ngIf="row.controlType === 'select'"
+                [(ngModel)]="row.selectValue"
+                [disabled]="!canEdit">
+                <option *ngFor="let option of row.selectOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="ss-footer" *ngIf="totalRows()">
+      <div class="ss-footer__range">
+        <ui-inline-text kind="screen" screen="settings" key="systemSettingsShowing" />
+        {{ rangeFrom() }}
+        <ui-inline-text kind="screen" screen="settings" key="systemSettingsTo" />
+        {{ rangeTo() }}
+        <ui-inline-text kind="screen" screen="settings" key="systemSettingsOf" />
+        {{ totalRows() }}
+      </div>
+
+      <div class="ss-footer__pages">
+        <button type="button" class="ss-page-btn" (click)="setPage(1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="ss-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-right" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="ss-page-btn"
+          *ngFor="let page of pageNumbers()"
+          [class.ss-page-btn--active]="pageIndex === page"
+          (click)="setPage(page)">
+          {{ page }}
+        </button>
+        <button type="button" class="ss-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="ss-page-btn" (click)="setPage(totalPages())" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <label class="ss-footer__size">
+        <span><ui-inline-text kind="screen" screen="settings" key="systemSettingsPageSize" /></span>
+        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </label>
+    </footer>
+  </section>
+</div>

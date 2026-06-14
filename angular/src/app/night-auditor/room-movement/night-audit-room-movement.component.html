@@ -1,0 +1,123 @@
+<div class="nrm-page">
+  <header class="nrm-toolbar">
+    <div class="nrm-toolbar__actions">
+      <button type="button" class="nrm-btn nrm-btn--outline" (click)="printTable()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="print" />
+      </button>
+
+      <label class="nrm-scope">
+        <select [(ngModel)]="scopeFilter">
+          <option value="all"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="filterAll" /></option>
+          <option value="type1"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="filterType1" /></option>
+          <option value="type3"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="filterType3" /></option>
+        </select>
+        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+      </label>
+
+      <label class="nrm-search">
+        <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+        <i class="fas fa-search" aria-hidden="true"></i>
+      </label>
+    </div>
+
+    <div class="nrm-toolbar__views">
+      <button type="button" class="nrm-view-btn" [class.nrm-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.title]="label('viewGrid')" [attr.aria-label]="label('viewGrid')">
+        <i class="fas fa-th" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="nrm-view-btn" [class.nrm-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.title]="label('viewTable')" [attr.aria-label]="label('viewTable')">
+        <i class="fas fa-list" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <section *ngIf="viewMode === 'table'" class="nrm-table-card">
+    <div class="nrm-table-wrap">
+      <table class="nrm-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('workDate')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colWorkDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('workDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('oldRoom')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colOldRoom" /></span>
+                <i class="fas" [ngClass]="sortIcon('oldRoom')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('newRoom')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colNewRoom" /></span>
+                <i class="fas" [ngClass]="sortIcon('newRoom')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('oldRoomType')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colOldRoomType" /></span>
+                <i class="fas" [ngClass]="sortIcon('oldRoomType')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('newRoomType')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colNewRoomType" /></span>
+                <i class="fas" [ngClass]="sortIcon('newRoomType')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('oldAmount')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colOldAmount" /></span>
+                <i class="fas" [ngClass]="sortIcon('oldAmount')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('newAmount')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colNewAmount" /></span>
+                <i class="fas" [ngClass]="sortIcon('newAmount')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nrm-sort" (click)="toggleSort('transferType')">
+                <span><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colTransferType" /></span>
+                <i class="fas" [ngClass]="sortIcon('transferType')" aria-hidden="true"></i>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td dir="ltr">{{ row.workDate }}</td>
+            <td>{{ roomLabel(row.oldRoomNo) }}</td>
+            <td>{{ roomLabel(row.newRoomNo) }}</td>
+            <td>{{ row.oldRoomType }}</td>
+            <td>{{ row.newRoomType }}</td>
+            <td>{{ row.oldAmount | localeNumber }}</td>
+            <td>{{ row.newAmount | localeNumber }}</td>
+            <td>{{ row.transferType | localeNumber }}</td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="8" class="nrm-empty"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="nrm-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="nrm-grid-card">
+      <header>
+        <span dir="ltr">{{ row.workDate }}</span>
+        <span class="nrm-grid-card__type"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colTransferType" />: {{ row.transferType | localeNumber }}</span>
+      </header>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colOldRoom" /></dt><dd>{{ roomLabel(row.oldRoomNo) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colNewRoom" /></dt><dd>{{ roomLabel(row.newRoomNo) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colOldRoomType" /></dt><dd>{{ row.oldRoomType }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="colNewRoomType" /></dt><dd>{{ row.newRoomType }}</dd></div>
+      </dl>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="nrm-grid-empty"><ui-inline-text kind="screen" screen="nightAuditRoomMovement" key="emptyRows" /></p>
+  </section>
+</div>

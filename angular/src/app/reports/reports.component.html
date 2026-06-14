@@ -1,0 +1,64 @@
+<app-reports-advanced-center *ngIf="activeHub === 'advanced'"></app-reports-advanced-center>
+<app-reports-template-center *ngIf="activeHub === 'template'"></app-reports-template-center>
+<app-reports-management-center *ngIf="activeHub === 'management'"></app-reports-management-center>
+
+<section class="reports-hub" dir="rtl" *ngIf="activeHub !== 'advanced' && activeHub !== 'template' && activeHub !== 'management'">
+  <header class="reports-hub__head">
+    <div>
+      <p class="reports-hub__eyebrow"><ui-inline-text kind="screen" screen="reports" key="eyebrow" /></p>
+      <h1><ui-inline-text kind="screen" screen="reports" key="pageTitle" /></h1>
+      <p class="reports-hub__subtitle">
+        <ng-container *ngIf="activeHubCard() as hub; else reportsDefaultSubtitle">
+          <ui-inline-text kind="screen" screen="reports" [key]="hub.descKey" />
+        </ng-container>
+        <ng-template #reportsDefaultSubtitle>
+          <ui-inline-text kind="screen" screen="reports" key="pageSubtitle" />
+        </ng-template>
+      </p>
+    </div>
+    <a
+      *ngIf="activeHub"
+      class="reports-hub__back"
+      routerLink="/reports"
+      [attr.aria-label]="ui.screenText('reports', 'hubBackAria')">
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="reports" key="hubBack" />
+    </a>
+  </header>
+
+  <div class="reports-hub__grid" *ngIf="!activeHub">
+    <a
+      *ngFor="let card of hubCards"
+      class="reports-hub-card"
+      routerLink="/reports"
+      [queryParams]="hubQuery(card.kind)"
+      [attr.aria-label]="ui.screenText('reports', card.titleKey)">
+      <span class="reports-hub-card__icon" aria-hidden="true">
+        <i class="fas" [ngClass]="card.icon"></i>
+      </span>
+      <h2 class="reports-hub-card__title"><ui-inline-text kind="screen" screen="reports" [key]="card.titleKey" /></h2>
+      <p class="reports-hub-card__desc"><ui-inline-text kind="screen" screen="reports" [key]="card.descKey" /></p>
+      <span class="reports-hub-card__cta">
+        <ui-inline-text kind="screen" screen="reports" key="hubOpen" />
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </span>
+    </a>
+  </div>
+
+  <article class="reports-hub-detail" *ngIf="activeHub && activeHubCard() as card">
+    <header class="reports-hub-detail__head">
+      <span class="reports-hub-detail__icon" aria-hidden="true">
+        <i class="fas" [ngClass]="card.icon"></i>
+      </span>
+      <div>
+        <h2><ui-inline-text kind="screen" screen="reports" [key]="card.titleKey" /></h2>
+        <p><ui-inline-text kind="screen" screen="reports" [key]="card.descKey" /></p>
+      </div>
+    </header>
+
+    <div class="reports-hub-detail__placeholder">
+      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="reports" key="hubComingSoon" /></p>
+    </div>
+  </article>
+</section>

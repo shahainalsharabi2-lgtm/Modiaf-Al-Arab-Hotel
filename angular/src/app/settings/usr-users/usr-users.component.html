@@ -1,0 +1,230 @@
+<div class="uu-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'usrUsersSearchPh')" />
+        </div>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="uu-new-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="usrUsersNew" />
+        </button>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-user" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="usrUsersEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="filteredRows().length">
+      <table class="hc-page__table uu-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('displayName')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColName" />
+              <i class="fas" [ngClass]="sortIcon('displayName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('userName')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColUserName" />
+              <i class="fas" [ngClass]="sortIcon('userName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('mobile')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColMobile" />
+              <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('email')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColEmail" />
+              <i class="fas" [ngClass]="sortIcon('email')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable uu-check-col" (click)="toggleSort('isActive')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColActive" />
+              <i class="fas" [ngClass]="sortIcon('isActive')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('defaultHotelId')">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColDefaultHotel" />
+              <i class="fas" [ngClass]="sortIcon('defaultHotelId')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td>
+              <span class="uu-name-cell">
+                <span class="uu-avatar" aria-hidden="true">
+                  <i class="fas fa-user"></i>
+                </span>
+                <span [attr.dir]="isLatinText(displayName(row)) ? 'ltr' : null">{{ displayName(row) }}</span>
+              </span>
+            </td>
+            <td [attr.dir]="isLatinText(row.userName) ? 'ltr' : null">{{ row.userName }}</td>
+            <td dir="ltr">{{ row.mobile }}</td>
+            <td dir="ltr">{{ row.email }}</td>
+            <td class="uu-check-col">
+              <input type="checkbox" [checked]="row.isActive" disabled />
+            </td>
+            <td>{{ hotelName(row.defaultHotelId) }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'usrUsersColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="usrUsersActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="usrUsersActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div
+  class="uu-modal"
+  *ngIf="modalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', modalTitleKey())">
+  <div class="uu-modal__backdrop" (click)="closeModal()"></div>
+  <form class="uu-modal__card" (ngSubmit)="saveForm()">
+    <header class="uu-modal__head">
+      <h3>
+        <i class="fas fa-user-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" [key]="modalTitleKey()" />
+      </h3>
+      <button type="button" class="uu-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <nav class="uu-modal__tabs" role="tablist">
+      <button
+        type="button"
+        class="uu-modal__tab"
+        role="tab"
+        [class.uu-modal__tab--active]="activeModalTab === 'info'"
+        (click)="setModalTab('info')">
+        <i class="fas fa-user" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="usrUsersTabInfo" />
+      </button>
+      <button
+        type="button"
+        class="uu-modal__tab"
+        role="tab"
+        [class.uu-modal__tab--active]="activeModalTab === 'groups'"
+        (click)="setModalTab('groups')">
+        <i class="fas fa-users-cog" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="usrUsersTabGroups" />
+      </button>
+    </nav>
+
+    <div class="uu-modal__body" *ngIf="activeModalTab === 'info'">
+      <div class="uu-form-grid">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersFieldFirstName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.firstName" name="firstName" [placeholder]="ui.screenText('settings', 'usrUsersFieldFirstName')" />
+            <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersFieldSurname" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.surname" name="surname" [placeholder]="ui.screenText('settings', 'usrUsersFieldSurname')" />
+            <i class="fas fa-user-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersColUserName" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.userName" name="userName" autocomplete="username" [placeholder]="ui.screenText('settings', 'usrUsersColUserName')" />
+            <i class="fas fa-id-card rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersColEmail" /></span>
+          <div class="rt-field__control">
+            <input type="email" dir="ltr" [(ngModel)]="form.email" name="email" [placeholder]="ui.screenText('settings', 'usrUsersColEmail')" />
+            <i class="fas fa-envelope rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersFieldPhone" /></span>
+          <div class="rt-field__control">
+            <input type="tel" dir="ltr" [(ngModel)]="form.mobile" name="mobile" [placeholder]="ui.screenText('settings', 'usrUsersFieldPhone')" />
+            <i class="fas fa-phone rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersFieldPassword" /></span>
+          <div class="rt-field__control uu-password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              dir="ltr"
+              [(ngModel)]="form.password"
+              name="password"
+              autocomplete="new-password"
+              [placeholder]="ui.screenText('settings', 'usrUsersFieldPassword')" />
+            <button type="button" class="uu-password-toggle" (click)="togglePasswordVisibility()">
+              <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'" aria-hidden="true"></i>
+            </button>
+            <i class="fas fa-lock rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field uu-form-grid__full">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrUsersColDefaultHotel" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.defaultHotelId" name="defaultHotelId">
+              <option *ngFor="let hotel of hotels" [ngValue]="hotel.id">{{ hotel.name }}</option>
+            </select>
+            <i class="fas fa-hotel rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="uu-modal__body" *ngIf="activeModalTab === 'groups'">
+      <div class="uu-groups-list">
+        <label class="uu-group-item" *ngFor="let group of groups">
+          <input type="checkbox" [checked]="isGroupSelected(group.id)" (change)="toggleGroup(group.id)" />
+          <span [attr.dir]="isLatinText(group.name) ? 'ltr' : null">{{ group.name }}</span>
+        </label>
+      </div>
+    </div>
+
+    <footer class="uu-modal__foot">
+      <button type="submit" class="uu-modal__save">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="usrUsersFormSave" />
+      </button>
+      <button type="button" class="uu-modal__cancel" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

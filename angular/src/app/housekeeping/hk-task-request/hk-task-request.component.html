@@ -1,0 +1,117 @@
+<div class="hktr-page" dir="rtl" [formGroup]="form">
+  <nav class="hktr-toolbar" [attr.aria-label]="label('toolbarAria')">
+    <button type="button" class="hktr-tool-btn" (click)="undo()">
+      <i class="fas fa-undo" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnUndo" />
+    </button>
+    <button type="button" class="hktr-tool-btn" (click)="printForm()">
+      <i class="fas fa-print" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnPrint" />
+    </button>
+    <button type="button" class="hktr-tool-btn" (click)="goToList()">
+      <i class="fas fa-th-list" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnList" />
+    </button>
+    <button type="button" class="hktr-tool-btn hktr-tool-btn--save" (click)="save()">
+      <i class="fas fa-save" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnSave" />
+    </button>
+    <button type="button" class="hktr-tool-btn hktr-tool-btn--danger" (click)="deleteRecord()">
+      <i class="fas fa-trash-alt" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnDelete" />
+    </button>
+    <button type="button" class="hktr-tool-btn hktr-tool-btn--new" (click)="newRecord()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="btnNew" />
+    </button>
+  </nav>
+
+  <section class="hktr-section">
+    <header class="hktr-section__head">
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="sectionMainFields" />
+    </header>
+    <div class="hktr-section__body hktr-grid hktr-grid--main">
+      <div class="hktr-field hktr-field--id">
+        <label class="hktr-field__label" for="hktr-record-id">
+          <i class="fas fa-hashtag" aria-hidden="true"></i>
+        </label>
+        <div class="hktr-id-wrap" id="hktr-record-id">
+          <span class="hktr-id-val">{{ recordId | localeNumber }}</span>
+          <span class="hktr-id-sep">-</span>
+          <button type="button" class="hktr-id-clear" (click)="newRecord()" [attr.aria-label]="label('clearIdAria')">×</button>
+        </div>
+      </div>
+
+      <div class="hktr-field">
+        <label class="hktr-field__label" for="hktr-task-type">
+          <ui-inline-text kind="screen" screen="hkTaskRequest" key="fieldTaskType" />
+        </label>
+        <div class="hktr-select-wrap">
+          <select id="hktr-task-type" class="hktr-control" formControlName="taskTypeId">
+            <option value=""></option>
+            <option *ngFor="let task of taskTypeOptions" [value]="task.id">{{ task.code }} - {{ task.label }}</option>
+          </select>
+          <i class="fas fa-chevron-down hktr-select-chev" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="hktr-field hktr-field--notes">
+        <label class="hktr-field__label" for="hktr-notes">
+          <i class="fas fa-edit" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="hkTaskRequest" key="fieldNotes" />
+        </label>
+        <textarea id="hktr-notes" class="hktr-control hktr-control--textarea" formControlName="notes" rows="3"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="hktr-section">
+    <header class="hktr-section__head">
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="sectionAssignedRooms" />
+    </header>
+    <div class="hktr-section__body">
+      <div class="hktr-field hktr-field--room">
+        <label class="hktr-field__label" for="hktr-room">
+          <ui-inline-text kind="screen" screen="hkTaskRequest" key="fieldRoomNo" />
+        </label>
+        <div class="hktr-select-wrap hktr-select-wrap--icon">
+          <i class="fas fa-door-open hktr-field-icon" aria-hidden="true"></i>
+          <select id="hktr-room" class="hktr-control hktr-control--with-icon" formControlName="roomNo">
+            <option value=""></option>
+            <option *ngFor="let room of roomOptions" [value]="room">{{ room | localeNumber }}</option>
+          </select>
+          <i class="fas fa-chevron-down hktr-select-chev" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hktr-section">
+    <header class="hktr-section__head">
+      <ui-inline-text kind="screen" screen="hkTaskRequest" key="sectionAssignedEmployees" />
+    </header>
+    <div class="hktr-section__body hktr-grid hktr-grid--employees">
+      <div class="hktr-field">
+        <label class="hktr-field__label" for="hktr-employee">
+          <ui-inline-text kind="screen" screen="hkTaskRequest" key="fieldEmployeeNo" />
+        </label>
+        <div class="hktr-select-wrap hktr-select-wrap--icon">
+          <i class="fas fa-user hktr-field-icon" aria-hidden="true"></i>
+          <select id="hktr-employee" class="hktr-control hktr-control--with-icon" formControlName="employeeId">
+            <option value=""></option>
+            <option *ngFor="let emp of employeeOptions" [value]="emp.id">{{ emp.id }} - {{ emp.name }}</option>
+          </select>
+          <i class="fas fa-chevron-down hktr-select-chev" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="hktr-field hktr-field--notes">
+        <label class="hktr-field__label" for="hktr-employee-notes">
+          <i class="fas fa-edit" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="hkTaskRequest" key="fieldEmployeeNotes" />
+        </label>
+        <textarea id="hktr-employee-notes" class="hktr-control hktr-control--textarea" formControlName="employeeNotes" rows="3"></textarea>
+      </div>
+    </div>
+  </section>
+</div>

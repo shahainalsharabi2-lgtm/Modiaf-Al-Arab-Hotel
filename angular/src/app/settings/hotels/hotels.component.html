@@ -1,0 +1,67 @@
+<div class="htl-page" dir="rtl">
+  <section class="htl-page__panel">
+    <header class="htl-page__head">
+      <h2 class="htl-page__title">
+        <ui-inline-text kind="sidebar" key="stgSysHotels" />
+        <span class="htl-page__count">( {{ rowCount() }} )</span>
+      </h2>
+
+      <div class="htl-page__actions" *ngIf="canEdit">
+        <button
+          type="button"
+          class="htl-page__icon-btn htl-page__icon-btn--delete"
+          [disabled]="!selectedIds.size"
+          (click)="deleteSelected()"
+          [attr.aria-label]="ui.screenText('settings', 'hotelsDeleteAria')"
+          [title]="ui.screenText('settings', 'hotelsDeleteAria')">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="htl-page__icon-btn htl-page__icon-btn--add"
+          (click)="addHotel()"
+          [attr.aria-label]="ui.screenText('settings', 'hotelsAddAria')"
+          [title]="ui.screenText('settings', 'hotelsAddAria')">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="htl-page__table-wrap">
+      <table class="htl-page__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColNumber" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColChain" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColName" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColCountry" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColCity" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColBuildings" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColRooms" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColCheckIn" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="hotelsColCheckOut" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="hotelsColCurrency" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows" [class.htl-page__row--selected]="isSelected(row.id)">
+            <td>
+              <button type="button" class="htl-page__link" (click)="toggleSelect(row.id)">{{ row.id }}</button>
+            </td>
+            <td>{{ row.chain }}</td>
+            <td>
+              <button type="button" class="htl-page__link" (click)="toggleSelect(row.id)">{{ row.name }}</button>
+            </td>
+            <td>{{ row.country }}</td>
+            <td>{{ row.city }}</td>
+            <td class="htl-page__num">{{ row.buildingCount }}</td>
+            <td class="htl-page__num">{{ row.roomCount }}</td>
+            <td>{{ row.checkInTime }}</td>
+            <td>{{ row.checkOutTime }}</td>
+            <td class="htl-page__num" dir="ltr">{{ row.currency }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

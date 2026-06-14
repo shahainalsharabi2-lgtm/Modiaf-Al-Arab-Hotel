@@ -1,0 +1,179 @@
+<div class="bi-page">
+  <div *ngIf="loading" class="bi-state bi-state--loading">
+    <div class="bi-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="bookingsInquiries" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="bi-state bi-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="bi-btn bi-btn--outline" (click)="loadRows()">
+      <ui-inline-text kind="screen" screen="bookingsInquiries" key="retryLoad" />
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <section class="bi-filters-bar">
+      <div class="bi-filter-tags">
+        <span *ngIf="appliedFromDate" class="bi-filter-tag">
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="filterFrom" />: {{ formatChipDate(appliedFromDate) }}
+          <button type="button" class="bi-filter-tag__remove" (click)="removeFromDate()" [attr.aria-label]="label('removeFromDateAria')">×</button>
+        </span>
+        <span *ngIf="appliedToDate" class="bi-filter-tag">
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="filterTo" />: {{ formatChipDate(appliedToDate) }}
+          <button type="button" class="bi-filter-tag__remove" (click)="removeToDate()" [attr.aria-label]="label('removeToDateAria')">×</button>
+        </span>
+        <button *ngIf="hasActiveDateFilters" type="button" class="bi-btn bi-btn--ghost" (click)="clearDateFilters()">
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="clearFilters" />
+        </button>
+      </div>
+
+      <div class="bi-toolbar">
+        <button type="button" class="bi-btn bi-btn--primary" [class.bi-btn--active]="filterPanelOpen" (click)="toggleFilterPanel()">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="filter" />
+        </button>
+        <button type="button" class="bi-btn bi-btn--outline" (click)="refresh()">
+          <i class="fas fa-sync-alt" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="refresh" />
+        </button>
+        <button type="button" class="bi-btn bi-btn--outline" (click)="printTable()">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="bookingsInquiries" key="print" />
+        </button>
+      </div>
+    </section>
+
+    <section *ngIf="filterPanelOpen" class="bi-filter-panel bi-panel">
+      <label class="bi-date-field">
+        <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="filterFrom" /></span>
+        <input type="date" [(ngModel)]="filterFromDate" />
+      </label>
+      <label class="bi-date-field">
+        <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="filterTo" /></span>
+        <input type="date" [(ngModel)]="filterToDate" />
+      </label>
+      <button type="button" class="bi-btn bi-btn--primary" (click)="applyDateFilter()">
+        <ui-inline-text kind="screen" screen="bookingsInquiries" key="applyFilter" />
+      </button>
+    </section>
+
+    <section class="bi-table-card bi-panel">
+      <div class="bi-table-wrap">
+        <table class="bi-table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('reservationNo')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colReservationNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('reservationNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('guestName')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colGuestName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('arrivalDate')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colArrivalDate" /></span>
+                  <i class="fas" [ngClass]="sortIcon('arrivalDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('nights')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colNights" /></span>
+                  <i class="fas" [ngClass]="sortIcon('nights')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('departureDate')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colDepartureDate" /></span>
+                  <i class="fas" [ngClass]="sortIcon('departureDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('roomNo')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colRoomNo" /></span>
+                  <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('roomType')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colRoomType" /></span>
+                  <i class="fas" [ngClass]="sortIcon('roomType')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('status')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colStatus" /></span>
+                  <i class="fas" [ngClass]="sortIcon('status')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="bi-sort" (click)="toggleSort('total')">
+                  <span><ui-inline-text kind="screen" screen="bookingsInquiries" key="colTotal" /></span>
+                  <i class="fas" [ngClass]="sortIcon('total')" aria-hidden="true"></i>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedRows; trackBy: trackRow">
+              <td>{{ row.reservationNo | localeNumber }}</td>
+              <td>
+                <a
+                  *ngIf="row.bookingId"
+                  class="bi-guest-link"
+                  [routerLink]="['/front-desk']"
+                  [queryParams]="{ bookingId: row.bookingId }"
+                >{{ row.guestName }}</a>
+                <span *ngIf="!row.bookingId">{{ row.guestName }}</span>
+              </td>
+              <td>{{ formatDate(row.arrivalDate) }}</td>
+              <td>{{ row.nights | localeNumber }}</td>
+              <td>{{ formatDate(row.departureDate) }}</td>
+              <td>{{ row.roomNo | localeNumber }}</td>
+              <td>{{ row.roomType }}</td>
+              <td>
+                <span class="bi-status" [ngClass]="'bi-status--' + row.statusKey">
+                  <span class="bi-status__dot" aria-hidden="true"></span>
+                  {{ statusLabel(row.statusKey) }}
+                </span>
+              </td>
+              <td class="bi-money">{{ formatMoney(row.total) }}</td>
+            </tr>
+            <tr *ngIf="pagedRows.length === 0">
+              <td colspan="9" class="bi-empty"><ui-inline-text kind="screen" screen="bookingsInquiries" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="bi-pager">
+        <div class="bi-pager__sizes">
+          <button
+            *ngFor="let size of pageSizeOptions"
+            type="button"
+            class="bi-size"
+            [class.bi-size--active]="pageSize === size"
+            (click)="setPageSize(size)">
+            {{ size | localeNumber }}
+          </button>
+        </div>
+
+        <div class="bi-pager__nav">
+          <button type="button" class="bi-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
+          <span class="bi-page-current">{{ currentPage | localeNumber }}</span>
+          <button type="button" class="bi-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <p class="bi-pager__summary">{{ pageSummary() }}</p>
+      </footer>
+    </section>
+  </ng-container>
+</div>

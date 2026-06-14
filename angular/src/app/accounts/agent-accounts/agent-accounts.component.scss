@@ -1,0 +1,56 @@
+.aa-page .hc-page__toolbar-start {
+  margin-inline-start: auto;
+}
+
+.aa-table-wrap {
+  overflow-x: auto;
+}
+
+.aa-table {
+  min-width: 720px;
+}
+
+.aa-num-col {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.aa-balance {
+  font-weight: 700;
+}
+
+.aa-balance--due {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.aa-card__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  margin: 0.75rem 0 0;
+}
+
+.aa-card__meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.aa-card__meta dt {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.aa-card__meta dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.hc-page__empty i.fa-inbox {
+  font-size: 2.5rem;
+  color: rgba(148, 163, 184, 0.55);
+  margin-bottom: 0.5rem;
+}

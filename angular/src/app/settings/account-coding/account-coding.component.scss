@@ -1,0 +1,34 @@
+.ac-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--app-border);
+  background: #fff;
+  overflow-x: auto;
+}
+
+.ac-tabs__btn {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 800;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ac-tabs__btn--active {
+  color: #fff;
+  background: #1a3a32;
+  border-bottom-color: #1a3a32;
+  border-radius: 10px 10px 0 0;
+}
+
+.ac-col-order,
+.ac-col-type {
+  text-align: center;
+  font-weight: 700;
+}

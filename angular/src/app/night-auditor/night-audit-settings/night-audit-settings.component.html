@@ -1,0 +1,133 @@
+<div class="nas-page">
+  <header class="nas-toolbar">
+    <div class="nas-toolbar__actions">
+      <label class="nas-scope">
+        <select [(ngModel)]="scopeFilter">
+          <option value="all"><ui-inline-text kind="screen" screen="nightAuditSettings" key="filterAll" /></option>
+          <option value="automatic"><ui-inline-text kind="screen" screen="nightAuditSettings" key="filterAutomatic" /></option>
+          <option value="manual"><ui-inline-text kind="screen" screen="nightAuditSettings" key="filterManual" /></option>
+        </select>
+        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+      </label>
+
+      <label class="nas-search">
+        <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+        <i class="fas fa-search" aria-hidden="true"></i>
+      </label>
+    </div>
+
+    <div class="nas-toolbar__views">
+      <button type="button" class="nas-view-btn" [class.nas-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.title]="label('viewGrid')" [attr.aria-label]="label('viewGrid')">
+        <i class="fas fa-th" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="nas-view-btn" [class.nas-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.title]="label('viewTable')" [attr.aria-label]="label('viewTable')">
+        <i class="fas fa-list" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <section *ngIf="viewMode === 'table'" class="nas-table-card">
+    <div class="nas-table-wrap">
+      <table class="nas-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('automatic')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colAutomatic" /></span>
+                <i class="fas" [ngClass]="sortIcon('automatic')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('startTime')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colStartTime" /></span>
+                <i class="fas" [ngClass]="sortIcon('startTime')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('attemptCount')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colAttemptCount" /></span>
+                <i class="fas" [ngClass]="sortIcon('attemptCount')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('expectedArrivals')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colExpectedArrivals" /></span>
+                <i class="fas" [ngClass]="sortIcon('expectedArrivals')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('expectedDepartures')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colExpectedDepartures" /></span>
+                <i class="fas" [ngClass]="sortIcon('expectedDepartures')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nas-sort" (click)="toggleSort('openCashiers')">
+                <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colOpenCashiers" /></span>
+                <i class="fas" [ngClass]="sortIcon('openCashiers')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="nas-col-actions"><ui-inline-text kind="screen" screen="nightAuditSettings" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td class="nas-col-check">
+              <label class="nas-checkbox">
+                <input type="checkbox" [checked]="row.automatic" (change)="setAutomatic(row, $any($event.target).checked)" />
+                <span class="nas-checkbox__box" aria-hidden="true"></span>
+              </label>
+            </td>
+            <td dir="ltr">{{ row.startTime }}</td>
+            <td>{{ row.attemptCount | localeNumber }}</td>
+            <td>
+              <select class="nas-cell-select" [(ngModel)]="row.expectedArrivals">
+                <option *ngFor="let opt of arrivalsOptions" [ngValue]="opt">{{ arrivalsLabel(opt) }}</option>
+              </select>
+            </td>
+            <td>
+              <select class="nas-cell-select" [(ngModel)]="row.expectedDepartures">
+                <option *ngFor="let opt of departuresOptions" [ngValue]="opt">{{ departuresLabel(opt) }}</option>
+              </select>
+            </td>
+            <td>
+              <select class="nas-cell-select" [(ngModel)]="row.openCashiers">
+                <option *ngFor="let opt of cashiersOptions" [ngValue]="opt">{{ cashiersLabel(opt) }}</option>
+              </select>
+            </td>
+            <td class="nas-col-actions">
+              <button type="button" class="nas-edit-btn" (click)="editRow(row)" [attr.aria-label]="label('editRowAria')">
+                <i class="fas fa-pen" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="7" class="nas-empty"><ui-inline-text kind="screen" screen="nightAuditSettings" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="nas-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="nas-grid-card">
+      <header class="nas-grid-card__head">
+        <label class="nas-checkbox">
+          <input type="checkbox" [checked]="row.automatic" (change)="setAutomatic(row, $any($event.target).checked)" />
+          <span><ui-inline-text kind="screen" screen="nightAuditSettings" key="colAutomatic" /></span>
+        </label>
+        <button type="button" class="nas-edit-btn" (click)="editRow(row)" [attr.aria-label]="label('editRowAria')">
+          <i class="fas fa-pen" aria-hidden="true"></i>
+        </button>
+      </header>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditSettings" key="colStartTime" /></dt><dd dir="ltr">{{ row.startTime }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditSettings" key="colAttemptCount" /></dt><dd>{{ row.attemptCount | localeNumber }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditSettings" key="colExpectedArrivals" /></dt><dd>{{ arrivalsLabel(row.expectedArrivals) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditSettings" key="colExpectedDepartures" /></dt><dd>{{ departuresLabel(row.expectedDepartures) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="nightAuditSettings" key="colOpenCashiers" /></dt><dd>{{ cashiersLabel(row.openCashiers) }}</dd></div>
+      </dl>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="nas-grid-empty"><ui-inline-text kind="screen" screen="nightAuditSettings" key="emptyRows" /></p>
+  </section>
+</div>

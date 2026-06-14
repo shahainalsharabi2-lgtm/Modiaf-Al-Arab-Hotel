@@ -1,0 +1,164 @@
+<div class="ug-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'usrGroupsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="usrGroupsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="usrGroupsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="usrGroupsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="usrGroupsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="ug-add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="usrGroupsNew" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'usrGroupsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'usrGroupsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'usrGroupsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-users-cog" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="usrGroupsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table ug-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="usrGroupsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ug-check-col" (click)="toggleSort('isDefault')">
+              <ui-inline-text kind="screen" screen="settings" key="usrGroupsColDefault" />
+              <i class="fas" [ngClass]="sortIcon('isDefault')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable ug-check-col" (click)="toggleSort('isGeneral')">
+              <ui-inline-text kind="screen" screen="settings" key="usrGroupsColGeneral" />
+              <i class="fas" [ngClass]="sortIcon('isGeneral')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="usrGroupsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td [attr.dir]="isLatinName(row.name) ? 'ltr' : null">{{ row.name }}</td>
+            <td class="ug-check-col">
+              <input type="checkbox" [checked]="row.isDefault" disabled />
+            </td>
+            <td class="ug-check-col">
+              <input type="checkbox" [checked]="row.isGeneral" disabled />
+            </td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'usrGroupsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="usrGroupsActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="usrGroupsActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div
+  class="ug-modal"
+  *ngIf="modalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', modalTitleKey())">
+  <div class="ug-modal__backdrop" (click)="closeModal()"></div>
+  <form class="ug-modal__card" (ngSubmit)="saveForm()">
+    <header class="ug-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" [key]="modalTitleKey()" /></h3>
+      <button type="button" class="ug-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="ug-modal__body">
+      <label class="rt-field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrGroupsColName" /></span>
+        <div class="rt-field__control">
+          <input type="text" [(ngModel)]="form.name" name="name" [placeholder]="ui.screenText('settings', 'usrGroupsColName')" />
+          <i class="fas fa-users-cog rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+
+      <div class="ug-modal__checks">
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrGroupsColDefault" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.isDefault" name="isDefault" />
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="usrGroupsColGeneral" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.isGeneral" name="isGeneral" />
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <footer class="ug-modal__foot">
+      <button type="submit" class="ug-modal__save">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="usrGroupsFormSave" />
+      </button>
+      <button type="button" class="ug-modal__cancel" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

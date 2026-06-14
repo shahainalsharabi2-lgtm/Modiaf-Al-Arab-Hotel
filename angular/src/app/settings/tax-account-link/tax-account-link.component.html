@@ -1,0 +1,174 @@
+<div class="tal-page" dir="rtl">
+  <header class="tal-head">
+    <i class="fas fa-list-ul" aria-hidden="true"></i>
+    <h2><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkPageTitle" /></h2>
+  </header>
+
+  <section class="tal-page__panel">
+    <div class="tal-toolbar">
+      <button type="button" class="tal-add-btn" *ngIf="canEdit" (click)="openCreate()">
+        <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkNew" />
+        <i class="fas fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="tal-table-wrap">
+      <table class="hc-page__table tal-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('linkingMethod')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColMethod" />
+              <i class="fas" [ngClass]="sortIcon('linkingMethod')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('itemNumber')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColItemNumber" />
+              <i class="fas" [ngClass]="sortIcon('itemNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('itemName')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColItemName" />
+              <i class="fas" [ngClass]="sortIcon('itemName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('taxTypeName')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxType" />
+              <i class="fas" [ngClass]="sortIcon('taxTypeName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('entityNumber')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColEntityNumber" />
+              <i class="fas" [ngClass]="sortIcon('entityNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('entityName')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColEntityName" />
+              <i class="fas" [ngClass]="sortIcon('entityName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('taxCode')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxCode" />
+              <i class="fas" [ngClass]="sortIcon('taxCode')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('taxPercentage')">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxPct" />
+              <i class="fas" [ngClass]="sortIcon('taxPercentage')" aria-hidden="true"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!pagedRows().length">
+            <td class="tal-empty" colspan="8">
+              <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkEmpty" />
+            </td>
+          </tr>
+          <tr *ngFor="let row of pagedRows()">
+            <td>
+              <span class="tal-method-badge">
+                <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkMethodAccount" />
+              </span>
+            </td>
+            <td dir="ltr">{{ row.itemNumber }}</td>
+            <td>{{ row.itemName }}</td>
+            <td>{{ row.taxTypeName }}</td>
+            <td dir="ltr">{{ row.entityNumber || '' }}</td>
+            <td>{{ row.entityName || '' }}</td>
+            <td dir="ltr">{{ row.taxCode || '' }}</td>
+            <td dir="ltr">{{ formatPercentage(row.taxPercentage) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="tal-footer">
+      <div class="tal-footer__sizes">
+        <button
+          type="button"
+          class="tal-size-btn"
+          *ngFor="let size of pageSizes"
+          [class.tal-size-btn--active]="pageSize === size"
+          (click)="setPageSize(size)">
+          {{ size }}
+        </button>
+      </div>
+    </footer>
+  </section>
+</div>
+
+<div
+  class="tal-modal"
+  *ngIf="modalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', 'taxAccountLinkNew')">
+  <div class="tal-modal__backdrop" (click)="closeModal()"></div>
+  <form class="tal-modal__card" (ngSubmit)="saveModal()">
+    <header class="tal-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkNew" /></h3>
+      <button type="button" class="tal-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="tal-modal__toolbar">
+      <label class="rt-field tal-modal__field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxType" /></span>
+        <div class="rt-field__control rt-field__control--select">
+          <select [(ngModel)]="modalTaxType" name="modalTaxType">
+            <option value=""><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxType" /></option>
+          </select>
+          <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+      <label class="rt-field tal-modal__field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalLinkBy" /></span>
+        <div class="rt-field__control rt-field__control--select">
+          <select [(ngModel)]="modalLinkBy" name="modalLinkBy">
+            <option value="account"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkMethodAccount" /></option>
+          </select>
+          <i class="fas fa-list rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+      <label class="tal-modal__check">
+        <input type="checkbox" [(ngModel)]="modalUnlinkedOnly" name="modalUnlinkedOnly" />
+        <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalUnlinkedOnly" />
+      </label>
+      <button type="button" class="tal-modal__fetch" (click)="fetchModalRows()">
+        <i class="fas fa-download" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalFetch" />
+      </button>
+    </div>
+
+    <div class="tal-modal__table-wrap">
+      <table class="hc-page__table tal-modal__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxType" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalColTaxTypeName" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColEntityNumber" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColEntityName" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxCode" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkColTaxPct" /></th>
+            <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalColExemption" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of modalRows">
+            <td>{{ row.taxType }}</td>
+            <td>{{ row.taxTypeName }}</td>
+            <td dir="ltr">{{ row.entityNumber }}</td>
+            <td>{{ row.entityName }}</td>
+            <td dir="ltr">{{ row.taxCode }}</td>
+            <td dir="ltr">{{ row.taxPercentage }}</td>
+            <td dir="ltr">{{ row.exemptionCode }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="tal-modal__foot">
+      <button type="submit" class="tal-modal__save">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="taxAccountLinkModalSave" />
+      </button>
+      <button type="button" class="tal-modal__cancel" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

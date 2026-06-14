@@ -1,0 +1,32 @@
+.app-load {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.app-load__bar {
+  height: 3px;
+  overflow: hidden;
+}
+
+.app-load__bar-track {
+  display: block;
+  height: 100%;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, var(--app-primary-light), var(--app-primary));
+  border-radius: 999px;
+  animation: app-load-bar 1.1s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(30, 136, 229, 0.45);
+}
+
+@keyframes app-load-bar {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}

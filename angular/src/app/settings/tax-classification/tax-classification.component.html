@@ -1,0 +1,119 @@
+<div class="tt-page" dir="rtl">
+  <section class="tt-page__panel">
+    <header class="tt-hero">
+      <div class="tt-hero__text">
+        <h2><ui-inline-text kind="screen" screen="settings" key="taxClassificationTitle" /></h2>
+        <p><ui-inline-text kind="screen" screen="settings" key="taxClassificationSubtitle" /></p>
+      </div>
+      <div class="tt-hero__icon" aria-hidden="true">
+        <i class="fas fa-layer-group"></i>
+      </div>
+    </header>
+  </section>
+
+  <div class="tt-page__top">
+    <button type="button" class="tt-new-card" *ngIf="canEdit" (click)="openCreate()">
+      <span class="tt-new-card__label"><ui-inline-text kind="screen" screen="settings" key="taxClassificationNew" /></span>
+      <span class="tt-new-card__btn" aria-hidden="true">
+        <i class="fas fa-plus"></i>
+      </span>
+      <span class="tt-new-card__hint"><ui-inline-text kind="screen" screen="settings" key="taxClassificationNewItem" /></span>
+    </button>
+  </div>
+
+  <section class="tt-page__panel tt-page__panel--table">
+    <header class="tt-section-head">
+      <i class="fas fa-th" aria-hidden="true"></i>
+      <h3><ui-inline-text kind="screen" screen="settings" key="taxClassificationTitle" /></h3>
+    </header>
+
+    <div class="tt-table-wrap">
+      <table class="hc-page__table tc-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('id')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColSerial" />
+              <i class="fas" [ngClass]="sortIcon('id')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('description')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColDescription" />
+              <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('invoiceType')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColInvoiceType" />
+              <i class="fas" [ngClass]="sortIcon('invoiceType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('isDefault')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColDefault" />
+              <i class="fas" [ngClass]="sortIcon('isDefault')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('displayOrder')">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColOrder" />
+              <i class="fas" [ngClass]="sortIcon('displayOrder')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!filteredRows().length">
+            <td class="tt-empty" [attr.colspan]="canEdit ? 8 : 7">
+              <ui-inline-text kind="screen" screen="settings" key="taxClassificationEmpty" />
+            </td>
+          </tr>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.description || '' }}</td>
+            <td>
+              <span class="tc-invoice-badge">
+                <span class="tc-invoice-badge__icon" aria-hidden="true">
+                  <i class="fas fa-dollar-sign"></i>
+                </span>
+                {{ invoiceTypeLabel(row.invoiceType) }}
+              </span>
+            </td>
+            <td>
+              <span class="tc-default-badge" [class.tc-default-badge--yes]="row.isDefault">
+                {{ defaultLabel(row.isDefault) }}
+              </span>
+            </td>
+            <td class="hc-page__col-order">{{ row.displayOrder }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'taxClassificationColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="taxClassificationActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="taxClassificationActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

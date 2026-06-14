@@ -1,0 +1,447 @@
+<header class="app-top-bar" (click)="closeLangPicker(); closeShortcuts(); closeCalculator(); closeAccountHub(); closeRoomStatusPanel(); closeNotifications()">
+
+  <div class="app-top-bar__toolbar">
+
+    <div class="app-top-bar__cluster app-top-bar__cluster--start">
+
+      <button
+        type="button"
+        class="app-top-bar__brand"
+        (click)="toggleAccountHub($event)"
+        [class.app-top-bar__brand--active]="accountHubOpen"
+        [attr.title]="ui.chromeLabel('accountHubTitle')"
+        [attr.aria-label]="ui.chromeLabel('accountHubAria')"
+        [attr.data-ui-tr-chrome-keys]="chromeTrKeys('accountHubTitle', 'accountHubAria')"
+        [attr.aria-expanded]="accountHubOpen">
+
+        <img
+          class="app-top-bar__brand-img"
+          [src]="hotelImageSrc"
+          alt=""
+          width="40"
+          height="40" />
+
+      </button>
+
+
+
+      <span class="app-top-bar__divider" aria-hidden="true"></span>
+
+
+
+      <div
+        class="app-top-bar__tools"
+        role="toolbar"
+        [attr.aria-label]="ui.chromeLabel('topBarToolsAria')"
+        [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarToolsAria')">
+
+        <button
+
+          type="button"
+
+          class="app-top-bar__tool-btn"
+
+          (click)="openNotifications($event)"
+
+          [class.app-top-bar__tool-btn--active]="notificationsOpen"
+
+          [attr.aria-expanded]="notificationsOpen"
+
+          [attr.title]="ui.chromeLabel('notificationsMenuTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('notificationsMenuTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('notificationsMenuTitle', 'notificationsAria')">
+
+          <i class="far fa-bell" aria-hidden="true"></i>
+
+          <span class="app-top-bar__badge" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
+
+        </button>
+
+
+
+        <a
+
+          class="app-top-bar__tool-btn"
+
+          routerLink="/front-desk"
+
+          [attr.title]="ui.chromeLabel('topBarBookingsTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('topBarBookingsTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarBookingsTitle')">
+
+          <i class="far fa-calendar-check" aria-hidden="true"></i>
+
+        </a>
+
+
+
+        <a
+
+          class="app-top-bar__tool-btn"
+
+          routerLink="/front-desk/room-plan"
+
+          [attr.title]="ui.chromeLabel('topBarRoomPlanTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('topBarRoomPlanTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarRoomPlanTitle')">
+
+          <i class="fas fa-list-ul" aria-hidden="true"></i>
+
+        </a>
+
+
+
+        <button
+
+          type="button"
+
+          class="app-top-bar__tool-btn"
+
+          (click)="toggleCalculator($event)"
+
+          [class.app-top-bar__tool-btn--active]="calculatorOpen"
+
+          [attr.aria-expanded]="calculatorOpen"
+
+          [attr.title]="ui.chromeLabel('topBarCalculatorTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('topBarCalculatorTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarCalculatorTitle', 'calculatorTitle')">
+
+          <i class="fas fa-calculator" aria-hidden="true"></i>
+
+        </button>
+
+
+
+        <button
+
+          type="button"
+
+          class="app-top-bar__tool-btn"
+
+          (click)="toggleRoomStatusPanel($event)"
+
+          [class.app-top-bar__tool-btn--active]="roomStatusOpen"
+
+          [attr.aria-expanded]="roomStatusOpen"
+
+          [attr.title]="ui.chromeLabel('topBarRoomStatusTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('topBarRoomStatusTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarRoomStatusTitle', 'roomStatusPanelAria')">
+
+          <i class="fas fa-cog" aria-hidden="true"></i>
+
+        </button>
+
+
+
+        <div
+
+          class="lang-picker lang-picker--compact"
+
+          [class.lang-picker--open]="langPickerOpen"
+
+          (click)="$event.stopPropagation()"
+
+          role="group"
+
+          [attr.aria-label]="ui.chromeLabel('langPickerAria')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('langPickerLabel', 'langPickerAria', 'langPickerToggleAria', 'langPickerOtherLocales')">
+
+          <button
+
+            type="button"
+
+            class="app-top-bar__tool-btn app-top-bar__tool-btn--flag lang-picker__trigger"
+
+            (click)="toggleLangPicker($event)"
+
+            [attr.aria-expanded]="langPickerOpen"
+
+            [attr.aria-haspopup]="'listbox'"
+
+            [attr.title]="localeLabel(activeLocaleOption().labelKey)">
+
+            <img
+
+              class="lang-picker__flag-img lang-picker__flag-img--square"
+
+              [src]="activeLocaleOption().flagSrc"
+
+              alt=""
+
+              width="24"
+
+              height="24" />
+
+          </button>
+
+
+
+          <ul
+
+            class="lang-picker__menu"
+
+            *ngIf="langPickerOpen"
+
+            role="listbox"
+
+            [attr.aria-label]="ui.chromeLabel('langPickerAria')">
+
+            <li *ngFor="let opt of otherLocaleOptions()" role="none">
+
+              <button
+
+                type="button"
+
+                class="lang-picker__item"
+
+                role="option"
+
+                (click)="selectLocale(opt.code, $event)">
+
+                <img class="lang-picker__flag-img" [src]="opt.flagSrc" alt="" width="24" height="24" />
+
+                <span class="lang-picker__item-code">{{ opt.shortCode }}</span>
+
+                <span class="lang-picker__item-name">{{ localeLabel(opt.labelKey) }}</span>
+
+              </button>
+
+            </li>
+
+          </ul>
+
+        </div>
+
+
+
+        <button
+
+          type="button"
+
+          class="app-top-bar__tool-btn"
+
+          (click)="toggleShortcuts($event)"
+
+          [class.app-top-bar__tool-btn--active]="shortcutsOpen"
+
+          [attr.aria-expanded]="shortcutsOpen"
+
+          [attr.title]="ui.chromeLabel('topBarKeyboardTitle')"
+
+          [attr.aria-label]="ui.chromeLabel('topBarKeyboardTitle')"
+
+          [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarKeyboardTitle')">
+
+          <i class="far fa-keyboard" aria-hidden="true"></i>
+
+        </button>
+
+      </div>
+
+
+
+      <button
+
+        type="button"
+
+        class="app-top-bar__search"
+
+        (click)="openSearch($event)"
+
+        [attr.title]="ui.chromeLabel('searchOpenTitle')"
+
+        [attr.aria-label]="ui.chromeLabel('searchOpenAria')"
+
+        [attr.data-ui-tr-chrome-keys]="chromeTrKeys('searchOpenTitle', 'searchOpenAria')">
+
+        <kbd class="app-top-bar__search-kbd">F3</kbd>
+
+        <i class="fas fa-search app-top-bar__search-icon" aria-hidden="true"></i>
+
+      </button>
+
+
+
+      <button
+
+        type="button"
+
+        class="app-top-bar__link-btn app-top-bar__link-btn--offline"
+
+        disabled
+
+        [attr.title]="ui.chromeLabel('topBarOfflineKeysTitle')"
+
+        [attr.aria-label]="ui.chromeLabel('topBarOfflineKeysTitle')"
+
+        [attr.data-ui-tr-chrome-keys]="chromeTrKeys('topBarOfflineKeysTitle', 'topBarLinkTitle')">
+
+        <i class="fas fa-link" aria-hidden="true"></i>
+
+      </button>
+
+    </div>
+
+
+
+    <div class="app-top-bar__cluster app-top-bar__cluster--end">
+
+      <nav class="app-top-bar__crumb" *ngIf="breadcrumb" aria-label="breadcrumb">
+
+        <span>{{ breadcrumb }}</span>
+
+      </nav>
+
+      <div class="app-top-bar__hotel-pill" *ngIf="hotelDisplayName">
+
+        <span>{{ hotelDisplayName }} - {{ hotelMetaDate }}</span>
+
+      </div>
+
+      <span class="app-top-bar__system-brand" data-ui-tr-target="brandSubtitle" [attr.title]="ui.brandSubtitle()">{{ ui.brandSubtitle() }}</span>
+
+    </div>
+
+  </div>
+
+
+
+  <div
+
+    class="app-top-bar__notify-backdrop"
+
+    *ngIf="notificationsOpen"
+
+    (click)="closeNotifications()"
+
+    role="presentation"></div>
+
+
+
+  <app-notifications-panel *ngIf="notificationsOpen" (closed)="closeNotifications()" />
+
+
+
+  <app-account-hub-panel
+
+    [open]="accountHubOpen"
+
+    [userLabel]="currentUserLabel()"
+
+    [userInitial]="userInitial()"
+
+    (closed)="closeAccountHub()"
+
+    (openDbSettings)="openDbSettingsFromAccountHub()" />
+
+
+
+  <app-room-status-panel
+
+    [open]="roomStatusOpen"
+
+    (closed)="closeRoomStatusPanel()" />
+
+
+
+  <app-db-settings-panel
+
+    [open]="dbPanelOpen"
+
+    [userLabel]="currentUserLabel()"
+
+    [userInitial]="userInitial()"
+
+    (closed)="closeDbPanel()" />
+
+
+
+  <div
+
+    class="app-top-bar__overlay"
+
+    *ngIf="shortcutsOpen"
+
+    (click)="closeShortcuts()"
+
+    role="presentation">
+
+    <div
+
+      class="app-top-bar__shortcuts-dialog"
+
+      role="dialog"
+
+      (click)="$event.stopPropagation()"
+
+      [attr.aria-label]="ui.chromeLabel('topBarKeyboardTitle')">
+
+      <header class="app-top-bar__shortcuts-head">
+
+        <h2 class="app-top-bar__shortcuts-title"><ui-inline-text kind="chrome" key="topBarKeyboardTitle" /></h2>
+
+        <button type="button" class="app-top-bar__shortcuts-esc" (click)="closeShortcuts()">ESC</button>
+
+      </header>
+
+      <ul class="app-top-bar__shortcuts-list">
+
+        <li
+
+          *ngFor="let entry of keyboardShortcuts; let i = index"
+
+          class="app-top-bar__shortcuts-row"
+
+          [class.app-top-bar__shortcuts-row--highlight]="i === 0">
+
+          <button type="button" class="app-top-bar__shortcuts-row-btn" (click)="runShortcut(entry, $event)">
+
+            <span class="app-top-bar__shortcuts-label">{{ shortcutLabel(entry) }}</span>
+
+            <span class="app-top-bar__shortcuts-keys">
+
+              <kbd *ngFor="let part of entry.keyParts" class="app-top-bar__shortcuts-key">{{ part }}</kbd>
+
+            </span>
+
+          </button>
+
+        </li>
+
+      </ul>
+
+    </div>
+
+  </div>
+
+
+
+  <div
+
+    class="app-top-bar__overlay"
+
+    *ngIf="calculatorOpen"
+
+    (click)="closeCalculator()"
+
+    role="presentation">
+
+    <app-calculator-modal (click)="$event.stopPropagation()" (closed)="closeCalculator()" />
+
+  </div>
+
+</header>
+

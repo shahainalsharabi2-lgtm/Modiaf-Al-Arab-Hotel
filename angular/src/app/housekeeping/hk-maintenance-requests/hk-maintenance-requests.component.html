@@ -1,0 +1,133 @@
+<div class="hkmr-page" dir="rtl">
+  <header class="hkmr-page-head">
+    <div class="hkmr-page-head__icon" aria-hidden="true">
+      <i class="fas fa-wrench"></i>
+    </div>
+    <div class="hkmr-page-head__text">
+      <h1 class="hkmr-page-head__title"><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="pageTitle" /></h1>
+      <p class="hkmr-page-head__desc"><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="pageDescription" /></p>
+    </div>
+  </header>
+
+  <section class="hkmr-chrome">
+    <header class="hkmr-toolbar">
+      <div class="hkmr-toolbar__views">
+        <button type="button" class="hkmr-view-btn" [class.hkmr-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="hkmr-view-btn" [class.hkmr-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="hkmr-toolbar__actions">
+        <label class="hkmr-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value=""><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="filterAll" /></option>
+            <option value="withReason"><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="filterWithReason" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="hkmr-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </div>
+    </header>
+  </section>
+
+  <section *ngIf="viewMode === 'table'" class="hkmr-table-card">
+    <div class="hkmr-table-wrap">
+      <table class="hkmr-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('serial')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colSerial" /></span>
+                <i class="fas" [ngClass]="sortIcon('serial')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('reason')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colReason" /></span>
+                <i class="fas" [ngClass]="sortIcon('reason')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('fromDate')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colFromDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('fromDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('toDate')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colToDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('toDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('createdBy')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colCreatedBy" /></span>
+                <i class="fas" [ngClass]="sortIcon('createdBy')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="hkmr-sort" (click)="toggleSort('createdAt')">
+                <span><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colCreatedAt" /></span>
+                <i class="fas" [ngClass]="sortIcon('createdAt')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colComplete" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ row.serial | localeNumber }}</td>
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td>{{ cellValue(row.reason) }}</td>
+            <td dir="ltr">{{ formatDate(row.fromDate) }}</td>
+            <td dir="ltr">{{ formatDate(row.toDate) }}</td>
+            <td>{{ cellValue(row.createdBy) }}</td>
+            <td dir="ltr">{{ formatDate(row.createdAt) }}</td>
+            <td>
+              <button type="button" class="hkmr-complete-btn" (click)="completeMaintenance(row)">
+                <i class="fas fa-play" aria-hidden="true"></i>
+                <ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="completeBtn" />
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="8" class="hkmr-empty"><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="hkmr-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="hkmr-grid-card">
+      <header>
+        <strong><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colRoomNo" />: {{ row.roomNo | localeNumber }}</strong>
+        <span>#{{ row.serial | localeNumber }}</span>
+      </header>
+      <p>{{ cellValue(row.reason) }}</p>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colFromDate" /></dt><dd dir="ltr">{{ formatDate(row.fromDate) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colToDate" /></dt><dd dir="ltr">{{ formatDate(row.toDate) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="colCreatedBy" /></dt><dd>{{ cellValue(row.createdBy) }}</dd></div>
+      </dl>
+      <button type="button" class="hkmr-complete-btn" (click)="completeMaintenance(row)">
+        <i class="fas fa-play" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="completeBtn" />
+      </button>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="hkmr-grid-empty"><ui-inline-text kind="screen" screen="hkMaintenanceRequests" key="emptyRows" /></p>
+  </section>
+</div>

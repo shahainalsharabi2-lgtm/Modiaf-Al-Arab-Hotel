@@ -1,0 +1,216 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'creditCardTypesSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="creditCardTypesFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="creditCardTypesFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="creditCardTypesFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="creditCardTypesFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="creditCardTypesAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'creditCardTypesViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'creditCardTypesViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'creditCardTypesViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__alert" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="creditCardTypesEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('description')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColDescription" />
+              <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('displayOrder')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColOrder" />
+              <i class="fas" [ngClass]="sortIcon('displayOrder')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-active">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColActive" />
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('bank')">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColBank" />
+              <i class="fas" [ngClass]="sortIcon('bank')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.description || '' }}</td>
+            <td class="hc-page__col-order">{{ row.displayOrder }}</td>
+            <td class="hc-page__col-active">
+              <input type="checkbox" [checked]="row.isActive" disabled [attr.aria-label]="ui.screenText('settings', 'creditCardTypesColActive')" />
+            </td>
+            <td>{{ row.bank || '' }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'creditCardTypesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="creditCardTypesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="creditCardTypesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hc-page__grid" *ngIf="viewMode === 'grid' && filteredRows().length">
+      <article class="hc-page__card" *ngFor="let row of filteredRows()">
+        <div class="hc-page__card-head">
+          <strong class="hc-page__card-code" dir="ltr">{{ row.code }}</strong>
+          <input type="checkbox" [checked]="row.isActive" disabled />
+          <button
+            *ngIf="canEdit"
+            type="button"
+            class="hc-page__actions-btn"
+            (click)="toggleActionsMenu(row.id, $event)"
+            [attr.aria-expanded]="openActionsId === row.id">
+            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+          </button>
+          <div class="hc-page__menu hc-page__menu--card" *ngIf="canEdit && openActionsId === row.id" (click)="$event.stopPropagation()">
+            <button type="button" (click)="openEdit(row)">
+              <i class="fas fa-pen" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesActionEdit" />
+            </button>
+            <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="settings" key="creditCardTypesActionDelete" />
+            </button>
+          </div>
+        </div>
+        <h3>{{ row.name }}</h3>
+        <p dir="ltr">{{ row.foreignName || '' }}</p>
+        <p *ngIf="row.bank">{{ row.bank }}</p>
+      </article>
+    </div>
+  </section>
+</div>
+
+<div class="hc-modal" *ngIf="modalOpen" role="dialog" aria-modal="true">
+  <div class="hc-modal__backdrop" (click)="closeModal()"></div>
+  <form class="hc-modal__card" (ngSubmit)="saveRow()">
+    <header class="hc-modal__head">
+      <h3>
+        <ui-inline-text
+          kind="screen"
+          screen="settings"
+          [key]="editingId ? 'creditCardTypesEditTitle' : 'creditCardTypesCreateTitle'" />
+      </h3>
+      <button type="button" class="hc-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="hc-modal__body hc-modal__form">
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColCode" /></span>
+        <input type="text" dir="ltr" [(ngModel)]="form.code" name="code" maxlength="32" required />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColName" /></span>
+        <input type="text" [(ngModel)]="form.name" name="name" maxlength="256" required />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColForeignName" /></span>
+        <input type="text" dir="ltr" [(ngModel)]="form.foreignName" name="foreignName" maxlength="256" />
+      </label>
+      <label class="hc-modal__full">
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColDescription" /></span>
+        <textarea [(ngModel)]="form.description" name="description" maxlength="1024" rows="3"></textarea>
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColOrder" /></span>
+        <input type="number" dir="ltr" [(ngModel)]="form.displayOrder" name="displayOrder" min="0" />
+      </label>
+      <label>
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColBank" /></span>
+        <input type="text" [(ngModel)]="form.bank" name="bank" maxlength="256" />
+      </label>
+      <label class="hc-modal__check">
+        <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
+        <span><ui-inline-text kind="screen" screen="settings" key="creditCardTypesColActive" /></span>
+      </label>
+    </div>
+    <footer class="hc-modal__foot">
+      <button type="button" class="hc-page__add-btn hc-page__add-btn--ghost" (click)="closeModal()">
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+      <button type="submit" class="hc-page__add-btn" [disabled]="saving">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="saveChanges" />
+      </button>
+    </footer>
+  </form>
+</div>

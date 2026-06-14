@@ -1,0 +1,199 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'priceSeasonsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="priceSeasonsNew" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'priceSeasonsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'priceSeasonsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'priceSeasonsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="priceSeasonsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table ps-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('description')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColDescription" />
+              <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('fromDate')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColFromDate" />
+              <i class="fas" [ngClass]="sortIcon('fromDate')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('toDate')">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColToDate" />
+              <i class="fas" [ngClass]="sortIcon('toDate')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="priceSeasonsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td>{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ row.description || '' }}</td>
+            <td dir="ltr">{{ formatSeasonDate(row.fromDate) }}</td>
+            <td dir="ltr">{{ formatSeasonDate(row.toDate) }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'priceSeasonsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="priceSeasonsActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="priceSeasonsActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div
+  class="ps-modal"
+  *ngIf="modalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', modalTitleKey())">
+  <div class="ps-modal__backdrop" (click)="closeModal()"></div>
+  <form class="ps-modal__card" (ngSubmit)="saveForm()">
+    <header class="ps-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" [key]="modalTitleKey()" /></h3>
+      <button type="button" class="ps-modal__close" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="ps-modal__body">
+      <label class="rt-field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColCode" /></span>
+        <div class="rt-field__control">
+          <input type="text" [(ngModel)]="form.code" name="code" [placeholder]="ui.screenText('settings', 'priceSeasonsColCode')" />
+          <i class="fas fa-barcode rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+      <label class="rt-field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColName" /></span>
+        <div class="rt-field__control">
+          <input type="text" [(ngModel)]="form.name" name="name" [placeholder]="ui.screenText('settings', 'priceSeasonsColName')" />
+          <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+      <label class="rt-field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColForeignName" /></span>
+        <div class="rt-field__control">
+          <input
+            type="text"
+            dir="ltr"
+            [(ngModel)]="form.foreignName"
+            name="foreignName"
+            [placeholder]="ui.screenText('settings', 'priceSeasonsColForeignName')" />
+          <i class="fas fa-id-card rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+      <div class="ps-modal__dates">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColFromDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="form.fromDate" name="fromDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColToDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="form.toDate" name="toDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+      <label class="rt-field rt-field--textarea">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="priceSeasonsColDescription" /></span>
+        <textarea rows="4" [(ngModel)]="form.description" name="description"></textarea>
+      </label>
+    </div>
+
+    <footer class="ps-modal__foot">
+      <button type="submit" class="ps-modal__save">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="priceSeasonsFormSave" />
+      </button>
+      <button type="button" class="ps-modal__cancel" (click)="closeModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

@@ -1,0 +1,183 @@
+<div class="rgd-page" dir="rtl">
+  <div *ngIf="loading" class="rgd-state rgd-state--loading">
+    <div class="rgd-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="residentGuestsData" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="rgd-state rgd-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="rgd-retry-btn" (click)="loadRows()">
+      <ui-inline-text kind="screen" screen="residentGuestsData" key="retryLoad" />
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <div class="rgd-chrome">
+      <div class="rgd-top-bar">
+        <div class="rgd-toolbar-end">
+          <label class="rgd-scope-wrap">
+            <select class="rgd-scope-select" [(ngModel)]="scopeFilter">
+              <option value=""><ui-inline-text kind="screen" screen="residentGuestsData" key="filterAll" /></option>
+              <option *ngFor="let type of roomTypeOptions" [value]="type">{{ type }}</option>
+            </select>
+            <i class="fas fa-chevron-down rgd-scope-chev" aria-hidden="true"></i>
+          </label>
+          <div class="rgd-search">
+            <input
+              type="search"
+              class="rgd-search-input"
+              [(ngModel)]="searchTerm"
+              [placeholder]="label('searchPh')" />
+            <button type="button" class="rgd-search-submit" [attr.aria-label]="label('searchBtn')">
+              <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="rgd-toolbar-start">
+          <div class="rgd-view-toggle" role="group" [attr.aria-label]="label('viewToggleAria')">
+            <button
+              type="button"
+              class="rgd-view-btn"
+              [class.rgd-view-btn--active]="viewMode === 'grid'"
+              (click)="setViewMode('grid')"
+              [attr.aria-pressed]="viewMode === 'grid'">
+              <i class="fas fa-th" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              class="rgd-view-btn"
+              [class.rgd-view-btn--active]="viewMode === 'list'"
+              (click)="setViewMode('list')"
+              [attr.aria-pressed]="viewMode === 'list'">
+              <i class="fas fa-list" aria-hidden="true"></i>
+            </button>
+          </div>
+          <button type="button" class="rgd-menu-btn" [attr.aria-label]="label('menuAria')">
+            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="rgd-content" *ngIf="viewMode === 'grid'; else listView">
+      <article class="rgd-card" *ngFor="let row of filteredRows; trackBy: trackRow">
+        <div class="rgd-card__top">
+          <button type="button" class="rgd-card__menu" [attr.aria-label]="label('cardMenuAria')">
+            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+          </button>
+          <span class="rgd-card__badge"><ui-inline-text kind="screen" screen="residentGuestsData" key="stayingBadge" /></span>
+        </div>
+        <div class="rgd-card__identity">
+          <div class="rgd-card__avatar">{{ guestInitial(row.guestName) }}</div>
+          <div class="rgd-card__info">
+            <h2 class="rgd-card__title">{{ row.guestName }}</h2>
+            <span class="rgd-card__id">#{{ row.reservationNo | localeNumber }}</span>
+          </div>
+        </div>
+        <div class="rgd-card__dates">
+          <div class="rgd-card__date">
+            <small><ui-inline-text kind="screen" screen="residentGuestsData" key="colArrivalDate" /></small>
+            <strong>{{ formatDate(row.arrivalDate) }}</strong>
+          </div>
+          <div class="rgd-card__date">
+            <small><ui-inline-text kind="screen" screen="residentGuestsData" key="colNights" /></small>
+            <strong>{{ row.nights | localeNumber }}</strong>
+          </div>
+          <div class="rgd-card__date">
+            <small><ui-inline-text kind="screen" screen="residentGuestsData" key="colDepartureDate" /></small>
+            <strong>{{ formatDate(row.departureDate) }}</strong>
+          </div>
+        </div>
+      </article>
+      <p class="rgd-empty" *ngIf="!filteredRows.length">
+        <ui-inline-text kind="screen" screen="residentGuestsData" key="noData" />
+      </p>
+    </div>
+
+    <ng-template #listView>
+      <div class="rgd-table-card">
+        <div class="rgd-table-wrap">
+          <table class="rgd-table">
+            <thead>
+              <tr>
+                <th class="rgd-col-check">
+                  <input
+                    type="checkbox"
+                    [checked]="allVisibleSelected"
+                    [indeterminate]="someVisibleSelected"
+                    (change)="toggleAllVisible()"
+                    [attr.aria-label]="label('selectAllAria')" />
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('reservationNo')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colReservationNo" /></span>
+                    <i class="fas" [ngClass]="sortIcon('reservationNo')" aria-hidden="true"></i>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('guestName')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colGuestName" /></span>
+                    <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('bookingDate')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colBookingDate" /></span>
+                    <i class="fas" [ngClass]="sortIcon('bookingDate')" aria-hidden="true"></i>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('arrivalDate')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colArrivalDate" /></span>
+                    <i class="fas" [ngClass]="sortIcon('arrivalDate')" aria-hidden="true"></i>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('nights')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colNights" /></span>
+                    <i class="fas" [ngClass]="sortIcon('nights')" aria-hidden="true"></i>
+                  </button>
+                </th>
+                <th>
+                  <button type="button" class="rgd-sort" (click)="toggleSort('departureDate')">
+                    <span><ui-inline-text kind="screen" screen="residentGuestsData" key="colDepartureDate" /></span>
+                    <i class="fas" [ngClass]="sortIcon('departureDate')" aria-hidden="true"></i>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+                <td class="rgd-col-check">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(row.id)"
+                    (change)="toggleRow(row.id)"
+                    [attr.aria-label]="label('selectRowAria')" />
+                </td>
+                <td>{{ row.reservationNo | localeNumber }}</td>
+                <td>
+                  <a
+                    *ngIf="row.bookingId"
+                    class="rgd-guest-link"
+                    [routerLink]="['/front-desk']"
+                    [queryParams]="{ bookingId: row.bookingId }"
+                  >{{ row.guestName }}</a>
+                  <span *ngIf="!row.bookingId">{{ row.guestName }}</span>
+                </td>
+                <td>{{ formatDate(row.bookingDate) }}</td>
+                <td>{{ formatDate(row.arrivalDate) }}</td>
+                <td>{{ row.nights | localeNumber }}</td>
+                <td>{{ formatDate(row.departureDate) }}</td>
+              </tr>
+              <tr *ngIf="!filteredRows.length">
+                <td colspan="7" class="rgd-table-empty"><ui-inline-text kind="screen" screen="residentGuestsData" key="noData" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+</div>

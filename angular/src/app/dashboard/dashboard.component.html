@@ -1,0 +1,485 @@
+<div class="dashboard-container">
+  <p class="dashboard-loading" *ngIf="loading"><ui-inline-text kind="screen" screen="bookings" key="loading" /></p>
+
+  <div class="pms-dashboard" *ngIf="!loading">
+    <div class="pms-dashboard-grid">
+      <a
+        class="pms-card pms-card--residents"
+        routerLink="/front-desk"
+        [queryParams]="{ pmsTab: 'staying' }">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardResidents" /></span>
+        <strong class="pms-card__value">{{ residentsCount | localeNumber }}</strong>
+        <svg class="pms-card__chart" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="pms-grad-residents" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.04" />
+            </linearGradient>
+          </defs>
+          <path class="pms-card__area" [attr.d]="sparkArea(residentsSpark).area" fill="url(#pms-grad-residents)" />
+          <polyline class="pms-card__line pms-card__line--residents" [attr.points]="sparkArea(residentsSpark).line" />
+        </svg>
+      </a>
+
+      <a
+        class="pms-card pms-card--departing"
+        routerLink="/front-desk"
+        [queryParams]="{ pmsTab: 'departing' }">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardDeparting" /></span>
+        <strong class="pms-card__value">{{ departingCount | localeNumber }}</strong>
+        <svg class="pms-card__chart" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="pms-grad-departing" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.04" />
+            </linearGradient>
+          </defs>
+          <path class="pms-card__area" [attr.d]="sparkArea(departingSpark).area" fill="url(#pms-grad-departing)" />
+          <polyline class="pms-card__line pms-card__line--departing" [attr.points]="sparkArea(departingSpark).line" />
+        </svg>
+      </a>
+
+      <a
+        class="pms-card pms-card--arriving"
+        routerLink="/front-desk"
+        [queryParams]="{ pmsTab: 'arriving' }">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardArriving" /></span>
+        <strong class="pms-card__value">{{ arrivingCount | localeNumber }}</strong>
+        <svg class="pms-card__chart" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="pms-grad-arriving" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.04" />
+            </linearGradient>
+          </defs>
+          <path class="pms-card__area" [attr.d]="sparkArea(arrivingSpark).area" fill="url(#pms-grad-arriving)" />
+          <polyline class="pms-card__line pms-card__line--arriving" [attr.points]="sparkArea(arrivingSpark).line" />
+        </svg>
+      </a>
+
+      <div class="pms-card pms-card--occupancy-rate">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardOccupancyRate" /></span>
+        <div class="pms-gauge" [style.--gauge-pct]="occupancyRateDetailed">
+          <svg class="pms-gauge__svg" viewBox="0 0 200 112" aria-hidden="true">
+            <path
+              class="pms-gauge__track"
+              d="M 20 96 A 80 80 0 0 1 180 96"
+              fill="none"
+              stroke-width="14"
+              stroke-linecap="round" />
+            <path
+              class="pms-gauge__value"
+              d="M 20 96 A 80 80 0 0 1 180 96"
+              fill="none"
+              stroke-width="14"
+              stroke-linecap="round"
+              pathLength="100"
+              [attr.stroke-dasharray]="gaugeStrokeDash" />
+          </svg>
+          <strong class="pms-gauge__pct">{{ occupancyRateDetailed }}%</strong>
+        </div>
+        <div class="pms-card__foot">
+          <span><ui-inline-text kind="screen" screen="dashboard" key="cardOccupancyRate" /></span>
+          <span><ui-inline-text kind="screen" screen="dashboard" key="labelTotalRooms" /></span>
+        </div>
+      </div>
+
+      <div class="pms-card pms-card--room-status">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardRoomStatus" /></span>
+        <div class="pms-room-bar">
+          <div class="pms-room-bar__track">
+            <span class="pms-room-bar__dirty" [style.width.%]="dirtyBarPct"></span>
+            <span class="pms-room-bar__clean" [style.width.%]="cleanBarPct"></span>
+          </div>
+        </div>
+        <div class="pms-room-legend">
+          <div class="pms-room-legend__item">
+            <i class="pms-room-legend__mark pms-room-legend__mark--clean"></i>
+            <span><ui-inline-text kind="screen" screen="dashboard" key="labelClean" /></span>
+            <strong>{{ cleanRoomsCount | localeNumber }}</strong>
+          </div>
+          <div class="pms-room-legend__item">
+            <i class="pms-room-legend__mark pms-room-legend__mark--dirty"></i>
+            <span><ui-inline-text kind="screen" screen="dashboard" key="labelDirty" /></span>
+            <strong>{{ dirtyRoomsCount | localeNumber }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="pms-card pms-card--total-occupancy">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardTotalOccupancy" /></span>
+        <div class="pms-donut" [style.--occupied-pct]="occupancyRateDetailed">
+          <div class="pms-donut__ring" aria-hidden="true"></div>
+          <div class="pms-donut__center">
+            <small><ui-inline-text kind="screen" screen="dashboard" key="labelTotalRooms" /></small>
+            <strong>{{ totalRoomsCount | localeNumber }}</strong>
+            <em>{{ availabilityRateDetailed }}%</em>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pms-charts-row">
+      <section class="pms-chart-panel pms-chart-panel--weekly">
+        <h2 class="pms-chart-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="cardWeeklyRoomStatus" /></h2>
+        <div class="pms-chart-panel__body pms-chart-panel__body--placeholder" aria-hidden="true"></div>
+      </section>
+
+      <section class="pms-chart-panel pms-chart-panel--room-types">
+        <h2 class="pms-chart-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="cardRoomTypeOccupancy" /></h2>
+        <div class="pms-type-chart">
+          <div class="pms-type-chart__plot">
+            <div class="pms-type-chart__grid" aria-hidden="true">
+              <span
+                class="pms-type-chart__grid-line"
+                *ngFor="let tick of roomTypeChartTicks"
+                [style.inset-inline-start.%]="roomTypeSegmentPct(tick)"></span>
+            </div>
+            <div class="pms-type-chart__rows">
+              <div class="pms-type-chart__row" *ngFor="let row of roomTypeRows">
+                <span class="pms-type-chart__label"><ui-inline-text kind="screen" screen="roomsRack" [key]="row.labelKey" /></span>
+                <div class="pms-type-chart__track">
+                  <span
+                    class="pms-type-chart__seg pms-type-chart__seg--occupied"
+                    *ngIf="row.occupied > 0"
+                    [style.width.%]="roomTypeSegmentPct(row.occupied)">
+                    {{ row.occupied | localeNumber }}
+                  </span>
+                  <span
+                    class="pms-type-chart__seg pms-type-chart__seg--vacant"
+                    *ngIf="row.vacant > 0"
+                    [style.width.%]="roomTypeSegmentPct(row.vacant)">
+                    {{ row.vacant | localeNumber }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pms-type-chart__axis" aria-hidden="true">
+            <span *ngFor="let tick of roomTypeChartTicks">{{ tick | localeNumber }}</span>
+          </div>
+          <div class="pms-type-chart__legend">
+            <span class="pms-type-chart__legend-item">
+              <i class="pms-type-chart__legend-mark pms-type-chart__legend-mark--occupied"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="legendOccupied" />
+            </span>
+            <span class="pms-type-chart__legend-item">
+              <i class="pms-type-chart__legend-mark pms-type-chart__legend-mark--vacant"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="legendVacant" />
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="pms-feed-row">
+      <section class="pms-feed-panel pms-feed-panel--reservations">
+        <header class="pms-feed-panel__head">
+          <h2 class="pms-feed-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="latestReservations" /></h2>
+          <div class="pms-feed-panel__actions">
+            <button
+              type="button"
+              class="pms-feed-icon-btn"
+              (click)="refreshDashboardFeed()"
+              [disabled]="feedRefreshing"
+              [attr.aria-label]="ui.screenText('dashboard', 'refreshFeed')">
+              <i class="fas fa-sync-alt" [class.fa-spin]="feedRefreshing" aria-hidden="true"></i>
+            </button>
+            <a class="pms-feed-btn pms-feed-btn--outline" routerLink="/front-desk">
+              <i class="fas fa-bars" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="viewAll" />
+            </a>
+          </div>
+        </header>
+
+        <div class="pms-res-table-wrap">
+          <table class="pms-res-table">
+            <thead>
+              <tr>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colReservationNo" /></th>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colGuestName" /></th>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colArrival" /></th>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colNights" /></th>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colDeparture" /></th>
+                <th><ui-inline-text kind="screen" screen="dashboard" key="colReservationStatus" /></th>
+                <th class="pms-res-table__actions-col"><ui-inline-text kind="screen" screen="dashboard" key="colActions" /></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of latestReservations">
+                <td>{{ row.reservationNumber | localeNumber }}</td>
+                <td>{{ row.guestName }}</td>
+                <td dir="ltr">{{ formatTableDate(row.arrivalYmd) }}</td>
+                <td>{{ row.nights | localeNumber }}</td>
+                <td dir="ltr">{{ formatTableDate(row.departureYmd) }}</td>
+                <td>
+                  <span class="pms-res-status" [ngClass]="'pms-res-status--' + row.status">
+                    <i class="pms-res-status__dot" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="dashboard" [key]="reservationStatusKey(row.status)" />
+                  </span>
+                </td>
+                <td class="pms-res-table__actions-col">
+                  <a
+                    class="pms-res-view-btn"
+                    routerLink="/front-desk"
+                    [queryParams]="bookingViewQuery(row.booking)"
+                    [attr.aria-label]="ui.screenText('dashboard', 'viewReservation')">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr *ngIf="latestReservations.length === 0">
+                <td colspan="7" class="pms-res-table__empty"><ui-inline-text kind="screen" screen="dashboard" key="noReservations" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="pms-feed-panel pms-feed-panel--events">
+        <header class="pms-feed-panel__head">
+          <h2 class="pms-feed-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="eventsTitle" /></h2>
+          <div class="pms-feed-panel__actions">
+            <div class="pms-events-filter-wrap" (click)="$event.stopPropagation()">
+              <button
+                type="button"
+                class="pms-feed-icon-btn"
+                [class.pms-feed-icon-btn--active]="eventsFilterOpen"
+                (click)="toggleEventsFilterPanel($event)"
+                [attr.aria-expanded]="eventsFilterOpen"
+                [attr.aria-label]="ui.screenText('dashboard', 'eventsFilterAria')">
+                <i class="fas fa-filter" aria-hidden="true"></i>
+              </button>
+
+              <div class="pms-events-filter-panel" *ngIf="eventsFilterOpen" role="dialog" [attr.aria-label]="ui.screenText('dashboard', 'eventsAdvancedFilterTitle')">
+                <label class="pms-events-filter-field">
+                  <span><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterStatus" /></span>
+                  <select [(ngModel)]="eventAdvancedFilter.status" name="eventFilterStatus">
+                    <option value=""><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterAny" /></option>
+                    <option value="read"><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterStatusRead" /></option>
+                    <option value="unread"><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterStatusUnread" /></option>
+                  </select>
+                </label>
+                <label class="pms-events-filter-field">
+                  <span><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterImportance" /></span>
+                  <select [(ngModel)]="eventAdvancedFilter.importance" name="eventFilterImportance">
+                    <option value=""><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterAny" /></option>
+                    <option value="important"><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterImportant" /></option>
+                    <option value="normal"><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterNormal" /></option>
+                  </select>
+                </label>
+                <label class="pms-events-filter-field">
+                  <span><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterType" /></span>
+                  <select [(ngModel)]="eventAdvancedFilter.type" name="eventFilterType">
+                    <option value=""><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterAny" /></option>
+                    <option value="new"><ui-inline-text kind="screen" screen="dashboard" key="eventTitleNew" /></option>
+                    <option value="check_in"><ui-inline-text kind="screen" screen="dashboard" key="eventTitleCheckIn" /></option>
+                    <option value="cancelled"><ui-inline-text kind="screen" screen="dashboard" key="eventTitleCancel" /></option>
+                  </select>
+                </label>
+                <label class="pms-events-filter-field">
+                  <span><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterNotificationId" /></span>
+                  <input type="text" [(ngModel)]="eventAdvancedFilter.notificationId" name="eventFilterNotificationId" />
+                </label>
+                <label class="pms-events-filter-field">
+                  <span><ui-inline-text kind="screen" screen="dashboard" key="eventsFilterSearch" /></span>
+                  <input type="search" [(ngModel)]="eventAdvancedFilter.search" name="eventFilterSearch" />
+                </label>
+                <button type="button" class="pms-events-filter-clear" (click)="clearEventAdvancedFilters($event)">
+                  <ui-inline-text kind="screen" screen="dashboard" key="eventsFilterClear" />
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="pms-feed-filter-btn"
+              [class.pms-feed-filter-btn--active]="eventFilter === 'important'"
+              (click)="setEventFilter('important')">
+              <i class="fas fa-bullhorn" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="eventsFilterImportant" />
+            </button>
+            <button
+              type="button"
+              class="pms-feed-filter-btn pms-feed-filter-btn--all"
+              [class.pms-feed-filter-btn--active]="eventFilter === 'all'"
+              (click)="setEventFilter('all')">
+              <i class="fas fa-bell" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="eventsFilterAll" />
+            </button>
+          </div>
+        </header>
+
+        <div class="pms-events-list">
+          <article class="pms-event-card" *ngFor="let event of filteredDashboardEvents">
+            <div class="pms-event-card__icon" aria-hidden="true">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="pms-event-card__body">
+              <h3 class="pms-event-card__title"><ui-inline-text kind="screen" screen="dashboard" [key]="eventTitleKey(event)" /></h3>
+              <p class="pms-event-card__desc">{{ eventDescription(event) }}</p>
+              <time class="pms-event-card__time">
+                <i class="far fa-clock" aria-hidden="true"></i>
+                {{ formatEventTimestamp(event.timestamp) }}
+              </time>
+            </div>
+          </article>
+          <p class="pms-events-empty" *ngIf="filteredDashboardEvents.length === 0">
+            <ui-inline-text kind="screen" screen="dashboard" key="noEvents" />
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div class="pms-trend-stack" *ngIf="reservationsTrendChart && occupiedTrendChart">
+      <section class="pms-trend-panel">
+        <header class="pms-trend-panel__head">
+          <div class="pms-period-toggle" role="group" [attr.aria-label]="ui.screenText('dashboard', 'periodToggleAria')">
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="reservationsTrendPeriod === 'weekly'"
+              (click)="setReservationsTrendPeriod('weekly')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodWeekly" />
+            </button>
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="reservationsTrendPeriod === 'monthly'"
+              (click)="setReservationsTrendPeriod('monthly')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodMonthly" />
+            </button>
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="reservationsTrendPeriod === 'annual'"
+              (click)="setReservationsTrendPeriod('annual')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodAnnual" />
+            </button>
+          </div>
+          <div class="pms-trend-panel__meta">
+            <h2 class="pms-trend-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="chartReservations" /></h2>
+            <div class="pms-trend-legend">
+              <span class="pms-trend-legend__item">
+                <i class="pms-trend-legend__dot pms-trend-legend__dot--arriving"></i>
+                <ui-inline-text kind="screen" screen="dashboard" key="cardArriving" />
+              </span>
+              <span class="pms-trend-legend__item">
+                <i class="pms-trend-legend__dot pms-trend-legend__dot--departing"></i>
+                <ui-inline-text kind="screen" screen="dashboard" key="cardDeparting" />
+              </span>
+              <span class="pms-trend-legend__item">
+                <i class="pms-trend-legend__dot pms-trend-legend__dot--residents"></i>
+                <ui-inline-text kind="screen" screen="dashboard" key="cardResidents" />
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div class="pms-area-chart">
+          <div class="pms-area-chart__y-axis" aria-hidden="true">
+            <span *ngFor="let tick of reservationsTrendChart.yTicks">{{ tick | localeNumber }}</span>
+          </div>
+          <div class="pms-area-chart__plot">
+            <div class="pms-area-chart__grid" aria-hidden="true">
+              <span
+                class="pms-area-chart__grid-line"
+                *ngFor="let tick of reservationsTrendChart.yTicks"
+                [style.top.%]="trendGridTop(tick, reservationsTrendChart.yMax)"></span>
+            </div>
+            <svg class="pms-area-chart__svg" viewBox="0 0 920 240" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="pms-trend-residents" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.42" />
+                  <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.04" />
+                </linearGradient>
+                <linearGradient id="pms-trend-departing" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.38" />
+                  <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.03" />
+                </linearGradient>
+                <linearGradient id="pms-trend-arriving" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.42" />
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.04" />
+                </linearGradient>
+              </defs>
+              <path class="pms-area-chart__area pms-area-chart__area--residents" [attr.d]="reservationsTrendChart.residentsPaths.area" fill="url(#pms-trend-residents)" />
+              <path class="pms-area-chart__area pms-area-chart__area--departing" [attr.d]="reservationsTrendChart.departingPaths.area" fill="url(#pms-trend-departing)" />
+              <path class="pms-area-chart__area pms-area-chart__area--arriving" [attr.d]="reservationsTrendChart.arrivingPaths.area" fill="url(#pms-trend-arriving)" />
+              <polyline class="pms-area-chart__line pms-area-chart__line--residents" [attr.points]="reservationsTrendChart.residentsPaths.line" />
+              <polyline class="pms-area-chart__line pms-area-chart__line--departing" [attr.points]="reservationsTrendChart.departingPaths.line" />
+              <polyline class="pms-area-chart__line pms-area-chart__line--arriving" [attr.points]="reservationsTrendChart.arrivingPaths.line" />
+            </svg>
+          </div>
+          <div class="pms-area-chart__x-axis" aria-hidden="true">
+            <span *ngFor="let label of reservationsTrendChart.labels">{{ label }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="pms-trend-panel">
+        <header class="pms-trend-panel__head">
+          <div class="pms-period-toggle" role="group" [attr.aria-label]="ui.screenText('dashboard', 'periodToggleAria')">
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="occupiedTrendPeriod === 'weekly'"
+              (click)="setOccupiedTrendPeriod('weekly')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodWeekly" />
+            </button>
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="occupiedTrendPeriod === 'monthly'"
+              (click)="setOccupiedTrendPeriod('monthly')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodMonthly" />
+            </button>
+            <button
+              type="button"
+              class="pms-period-btn"
+              [class.pms-period-btn--active]="occupiedTrendPeriod === 'annual'"
+              (click)="setOccupiedTrendPeriod('annual')">
+              <ui-inline-text kind="screen" screen="dashboard" key="periodAnnual" />
+            </button>
+          </div>
+          <div class="pms-trend-panel__meta">
+            <h2 class="pms-trend-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="chartOccupiedRooms" /></h2>
+            <div class="pms-trend-legend">
+              <span class="pms-trend-legend__item">
+                <i class="pms-trend-legend__dot pms-trend-legend__dot--occupied"></i>
+                <ui-inline-text kind="screen" screen="dashboard" key="chartOccupiedRooms" />
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div class="pms-area-chart">
+          <div class="pms-area-chart__y-axis" aria-hidden="true">
+            <span *ngFor="let tick of occupiedTrendChart.yTicks">{{ tick | localeNumber }}</span>
+          </div>
+          <div class="pms-area-chart__plot">
+            <div class="pms-area-chart__grid" aria-hidden="true">
+              <span
+                class="pms-area-chart__grid-line"
+                *ngFor="let tick of occupiedTrendChart.yTicks"
+                [style.top.%]="trendGridTop(tick, occupiedTrendChart.yMax)"></span>
+            </div>
+            <svg class="pms-area-chart__svg" viewBox="0 0 920 240" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="pms-trend-occupied" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#f97316" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#f97316" stop-opacity="0.04" />
+                </linearGradient>
+              </defs>
+              <path class="pms-area-chart__area pms-area-chart__area--occupied" [attr.d]="occupiedTrendChart.paths.area" fill="url(#pms-trend-occupied)" />
+              <polyline class="pms-area-chart__line pms-area-chart__line--occupied" [attr.points]="occupiedTrendChart.paths.line" />
+            </svg>
+          </div>
+          <div class="pms-area-chart__x-axis" aria-hidden="true">
+            <span *ngFor="let label of occupiedTrendChart.labels">{{ label }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+</div>

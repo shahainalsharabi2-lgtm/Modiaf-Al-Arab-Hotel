@@ -1,0 +1,306 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.cbl-page {
+  min-height: 100%;
+  padding: 0.75rem 1rem 1.5rem;
+  background: linear-gradient(168deg, var(--app-bg-soft) 0%, var(--app-bg) 52%, #e8eef5 100%);
+  box-sizing: border-box;
+}
+
+.cbl-chrome {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  margin-bottom: 0.85rem;
+  overflow: hidden;
+}
+
+.cbl-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.65rem 0.85rem 0;
+  flex-wrap: wrap;
+}
+
+.cbl-tab {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: #fff;
+  color: rgba(15, 23, 42, 0.72);
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cbl-tab--active {
+  background: #2f6f4f;
+  border-color: #2f6f4f;
+  color: #fff;
+}
+
+.cbl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.85rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  background: #f8fafc;
+}
+
+.cbl-toolbar__views {
+  display: inline-flex;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cbl-view-btn {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: #fff;
+  color: rgba(15, 23, 42, 0.55);
+  cursor: pointer;
+}
+
+.cbl-view-btn + .cbl-view-btn {
+  border-inline-start: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.cbl-view-btn--active {
+  background: #2f6f4f;
+  color: #fff;
+}
+
+.cbl-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.cbl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cbl-btn--outline {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #fff;
+  color: var(--app-text);
+}
+
+.cbl-btn--active {
+  border-color: #2f6f4f;
+  color: #2f6f4f;
+}
+
+.cbl-scope {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cbl-scope select {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  padding: 0.45rem 1.35rem 0.45rem 0.65rem;
+  font: inherit;
+  font-size: 0.86rem;
+  background: #fff;
+  appearance: none;
+}
+
+.cbl-scope i {
+  position: absolute;
+  inset-inline-end: 0.45rem;
+  pointer-events: none;
+  font-size: 0.65rem;
+  color: var(--app-text-muted);
+}
+
+.cbl-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 10px;
+  padding: 0.4rem 0.65rem;
+  background: #fff;
+  min-width: 180px;
+}
+
+.cbl-search input {
+  border: 0;
+  background: transparent;
+  width: 100%;
+  font: inherit;
+}
+
+.cbl-search i {
+  color: var(--app-text-muted);
+}
+
+.cbl-table-card {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.cbl-table-wrap {
+  overflow-x: auto;
+}
+
+.cbl-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.cbl-table thead th {
+  padding: 0.75rem 0.85rem;
+  text-align: center;
+  font-weight: 800;
+  color: var(--app-text-muted);
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  white-space: nowrap;
+}
+
+.cbl-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cbl-sort i {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.cbl-table tbody td {
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  color: var(--app-text);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.cbl-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.cbl-col-actions {
+  width: 56px;
+  text-align: center !important;
+}
+
+.cbl-edit-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.cbl-empty {
+  text-align: center;
+  padding: 2rem 1rem !important;
+  color: var(--app-text-muted);
+}
+
+.cbl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.cbl-grid-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.cbl-grid-card h3 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+}
+
+.cbl-grid-card dl {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.cbl-grid-card dt {
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+}
+
+.cbl-grid-card dd {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.cbl-grid-card .cbl-edit-btn {
+  position: absolute;
+  top: 0.65rem;
+  inset-inline-end: 0.65rem;
+}
+
+.cbl-grid-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--app-text-muted);
+  padding: 2rem;
+}
+
+@media (max-width: 900px) {
+  .cbl-toolbar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .cbl-toolbar__actions {
+    justify-content: flex-start;
+  }
+
+  .cbl-toolbar__views {
+    align-self: flex-end;
+  }
+}

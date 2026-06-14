@@ -1,0 +1,30 @@
+.fac-import-btn {
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.fac-empty,
+.fac-grid-empty {
+  text-align: center;
+  padding: 2.5rem 1rem !important;
+  color: var(--app-text-muted);
+  border-bottom: 0 !important;
+}
+
+.fac-empty i,
+.fac-grid-empty i {
+  font-size: 2.4rem;
+  display: block;
+  margin-bottom: 0.65rem;
+  color: #cbd5e1;
+}
+
+.fac-empty p,
+.fac-grid-empty p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.fac-grid-empty {
+  padding: 2.5rem 1rem;
+}

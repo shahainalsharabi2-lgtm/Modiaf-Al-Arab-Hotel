@@ -1,0 +1,418 @@
+<div class="rr-page" dir="rtl">
+  <section class="hc-page__panel" *ngIf="screenMode === 'list'">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'roomRoomsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="rr-outline-btn" *ngIf="canEdit" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="roomRoomsImportExport" />
+        </button>
+        <button type="button" class="rr-outline-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="roomRoomsAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'roomRoomsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'roomRoomsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'roomRoomsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-bed" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="roomRoomsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table rr-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('roomNumber')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColNumber" />
+              <i class="fas" [ngClass]="sortIcon('roomNumber')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('roomType')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColType" />
+              <i class="fas" [ngClass]="sortIcon('roomType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('occupancyStatus')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColStatus" />
+              <i class="fas" [ngClass]="sortIcon('occupancyStatus')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('housekeepingStatus')">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColHousekeeping" />
+              <i class="fas" [ngClass]="sortIcon('housekeepingStatus')" aria-hidden="true"></i>
+            </th>
+            <th class="rr-check-col">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColComposite" />
+            </th>
+            <th>
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColCompositeDetails" />
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.roomNumber }}</td>
+            <td>{{ row.name }}</td>
+            <td>
+              <span class="rr-type-badge">
+                <i class="fas fa-bed" aria-hidden="true"></i>
+                {{ row.roomType }}
+              </span>
+            </td>
+            <td dir="ltr">{{ row.foreignName }}</td>
+            <td>
+              <span class="rr-badge rr-badge--occupied" *ngIf="row.occupancyStatus === 'occupied'">
+                <i class="fas fa-times" aria-hidden="true"></i>
+                {{ occupancyLabel(row.occupancyStatus) }}
+              </span>
+              <span class="rr-badge rr-badge--available" *ngIf="row.occupancyStatus === 'available'">
+                <i class="fas fa-check" aria-hidden="true"></i>
+                {{ occupancyLabel(row.occupancyStatus) }}
+              </span>
+            </td>
+            <td>
+              <span class="rr-badge rr-badge--clean" *ngIf="row.housekeepingStatus === 'clean'">
+                <i class="fas fa-check" aria-hidden="true"></i>
+                {{ housekeepingLabel(row.housekeepingStatus) }}
+              </span>
+              <span class="rr-badge rr-badge--dirty" *ngIf="row.housekeepingStatus === 'dirty'">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                {{ housekeepingLabel(row.housekeepingStatus) }}
+              </span>
+            </td>
+            <td class="rr-check-col">
+              <input type="checkbox" [checked]="row.isComposite" disabled />
+            </td>
+            <td>{{ row.compositeDetails || '' }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'roomRoomsColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomRoomsActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomRoomsActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rt-page__panel" *ngIf="screenMode === 'form'">
+    <div class="rt-page__actions">
+      <button type="button" class="rt-action rt-action--undo" (click)="undoChanges()" [disabled]="!canEdit">
+        <i class="fas fa-undo" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormUndo" />
+      </button>
+      <button type="button" class="rt-action rt-action--print" (click)="printForm()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormPrint" />
+      </button>
+      <button type="button" class="rt-action rt-action--list" (click)="openList()">
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormList" />
+      </button>
+      <button type="button" class="rt-action rt-action--save" (click)="saveForm()" [disabled]="!canEdit">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormSave" />
+      </button>
+      <button type="button" class="rt-action rt-action--delete" (click)="deleteForm()" [disabled]="!canEdit">
+        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormDelete" />
+      </button>
+      <button type="button" class="rt-action rt-action--new" (click)="openCreate()" [disabled]="!canEdit">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormNew" />
+      </button>
+    </div>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormMainTitle" />
+      </header>
+
+      <div class="rr-form-layout">
+        <div class="rr-form-fields">
+          <div class="rr-form-grid">
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormBuilding" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.building" [disabled]="!canEdit">
+                  <option value="1">1</option>
+                </select>
+                <i class="fas fa-building rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormFloor" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.floor" [disabled]="!canEdit">
+                  <option value=""></option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+                <i class="fas fa-layer-group rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsColName" /></span>
+              <div class="rt-field__control">
+                <input type="text" [(ngModel)]="form.name" [disabled]="!canEdit" />
+                <i class="fas fa-id-card rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsColForeignName" /></span>
+              <div class="rt-field__control">
+                <input type="text" [(ngModel)]="form.foreignName" [disabled]="!canEdit" dir="ltr" />
+                <i class="fas fa-font rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsColType" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.roomType" [disabled]="!canEdit">
+                  <option value="single">{{ ui.screenText('settings', 'roomRoomsTypeSingle') }}</option>
+                  <option value="double">{{ ui.screenText('settings', 'roomRoomsTypeDouble') }}</option>
+                  <option value="triple">{{ ui.screenText('settings', 'roomRoomsTypeTriple') }}</option>
+                  <option value="quad">{{ ui.screenText('settings', 'roomRoomsTypeQuad') }}</option>
+                  <option value="quint">{{ ui.screenText('settings', 'roomRoomsTypeQuint') }}</option>
+                </select>
+                <i class="fas fa-door-open rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormDesign" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.roomDesign" [disabled]="!canEdit">
+                  <option value=""></option>
+                </select>
+                <i class="fas fa-th-large rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormLocation" /></span>
+              <div class="rt-field__control rt-field__control--select">
+                <select [(ngModel)]="form.roomLocation" [disabled]="!canEdit">
+                  <option value=""></option>
+                </select>
+                <i class="fas fa-map-marker-alt rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+            <label class="rt-field">
+              <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsColNumber" /></span>
+              <div class="rt-field__control">
+                <input
+                  type="text"
+                  [(ngModel)]="form.roomNumber"
+                  [disabled]="!canEdit"
+                  dir="ltr"
+                  [placeholder]="ui.screenText('settings', 'roomRoomsFormNumberPh')" />
+                <i class="fas fa-hashtag rt-field__icon" aria-hidden="true"></i>
+              </div>
+            </label>
+          </div>
+
+          <label class="rt-check-field rr-form-virtual">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormVirtual" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.isVirtual" [disabled]="!canEdit" />
+            </div>
+          </label>
+        </div>
+
+        <div class="rr-form-upload" aria-hidden="false">
+          <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+          <strong><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormUploadTitle" /></strong>
+          <span><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormUploadHint" /></span>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div
+    class="rr-ie-modal"
+    *ngIf="importExportOpen"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ui.screenText('settings', 'roomRoomsImportExport')">
+    <div class="rr-ie-modal__backdrop" (click)="closeImportExport()"></div>
+    <div class="rr-ie-modal__card">
+      <header class="rr-ie-modal__head">
+        <h3><ui-inline-text kind="screen" screen="settings" key="roomRoomsImportExport" /></h3>
+        <button type="button" class="rr-ie-modal__close" (click)="closeImportExport()">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="rr-ie-modal__body">
+        <div class="rr-ie-toolbar">
+          <button type="button" class="rr-ie-btn rr-ie-btn--outline" (click)="ieImportFile()">
+            <i class="fas fa-folder-open" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeImportFile" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--template" (click)="ieDownloadTemplate()">
+            <i class="fas fa-file-download" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeDownloadTemplate" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--clear" (click)="ieClearTable()">
+            <i class="fas fa-broom" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeClearTable" />
+          </button>
+          <label class="rr-ie-format">
+            <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeFormatLabel" /></span>
+            <select [(ngModel)]="importExportFormat">
+              <option value="XLSX">XLSX</option>
+              <option value="CSV">CSV</option>
+            </select>
+          </label>
+          <button type="button" class="rr-ie-btn rr-ie-btn--export" (click)="ieExportData()">
+            <i class="fas fa-download" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeExportData" />
+          </button>
+          <button type="button" class="rr-ie-btn rr-ie-btn--save" *ngIf="canEdit" (click)="ieSave()">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            <ui-inline-text kind="screen" screen="settings" key="roomRoomsFormSave" />
+          </button>
+        </div>
+
+        <div class="rr-ie-table-panel">
+          <div class="rr-ie-table-toolbar">
+            <div class="rr-ie-table-toolbar__start">
+              <button
+                type="button"
+                class="rr-ie-icon-btn"
+                (click)="ieToggleSelectAll()"
+                [title]="ui.screenText('settings', 'roomRoomsIeSelectAllAria')">
+                <i class="fas fa-check-double" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="rr-ie-icon-btn"
+                (click)="ieClearFormatting()"
+                [title]="ui.screenText('settings', 'roomRoomsIeClearFormatAria')">
+                <i class="fas fa-paint-brush" aria-hidden="true"></i>
+              </button>
+              <span class="rr-ie-selected-badge">
+                <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeSelected" />
+                {{ ieSelectedCount() }}
+              </span>
+            </div>
+            <div class="rr-ie-table-badge">
+              <i class="fas fa-table" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="settings" key="roomRoomsIeDataTable" />
+              <span class="rr-ie-table-badge__count">{{ ieRowCount() }}</span>
+            </div>
+          </div>
+
+          <div class="rr-ie-table-wrap">
+            <table class="rr-ie-table">
+              <thead>
+                <tr>
+                  <th class="rr-ie-check-col">
+                    <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeSelectAllAria" /></span>
+                  </th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColSerial" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsColName" /></th>
+                  <th dir="ltr"><ui-inline-text kind="screen" screen="settings" key="roomRoomsColForeignName" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsColNumber" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormBuilding" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsColType" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormFloor" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsFormVirtual" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsColStatus" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsColHousekeeping" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColBedCount" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColPhone" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColError" /></th>
+                  <th><ui-inline-text kind="screen" screen="settings" key="roomRoomsIeColDetails" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of importExportRows; let i = index">
+                  <td class="rr-ie-check-col">
+                    <input type="checkbox" [checked]="row.selected" (change)="ieToggleRow(row)" />
+                  </td>
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ row.name }}</td>
+                  <td dir="ltr">{{ row.foreignName }}</td>
+                  <td dir="ltr">{{ row.roomNumber }}</td>
+                  <td>{{ row.building }}</td>
+                  <td>{{ row.roomType }}</td>
+                  <td>{{ row.floor }}</td>
+                  <td>{{ row.isVirtual ? '✓' : '' }}</td>
+                  <td>{{ row.roomStatus }}</td>
+                  <td>{{ row.housekeepingStatus }}</td>
+                  <td dir="ltr">{{ row.bedCount }}</td>
+                  <td dir="ltr">{{ row.phoneNumber }}</td>
+                  <td>{{ row.error }}</td>
+                  <td>{{ row.details }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

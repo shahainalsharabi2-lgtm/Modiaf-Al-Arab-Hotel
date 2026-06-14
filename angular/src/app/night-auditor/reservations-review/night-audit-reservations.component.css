@@ -1,0 +1,432 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.nrr-page {
+  padding: 1rem 1.25rem 1.5rem;
+  background: linear-gradient(168deg, var(--app-bg-soft) 0%, var(--app-bg) 52%, #e3f2fd 100%);
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.nrr-panel {
+  background: var(--app-surface);
+  border: var(--app-card-border);
+  border-radius: 14px;
+  box-shadow: var(--app-shadow-sm), var(--app-card-inset-ring);
+}
+
+.nrr-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 220px;
+  color: var(--app-text-muted);
+  text-align: center;
+}
+
+.nrr-state--error p {
+  margin: 0;
+  color: #c62828;
+}
+
+.nrr-loader {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--app-border);
+  border-top-color: var(--app-primary-mid);
+  animation: nrr-spin 0.8s linear infinite;
+}
+
+@keyframes nrr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nrr-filters-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.nrr-filter-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.nrr-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  font-size: 0.84rem;
+  color: var(--app-text);
+}
+
+.nrr-filter-tag__remove {
+  border: 0;
+  background: transparent;
+  color: #c62828;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}
+
+.nrr-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nrr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 8px;
+  padding: 0.5rem 0.95rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: var(--fw-semibold, 700);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.nrr-btn--primary {
+  border: 1px solid var(--app-primary-mid);
+  background: var(--app-primary-mid);
+  color: var(--app-on-primary);
+}
+
+.nrr-btn--primary:hover,
+.nrr-btn--primary.nrr-btn--active {
+  background: var(--app-primary);
+  border-color: var(--app-primary);
+}
+
+.nrr-btn--outline {
+  border: 1px solid var(--app-border-strong, #374151);
+  background: var(--app-surface);
+  color: var(--app-text);
+}
+
+.nrr-btn--outline:hover {
+  border-color: var(--app-primary-light);
+  color: var(--app-primary-mid);
+}
+
+.nrr-btn--ghost {
+  border: 0;
+  background: transparent;
+  color: var(--app-primary-mid);
+  padding-inline: 0.35rem;
+}
+
+.nrr-filter-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.nrr-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.nrr-date-field input {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  background: var(--app-input-bg, var(--app-surface));
+  color: var(--app-text);
+}
+
+.nrr-table-card {
+  overflow: hidden;
+}
+
+.nrr-table-wrap {
+  overflow-x: auto;
+}
+
+.nrr-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.nrr-table thead th {
+  padding: 0.75rem 0.85rem;
+  text-align: start;
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-text-muted);
+  background: var(--app-bg-soft);
+  border-bottom: 1px solid var(--app-border);
+  white-space: nowrap;
+}
+
+.nrr-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.nrr-sort i {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.nrr-table tbody td {
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text);
+  vertical-align: middle;
+}
+
+.nrr-table tbody tr:hover {
+  background: var(--app-bg-soft);
+}
+
+.nrr-money {
+  font-weight: var(--fw-semibold, 700);
+  color: var(--app-primary-mid);
+  white-space: nowrap;
+}
+
+.nrr-empty {
+  text-align: center;
+  padding: 2.5rem 1rem !important;
+  color: var(--app-text-muted);
+}
+
+.nrr-pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.nrr-pager__sizes {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.nrr-size {
+  border: 0;
+  background: transparent;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.nrr-size--active {
+  background: var(--app-primary-mid);
+  color: var(--app-on-primary);
+  font-weight: var(--fw-semibold, 700);
+}
+
+.nrr-pager__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.nrr-page-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.nrr-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nrr-page-current {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--app-primary-mid);
+  color: var(--app-on-primary);
+  font-size: 0.82rem;
+  font-weight: var(--fw-semibold, 700);
+}
+
+.nrr-pager__summary {
+  margin: 0;
+  text-align: end;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.nrr-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 1px solid var(--app-border);
+  margin-bottom: 0.85rem;
+  overflow-x: auto;
+}
+
+.nrr-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.nrr-tab--active {
+  color: var(--app-primary-mid);
+  border-bottom-color: var(--app-primary-mid);
+  font-weight: var(--fw-semibold, 700);
+}
+
+.nrr-tab__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--app-bg-soft);
+  border: 1px solid var(--app-border);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold, 700);
+}
+
+.nrr-tab--active .nrr-tab__badge {
+  background: rgba(21, 101, 192, 0.12);
+  border-color: rgba(21, 101, 192, 0.25);
+  color: var(--app-primary-mid);
+}
+
+.nrr-table tbody td {
+  text-align: center;
+}
+
+.nrr-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: var(--fw-semibold, 700);
+}
+
+.nrr-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.nrr-status--unconfirmed {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.nrr-status--unconfirmed .nrr-status__dot {
+  background: #fbc02d;
+}
+
+.nrr-status--reserved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.nrr-status--reserved .nrr-status__dot {
+  background: #43a047;
+}
+
+.nrr-status--staying {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.nrr-status--staying .nrr-status__dot {
+  background: #e53935;
+}
+
+@media (max-width: 960px) {
+  .nrr-filters-bar {
+    flex-direction: column;
+  }
+
+  .nrr-toolbar {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .nrr-pager {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .nrr-pager__summary {
+    text-align: center;
+  }
+
+  .nrr-pager__sizes,
+  .nrr-pager__nav {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .nrr-page {
+    padding: 0.75rem;
+  }
+}

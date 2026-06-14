@@ -1,0 +1,7 @@
+@if (loading.active()) {
+  <div class="app-load" role="status" aria-live="polite" [attr.aria-busy]="true">
+    <div class="app-load__bar" aria-hidden="true">
+      <span class="app-load__bar-track"></span>
+    </div>
+  </div>
+}

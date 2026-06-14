@@ -1,0 +1,154 @@
+<div class="ci-page">
+  <div *ngIf="loading" class="ci-state ci-state--loading">
+    <div class="ci-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="crmIndividuals" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="ci-state ci-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="ci-btn ci-btn--outline" (click)="loadRows()"><ui-inline-text kind="screen" screen="crmIndividuals" key="retryLoad" /></button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <header class="ci-toolbar">
+      <div class="ci-toolbar__actions">
+        <button type="button" class="ci-btn ci-btn--outline" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmIndividuals" key="importExport" />
+        </button>
+        <button type="button" class="ci-btn ci-btn--outline" (click)="addGuest()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmIndividuals" key="addGuest" />
+        </button>
+
+        <label class="ci-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="crmIndividuals" key="filterAll" /></option>
+            <option value="withMobile"><ui-inline-text kind="screen" screen="crmIndividuals" key="filterWithMobile" /></option>
+            <option value="withId"><ui-inline-text kind="screen" screen="crmIndividuals" key="filterWithId" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="ci-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </div>
+
+      <div class="ci-toolbar__views">
+        <button
+          type="button"
+          class="ci-view-btn"
+          [class.ci-view-btn--active]="viewMode === 'grid'"
+          (click)="setViewMode('grid')"
+          [attr.title]="label('viewGrid')"
+          [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="ci-view-btn"
+          [class.ci-view-btn--active]="viewMode === 'table'"
+          (click)="setViewMode('table')"
+          [attr.title]="label('viewTable')"
+          [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <section *ngIf="viewMode === 'table'" class="ci-table-card">
+      <div class="ci-table-wrap">
+        <table class="ci-table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('guestName')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colGuestName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('country')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colCountry" /></span>
+                  <i class="fas" [ngClass]="sortIcon('country')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('nationality')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colNationality" /></span>
+                  <i class="fas" [ngClass]="sortIcon('nationality')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('birthPlace')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colBirthPlace" /></span>
+                  <i class="fas" [ngClass]="sortIcon('birthPlace')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('birthDate')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colBirthDate" /></span>
+                  <i class="fas" [ngClass]="sortIcon('birthDate')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('mobile')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colMobile" /></span>
+                  <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('email')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colEmail" /></span>
+                  <i class="fas" [ngClass]="sortIcon('email')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="ci-sort" (click)="toggleSort('idNumber')">
+                  <span><ui-inline-text kind="screen" screen="crmIndividuals" key="colIdNumber" /></span>
+                  <i class="fas" [ngClass]="sortIcon('idNumber')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th class="ci-col-actions"><ui-inline-text kind="screen" screen="crmIndividuals" key="colActions" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+              <td>{{ cellValue(row.guestName) }}</td>
+              <td>{{ cellValue(row.country) | localeNumber }}</td>
+              <td>{{ cellValue(row.nationality) | localeNumber }}</td>
+              <td>{{ cellValue(row.birthPlace) }}</td>
+              <td dir="ltr">{{ cellValue(row.birthDate) }}</td>
+              <td dir="ltr">{{ cellValue(row.mobile) | localeNumber }}</td>
+              <td>{{ cellValue(row.email) }}</td>
+              <td dir="ltr">{{ cellValue(row.idNumber) | localeNumber }}</td>
+              <td class="ci-col-actions">
+                <button type="button" class="ci-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredRows.length === 0">
+              <td colspan="9" class="ci-empty"><ui-inline-text kind="screen" screen="crmIndividuals" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section *ngIf="viewMode === 'grid'" class="ci-grid">
+      <article *ngFor="let row of filteredRows; trackBy: trackRow" class="ci-grid-card">
+        <h3>{{ cellValue(row.guestName) }}</h3>
+        <dl>
+          <div><dt><ui-inline-text kind="screen" screen="crmIndividuals" key="colCountry" /></dt><dd>{{ cellValue(row.country) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmIndividuals" key="colNationality" /></dt><dd>{{ cellValue(row.nationality) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmIndividuals" key="colMobile" /></dt><dd dir="ltr">{{ cellValue(row.mobile) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmIndividuals" key="colIdNumber" /></dt><dd dir="ltr">{{ cellValue(row.idNumber) }}</dd></div>
+        </dl>
+      </article>
+      <p *ngIf="filteredRows.length === 0" class="ci-grid-empty"><ui-inline-text kind="screen" screen="crmIndividuals" key="emptyRows" /></p>
+    </section>
+  </ng-container>
+</div>

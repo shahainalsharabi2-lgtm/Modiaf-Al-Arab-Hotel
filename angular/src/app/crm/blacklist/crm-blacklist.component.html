@@ -1,0 +1,120 @@
+<div class="cbl-page" dir="rtl">
+  <div class="cbl-chrome">
+    <nav class="cbl-tabs" role="tablist" [attr.aria-label]="label('tabsAria')">
+      <button
+        *ngFor="let tab of tabs"
+        type="button"
+        role="tab"
+        class="cbl-tab"
+        [class.cbl-tab--active]="!showAllData && activeTab === tab"
+        [attr.aria-selected]="!showAllData && activeTab === tab"
+        (click)="setTab(tab)">
+        {{ tabLabel(tab) }}
+      </button>
+    </nav>
+
+    <header class="cbl-toolbar">
+      <div class="cbl-toolbar__actions">
+        <label class="cbl-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value=""><ui-inline-text kind="screen" screen="crmBlacklist" key="filterAll" /></option>
+            <option value="withMobile"><ui-inline-text kind="screen" screen="crmBlacklist" key="filterWithMobile" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="cbl-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+
+        <button type="button" class="cbl-btn cbl-btn--outline" [class.cbl-btn--active]="showAllData" (click)="toggleShowAll()">
+          <i class="fas fa-eye" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmBlacklist" key="showAllData" />
+        </button>
+      </div>
+
+      <div class="cbl-toolbar__views">
+        <button type="button" class="cbl-view-btn" [class.cbl-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="cbl-view-btn" [class.cbl-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <section *ngIf="viewMode === 'table'" class="cbl-table-card">
+    <div class="cbl-table-wrap">
+      <table class="cbl-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="cbl-sort" (click)="toggleSort('firstName')">
+                <span><ui-inline-text kind="screen" screen="crmBlacklist" key="colFirstName" /></span>
+                <i class="fas" [ngClass]="sortIcon('firstName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="cbl-sort" (click)="toggleSort('secondName')">
+                <span><ui-inline-text kind="screen" screen="crmBlacklist" key="colSecondName" /></span>
+                <i class="fas" [ngClass]="sortIcon('secondName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="cbl-sort" (click)="toggleSort('middleName')">
+                <span><ui-inline-text kind="screen" screen="crmBlacklist" key="colMiddleName" /></span>
+                <i class="fas" [ngClass]="sortIcon('middleName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="cbl-sort" (click)="toggleSort('lastName')">
+                <span><ui-inline-text kind="screen" screen="crmBlacklist" key="colLastName" /></span>
+                <i class="fas" [ngClass]="sortIcon('lastName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="cbl-sort" (click)="toggleSort('mobile')">
+                <span><ui-inline-text kind="screen" screen="crmBlacklist" key="colMobile" /></span>
+                <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th class="cbl-col-actions"><ui-inline-text kind="screen" screen="crmBlacklist" key="colActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+            <td>{{ cellValue(row.firstName) }}</td>
+            <td>{{ cellValue(row.secondName) }}</td>
+            <td>{{ cellValue(row.middleName) }}</td>
+            <td>{{ cellValue(row.lastName) }}</td>
+            <td dir="ltr">{{ cellValue(row.mobile) | localeNumber }}</td>
+            <td class="cbl-col-actions">
+              <button type="button" class="cbl-edit-btn" (click)="editRow(row)" [attr.aria-label]="label('editRowAria')">
+                <i class="fas fa-pen" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="6" class="cbl-empty"><ui-inline-text kind="screen" screen="crmBlacklist" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section *ngIf="viewMode === 'grid'" class="cbl-grid">
+    <article *ngFor="let row of filteredRows; trackBy: trackRow" class="cbl-grid-card">
+      <h3>{{ cellValue(row.firstName) }}</h3>
+      <dl>
+        <div><dt><ui-inline-text kind="screen" screen="crmBlacklist" key="colMobile" /></dt><dd dir="ltr">{{ cellValue(row.mobile) }}</dd></div>
+        <div><dt><ui-inline-text kind="screen" screen="crmBlacklist" key="colLastName" /></dt><dd>{{ cellValue(row.lastName) }}</dd></div>
+      </dl>
+      <button type="button" class="cbl-edit-btn" (click)="editRow(row)" [attr.aria-label]="label('editRowAria')">
+        <i class="fas fa-pen" aria-hidden="true"></i>
+      </button>
+    </article>
+    <p *ngIf="filteredRows.length === 0" class="cbl-grid-empty"><ui-inline-text kind="screen" screen="crmBlacklist" key="emptyRows" /></p>
+  </section>
+</div>

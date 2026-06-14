@@ -1,0 +1,36 @@
+<div class="ar-locale-pick" dir="rtl">
+  <div class="content-header">
+    <h2>
+      <i class="fas fa-language" style="color: var(--app-primary-mid); margin-left: 10px"></i>
+      <ui-inline-text kind="screen" screen="settings" key="arabicLocalePickTitle" />
+    </h2>
+  </div>
+
+  <p class="ar-locale-pick__hint">
+    <ui-inline-text kind="screen" screen="settings" key="arabicLocalePickHint" />
+    <a routerLink="/settings" [queryParams]="{ tab: 'translations' }" class="ar-locale-pick__link">
+      <ui-inline-text kind="screen" screen="settings" key="tabGeneralCodings" />
+    </a>
+  </p>
+
+  @if (arabicPref.loading()) {
+    <p class="ar-locale-pick__loading">
+      <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="generalCodes" key="loading" />
+    </p>
+  } @else if (!arabicPref.categories().length) {
+    <div class="ar-locale-pick__empty">
+      <i class="bi bi-inbox" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="arabicLocalePickEmpty" /></p>
+      <a routerLink="/settings" [queryParams]="{ tab: 'translations' }" class="ar-locale-pick__btn">
+        <ui-inline-text kind="screen" screen="settings" key="arabicLocalePickGoManage" />
+      </a>
+    </div>
+  } @else {
+    <app-arabic-category-grid
+      [categories]="arabicPref.categories()"
+      [selectedId]="arabicPref.selectedId()"
+      [compact]="true"
+      (categorySelect)="pickCategory($event)" />
+  }
+</div>

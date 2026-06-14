@@ -1,0 +1,164 @@
+.room-status-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(13, 27, 42, 0.32);
+  backdrop-filter: blur(2px);
+}
+
+.room-status-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(420px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1rem 1.25rem;
+  background: #ffffff;
+  border-inline-end: 1px solid #e5e7eb;
+  box-shadow: 12px 0 40px rgba(15, 23, 42, 0.16);
+  overflow: auto;
+}
+
+.room-status-panel__close {
+  align-self: flex-start;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.room-status-panel__head {
+  padding-inline: 0.15rem;
+}
+
+.room-status-panel__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #166534;
+}
+
+.room-status-panel__loading,
+.room-status-panel__error {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.room-status-panel__error {
+  color: #dc2626;
+}
+
+.room-status-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.room-status-panel__section-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #374151;
+}
+
+.room-status-panel__metric {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.room-status-panel__metric--clean {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.room-status-panel__metric--dirty {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.room-status-panel__metric-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+}
+
+.room-status-panel__metric--clean .room-status-panel__metric-icon {
+  background: #22c55e;
+  color: #fff;
+}
+
+.room-status-panel__metric--dirty .room-status-panel__metric-icon {
+  background: #ef4444;
+  color: #fff;
+}
+
+.room-status-panel__metric-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.room-status-panel__metric-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.room-status-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.room-status-panel__grid--compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.room-status-panel__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.45rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.room-status-panel__tile i {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.room-status-panel__tile span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.room-status-panel__tile strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+@media (max-width: 640px) {
+  .room-status-panel__grid--compact {
+    grid-template-columns: 1fr;
+  }
+}

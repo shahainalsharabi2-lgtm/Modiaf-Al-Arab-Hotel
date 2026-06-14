@@ -1,0 +1,28 @@
+.geo-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--app-border);
+  background: #fff;
+  overflow-x: auto;
+}
+
+.geo-tabs__btn {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 800;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.geo-tabs__btn--active {
+  color: #fff;
+  background: #1a3a32;
+  border-bottom-color: #1a3a32;
+  border-radius: 10px 10px 0 0;
+}

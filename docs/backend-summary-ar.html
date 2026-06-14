@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>ملخص الباك-اند — مضياف العرب للفنادق</title>
+  <style>
+    @page { margin: 12mm 11mm; size: A4; }
+    body {
+      font-family: 'Segoe UI', Tahoma, 'Arabic Typesetting', Arial, sans-serif;
+      font-size: 9pt;
+      line-height: 1.42;
+      color: #1a1a1a;
+      direction: rtl;
+      text-align: right;
+    }
+    h1 {
+      color: #0d47a1;
+      font-size: 17pt;
+      border-bottom: 3px solid #0d47a1;
+      padding-bottom: 6px;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      color: #1565c0;
+      font-size: 12pt;
+      margin-top: 14px;
+      page-break-after: avoid;
+      border-right: 4px solid #1976d2;
+      padding-right: 8px;
+    }
+    h3 {
+      color: #37474f;
+      font-size: 10.5pt;
+      page-break-after: avoid;
+      margin-top: 10px;
+    }
+    code {
+      direction: ltr;
+      unicode-bidi: embed;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 7.5pt;
+      background: #e3f2fd;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0d47a1;
+    }
+    pre {
+      direction: ltr;
+      text-align: left;
+      background: #f5f7fa;
+      border: 1px solid #cfd8dc;
+      padding: 7px 9px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 7pt;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0 10px;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #90a4ae;
+      padding: 3px 5px;
+      vertical-align: top;
+    }
+    th {
+      background: #0d47a1;
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: #f5f9fc; }
+    ul { margin: 4px 0; padding-right: 16px; }
+    li { margin: 2px 0; }
+    hr { border: none; border-top: 1px solid #b0bec5; margin: 12px 0; }
+    .meta { color: #546e7a; font-size: 8.5pt; }
+    strong { color: #0d47a1; }
+  </style>
+</head>
+<body>
+<h1>ملخص الباك-اند التفصيلي — مضياف العرب للفنادق</h1>
+
+<p class="meta"><em>*Modiaf.Al.Arab.Hotel — الإصدار v2.3.3 — ASP.NET Core + ABP Framework 10*</em></p>
+
+<hr/>
+
+<h2>1. نظرة معمارية</h2>
+
+<p>الخادم مبني على <strong>Domain Driven Design (DDD)</strong> ضمن <strong>ABP Framework 10</strong>، ويتكون من طبقات منفصلة:</p>
+
+<pre><code>
+HttpApi.Host  →  HttpApi  →  Application  →  Domain  ←  EntityFrameworkCore
+                    ↑              ↑
+            Application.Contracts  Domain.Shared
+</code></pre>
+
+<table>
+<tr><th>الطبقة</th><th>المشروع</th><th>الدور</th></tr>
+<tr><td><strong>Domain.Shared</strong></td><td><code>Modiaf.Al.Arab.Hotel.Domain.Shared</code></td><td>ثوابت، أدوار، توطين ABP</td></tr>
+<tr><td><strong>Domain</strong></td><td><code>Modiaf.Al.Arab.Hotel.Domain</code></td><td>كيانات، مستودعات (واجهات)، بذور البيانات</td></tr>
+<tr><td><strong>Application.Contracts</strong></td><td><code>Modiaf.Al.Arab.Hotel.Application.Contracts</code></td><td>DTOs، واجهات App Services</td></tr>
+<tr><td><strong>Application</strong></td><td><code>Modiaf.Al.Arab.Hotel.Application</code></td><td>منطق التطبيق، App Services</td></tr>
+<tr><td><strong>EntityFrameworkCore</strong></td><td><code>Modiaf.Al.Arab.Hotel.EntityFrameworkCore</code></td><td>DbContext، Repositories، Migrations</td></tr>
+<tr><td><strong>HttpApi</strong></td><td><code>Modiaf.Al.Arab.Hotel.HttpApi</code></td><td>Controllers إضافية</td></tr>
+<tr><td><strong>HttpApi.Host</strong></td><td><code>Modiaf.Al.Arab.Hotel.HttpApi.Host</code></td><td>نقطة التشغيل، CORS، Swagger، OpenIddict</td></tr>
+<tr><td><strong>HttpApi.Client</strong></td><td><code>Modiaf.Al.Arab.Hotel.HttpApi.Client</code></td><td>عميل API للاختبار</td></tr>
+<tr><td><strong>DbMigrator</strong></td><td><code>Modiaf.Al.Arab.Hotel.DbMigrator</code></td><td>ترحيل قاعدة البيانات</td></tr>
+</table>
+
+<h3>البنية التحتية</h3>
+
+<table>
+<tr><th>البند</th><th>القيمة</th></tr>
+<tr><td><strong>إطار العمل</strong></td><td>ABP 10.3 + .NET 10</td></tr>
+<tr><td><strong>ORM</strong></td><td>Entity Framework Core</td></tr>
+<tr><td><strong>قاعدة البيانات (محلي)</strong></td><td>SQL Server / LocalDB</td></tr>
+<tr><td><strong>قاعدة البيانات (إنتاج)</strong></td><td>PostgreSQL على Render</td></tr>
+<tr><td><strong>المصادقة</strong></td><td>OpenIddict + جلسة مخصصة <code>HotelAuth</code></td></tr>
+<tr><td><strong>API URL (إنتاج)</strong></td><td><code>https://hotel-api-fo0z.onrender.com</code></td></tr>
+<tr><td><strong>Swagger</strong></td><td><code>/swagger</code> على HttpApi.Host</td></tr>
+</table>
+
+<hr/>
+
+<h2>2. طبقة Domain — الكيانات (Entities)</h2>
+
+<h3>2.1 Room — الغرفة</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/Room.cs</code>  </p>
+<p><strong>الجدول:</strong> <code>AppRooms</code>  </p>
+<p><strong>النوع:</strong> <code>FullAuditedEntity<int></code></p>
+
+<table>
+<tr><th>الحقل</th><th>النوع</th><th>الوصف</th></tr>
+<tr><td><code>RoomNumber</code></td><td>string</td><td>رقم الغرفة</td></tr>
+<tr><td><code>Type</code></td><td>string</td><td>فئة الغرفة (من room-classes)</td></tr>
+<tr><td><code>RoomView</code></td><td>string?</td><td>إطلالة الغرفة</td></tr>
+<tr><td><code>RoomArchitecture</code></td><td>string?</td><td>تصميم/معمار الغرفة</td></tr>
+<tr><td><code>RoomLocation</code></td><td>string?</td><td>موقع الغرفة</td></tr>
+<tr><td><code>RoomFeatures</code></td><td>string?</td><td>مميزات (JSON array)</td></tr>
+<tr><td><code>Status</code></td><td>string</td><td>available, occupied, dirty, maintenance, suspended</td></tr>
+<tr><td><code>MaintenanceReason</code></td><td>string?</td><td>سبب الصيانة</td></tr>
+<tr><td><code>Price</code></td><td>decimal</td><td>السعر</td></tr>
+<tr><td><code>Floor</code></td><td>int</td><td>رقم الطابق</td></tr>
+<tr><td><code>CurrencyCode</code></td><td>string</td><td>رمز العملة (YER, SAR…)</td></tr>
+<tr><td><code>CurrencySymbol</code></td><td>string</td><td>رمز العرض (YR, ر.س…)</td></tr>
+</table>
+
+<h3>2.2 Booking — الحجز</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/Booking.cs</code>  </p>
+<p><strong>الجدول:</strong> <code>AppBookings</code></p>
+
+<table>
+<tr><th>الحقل</th><th>النوع</th><th>الوصف</th></tr>
+<tr><td><code>First_Name</code>, <code>Last_Name</code></td><td>string</td><td>اسم الضيف</td></tr>
+<tr><td><code>Phone_Number</code></td><td>string</td><td>الهاتف</td></tr>
+<tr><td><code>Id_Number</code>, <code>Id_Type</code></td><td>string</td><td>الهوية</td></tr>
+<tr><td><code>Room_Type</code>, <code>Room_Number</code>, <code>Floor</code></td><td>string</td><td>بيانات الغرفة</td></tr>
+<tr><td><code>Booking_Date</code>, <code>Booking_Time</code>, <code>BookingDateTime</code></td><td>DateTime/string</td><td>تواريخ الحجز</td></tr>
+<tr><td><code>Payment_Method</code></td><td>string</td><td>طريقة الدفع</td></tr>
+<tr><td><code>Payment_Amount</code></td><td>decimal</td><td>المدفوع</td></tr>
+<tr><td><code>People_Count</code>, <code>Adults_Count</code>, <code>Children_Count</code></td><td>int</td><td>عدد الأشخاص</td></tr>
+<tr><td><code>Invoice_Number</code></td><td>string</td><td>رقم الفاتورة</td></tr>
+<tr><td><code>Stay_Days</code></td><td>int</td><td>أيام الإقامة</td></tr>
+<tr><td><code>Total_Price</code>, <code>Remaining_Amount</code></td><td>decimal</td><td>الإجمالي والمتبقي</td></tr>
+<tr><td><code>Status</code></td><td>string</td><td>active, checked_out, cancelled</td></tr>
+<tr><td><code>CurrencyCode</code>, <code>CurrencySymbol</code></td><td>string</td><td>العملة</td></tr>
+<tr><td><code>Guest_Notes</code></td><td>string</td><td>ملاحظات</td></tr>
+<tr><td><code>Booking_Confirmed</code></td><td>bool</td><td>مؤكد / غير مؤكد</td></tr>
+<tr><td><code>Booking_Source</code></td><td>string</td><td>direct, electronic, company, institution, employee</td></tr>
+</table>
+
+<h3>2.3 GuestRegistry — سجل الضيوف</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/GuestRegistry.cs</code></p>
+
+<table>
+<tr><th>الحقل</th><th>الوصف</th></tr>
+<tr><td><code>First_Name</code>, <code>Middle_Name</code>, <code>Last_Name</code></td><td>الاسم الثلاثي</td></tr>
+<tr><td><code>Phone_Number</code>, <code>Gender</code></td><td>اتصال وجنس</td></tr>
+<tr><td><code>Nationality</code>, <code>Country</code></td><td>الجنسية والبلد</td></tr>
+<tr><td><code>Birth_Date</code></td><td>تاريخ الميلاد</td></tr>
+<tr><td><code>Id_Type</code>, <code>Id_Issuing_Country</code>, <code>Id_Number</code></td><td>وثيقة الهوية</td></tr>
+<tr><td><code>Purpose_Of_Stay</code></td><td>غرض الإقامة</td></tr>
+<tr><td><code>Relationship_Type</code></td><td>صلة القرابة</td></tr>
+<tr><td><code>Price_Code</code></td><td>كود السعر</td></tr>
+</table>
+
+<h3>2.4 Floor — الطابق</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/Floor.cs</code></p>
+
+<table>
+<tr><th>الحقل</th><th>الوصف</th></tr>
+<tr><td><code>Level</code></td><td>رقم الطابق</td></tr>
+<tr><td><code>RoomsCount</code></td><td>عدد الغرف في الطابق</td></tr>
+</table>
+
+<h3>2.5 RoomType — نوع الغرفة</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/RoomType.cs</code> — <code>Entity<int></code> مع <code>Name</code>.</p>
+
+<h3>2.6 IdentityType — نوع الهوية</h3>
+
+<p><strong>المسار:</strong> <code>Domain/Entities/IdentityType.cs</code> — <code>Entity<int></code> مع <code>Name</code>.</p>
+
+<h3>2.7 GeneralCodeItem — المدخلات العامة</h3>
+
+<p><strong>المسار:</strong> <code>Domain/GeneralCodes/GeneralCodeItem.cs</code>  </p>
+<p><strong>النوع:</strong> <code>FullAuditedAggregateRoot<Guid></code></p>
+
+<table>
+<tr><th>الحقل</th><th>الوصف</th></tr>
+<tr><td><code>Category</code></td><td>فئة الكود (انظر §8)</td></tr>
+<tr><td><code>Name</code></td><td>الاسم العربي</td></tr>
+<tr><td><code>FName</code></td><td>الاسم الأجنبي</td></tr>
+<tr><td><code>Description</code></td><td>وصف / بيانات JSON للعملة</td></tr>
+<tr><td><code>CountryDialCode</code></td><td>بادئة الاتصال (+967…)</td></tr>
+<tr><td><code>FlagImageName</code>, <code>FlagImageData</code></td><td>العلم</td></tr>
+<tr><td><code>RoomCount</code></td><td>عدد الغرف (room-classes)</td></tr>
+<tr><td><code>RegularBedCount</code>, <code>FamilyBedCount</code></td><td>عدد الأسرّة</td></tr>
+<tr><td><code>DisplayOrder</code></td><td>ترتيب العرض</td></tr>
+</table>
+
+<h3>2.8 PaymentMethod — طريقة الدفع</h3>
+
+<p><strong>المسار:</strong> <code>Domain/PaymentMethods/PaymentMethod.cs</code> — <code>Name</code>, <code>DisplayOrder</code>.</p>
+
+<h3>2.9 HotelAppUser — مستخدم التطبيق</h3>
+
+<p><strong>المسار:</strong> <code>Domain/HotelUsers/HotelAppUser.cs</code></p>
+
+<table>
+<tr><th>الحقل</th><th>الوصف</th></tr>
+<tr><td><code>FirstName</code>, <code>LastName</code></td><td>الاسم</td></tr>
+<tr><td><code>UserName</code>, <code>Password</code></td><td>الدخول</td></tr>
+<tr><td><code>Email</code>, <code>PhoneNumber</code></td><td>التواصل</td></tr>
+<tr><td><code>Role</code></td><td>manager, accountant, cashier, user</td></tr>
+</table>
+
+<p class="meta"><em><strong>الأدوار (<code>HotelUserRoles</code>):</strong></em></p>
+
+<table>
+<tr><th>الدور</th><th>المعرف</th><th>الصلاحيات</th></tr>
+<tr><td>مدير</td><td><code>manager</code></td><td>إدارة المستخدمين والإعدادات</td></tr>
+<tr><td>محاسب</td><td><code>accountant</code></td><td>—</td></tr>
+<tr><td>أمين صندوق</td><td><code>cashier</code></td><td>—</td></tr>
+<tr><td>مستخدم</td><td><code>user</code></td><td>افتراضي</td></tr>
+</table>
+
+<h3>2.10 HotelSettingsDocument — إعدادات الفندق</h3>
+
+<p><strong>المسار:</strong> <code>Domain/HotelSettings/HotelSettingsDocument.cs</code>  </p>
+<p><strong>Singleton ID:</strong> <code>11111111-1111-1111-1111-111111111111</code></p>
+
+<table>
+<tr><th>الحقل</th><th>الوصف</th></tr>
+<tr><td><code>SettingsPassword</code></td><td>كلمة مرور الإعدادات</td></tr>
+<tr><td><code>HotelImageDataUrl</code></td><td>شعار الفندق (Base64)</td></tr>
+<tr><td><code>ProfileJson</code></td><td>بيانات الفندق JSON</td></tr>
+<tr><td><code>CurrencyId</code>, <code>CurrencyCode</code>, <code>CurrencySymbol</code></td><td>العملة الافتراضية</td></tr>
+</table>
+
+<h3>2.11 UiTranslationsStore — ترجمات الواجهة</h3>
+
+<p><strong>المسار:</strong> <code>Domain/UiTranslations/UiTranslationsStore.cs</code>  </p>
+<p><strong>الحقل:</strong> <code>PayloadJson</code> — JSON للغات: ar, fr, id, tr, zh-Hans.</p>
+
+<hr/>
+
+<h2>3. طبقة Application — خدمات التطبيق</h2>
+
+<p>ABP ينشئ <strong>REST API تلقائياً</strong> من App Services عبر <strong>Conventional Controllers</strong>  </p>
+<p>المسار الأساسي: <code>/api/app/{service-name}/{action}</code></p>
+
+<h3>3.1 RoomAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/Entities/Rooms.cs</code>  </p>
+<p><strong>الواجهة:</strong> <code>IRoomAppService</code></p>
+
+<table>
+<tr><th>العملية</th><th>النوع</th><th>الوصف</th></tr>
+<tr><td><code>GetListAsync</code></td><td>GET</td><td>قائمة الغرف (CRUD)</td></tr>
+<tr><td><code>GetAsync</code></td><td>GET</td><td>غرفة واحدة</td></tr>
+<tr><td><code>CreateAsync</code></td><td>POST</td><td>إنشاء غرفة</td></tr>
+<tr><td><code>UpdateAsync</code></td><td>PUT</td><td>تعديل غرفة</td></tr>
+<tr><td><code>DeleteAsync</code></td><td>DELETE</td><td>حذف غرفة</td></tr>
+<tr><td><code>ResetAllStatusesAsync</code></td><td>POST</td><td>إعادة تعيين حالات الغرف</td></tr>
+</table>
+
+<p><strong>ResetAllStatusesAsync:</strong> يغيّر حالة كل الغرف إلى <code>TargetStatus</code> مع خيار <code>PreserveMaintenanceAndSuspended</code>.</p>
+
+<h3>3.2 BookingAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/Entities/Bookings.cs</code></p>
+
+<ul>
+<li>CRUD كامل للحجوزات</li>
+<li>تطبيع <code>Booking_Source</code> (direct/electronic/company/institution/employee)</li>
+<li>تطبيق العملة الافتراضية YER/YR</li>
+</ul>
+
+<h3>3.3 FloorAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/Entities/Floors.cs</code> — CRUD للطوابق.</p>
+
+<h3>3.4 GuestRegistryAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/Entities/GuestRegistries.cs</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td>CRUD</td><td>إنشاء/تعديل/حذف/عرض</td></tr>
+<tr><td><code>SaveProfileAsync</code></td><td>حفظ ذكي: تحديث إن وُجد <code>Id_Number</code></td></tr>
+</table>
+
+<h3>3.5 IdentityTypeAppService / RoomTypeAppService</h3>
+
+<p><strong>الملفات:</strong> <code>Application/Entities/IdentityTypes.cs</code>, <code>RoomTypes.cs</code> — CRUD.</p>
+
+<h3>3.6 HotelAuthAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/HotelAuth/HotelAuthAppService.cs</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td><code>LoginAsync</code></td><td>التحقق من UserName/Password في <code>HotelAppUsers</code></td></tr>
+</table>
+
+<p><strong>ملاحظة:</strong> <code>[AllowAnonymous]</code> — لا يستخدم OpenIddict للدخول الحالي.</p>
+
+<h3>3.7 HotelAppUserAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/HotelUsers/HotelAppUserAppService.cs</code> — CRUD لمستخدمي الفندق.</p>
+
+<h3>3.8 HotelSettingsAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/HotelSettings/HotelSettingsAppService.cs</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td><code>GetAsync</code></td><td>جلب الإعدادات (إنشاء singleton إن لم يوجد)</td></tr>
+<tr><td><code>UpdateAsync</code></td><td>تحديث كلمة مرور الإعدادات، الشعار، ProfileJson، العملة</td></tr>
+</table>
+
+<h3>3.9 PaymentMethodAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/PaymentMethods/PaymentMethodAppService.cs</code> — CRUD لطرق الدفع.</p>
+
+<h3>3.10 GeneralCodesAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/GeneralCodes/GeneralCodesAppService.cs</code>  </p>
+<p><strong>المخزن:</strong> <code>IGeneralCodesStore</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td><code>GetListAsync</code></td><td>جلب أكواد حسب <code>Category</code></td></tr>
+<tr><td><code>CreateAsync</code></td><td>إنشاء كود</td></tr>
+<tr><td><code>UpdateAsync</code></td><td>تعديل</td></tr>
+<tr><td><code>DeleteAsync</code></td><td>حذف</td></tr>
+</table>
+
+<h3>3.11 UiTranslationsBlobAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/UiTranslations/UiTranslationsBlobAppService.cs</code>  </p>
+<p><strong>المخزن:</strong> <code>UiTranslationsFileStore</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td><code>GetAsync</code></td><td>قراءة JSON مجمّع للترجمات</td></tr>
+<tr><td><code>UpdateAsync</code></td><td>كتابة JSON إلى ملفات <code>UiTranslations/*.json</code></td></tr>
+</table>
+
+<p><strong>اللغات المدعومة:</strong> ar, fr, id, tr, zh-Hans</p>
+
+<h3>3.12 HotelDatabaseAdminAppService</h3>
+
+<p><strong>الملف:</strong> <code>Application/DatabaseAdmin/HotelDatabaseAdminAppService.cs</code></p>
+
+<table>
+<tr><th>العملية</th><th>الوصف</th></tr>
+<tr><td><code>CreateBackupAsync</code></td><td>تصدير JSON لكل الجداول</td></tr>
+<tr><td><code>UpdateDatabaseAsync</code></td><td>تطبيق Migrations + Data Seed</td></tr>
+</table>
+
+<p><strong>الجداول في النسخة الاحتياطية:</strong> bookings, rooms, floors, roomTypes, identityTypes, guestRegistries, paymentMethods, generalCodes, uiTranslations, hotelSettings, hotelAppUsers.</p>
+
+<hr/>
+
+<h2>4. طبقة EntityFrameworkCore</h2>
+
+<h3>4.1 HotelDbContext</h3>
+
+<p><strong>المسار:</strong> <code>EntityFrameworkCore/EntityFrameworkCore/HotelDbContext.cs</code></p>
+
+<p class="meta"><em><strong>DbSets الخاصة بالفندق:</strong></em></p>
+
+<table>
+<tr><th>DbSet</th><th>الكيان</th></tr>
+<tr><td><code>Rooms</code></td><td>Room</td></tr>
+<tr><td><code>Bookings</code></td><td>Booking</td></tr>
+<tr><td><code>Floors</code></td><td>Floor</td></tr>
+<tr><td><code>RoomTypes</code></td><td>RoomType</td></tr>
+<tr><td><code>IdentityTypes</code></td><td>IdentityType</td></tr>
+<tr><td><code>GuestRegistries</code></td><td>GuestRegistry</td></tr>
+<tr><td><code>GeneralCodeItems</code></td><td>GeneralCodeItem</td></tr>
+<tr><td><code>PaymentMethods</code></td><td>PaymentMethod</td></tr>
+<tr><td><code>HotelAppUsers</code></td><td>HotelAppUser</td></tr>
+<tr><td><code>HotelSettingsDocuments</code></td><td>HotelSettingsDocument</td></tr>
+<tr><td><code>UiTranslationsStores</code></td><td>UiTranslationsStore</td></tr>
+</table>
+
+<p><strong>DbSets ABP:</strong> Users, Roles, Tenants, OpenIddict… (من ABP Identity + MultiTenancy)</p>
+
+<h3>4.2 المستودعات (Repositories)</h3>
+
+<table>
+<tr><th>الواجهة (Domain)</th><th>التنفيذ (EF Core)</th></tr>
+<tr><td><code>IRoomRepository</code></td><td><code>EfCoreRoomRepository</code></td></tr>
+<tr><td><code>IBookingRepository</code></td><td><code>EfCoreBookingRepository</code></td></tr>
+<tr><td><code>IFloorRepository</code></td><td><code>EfCoreFloorRepository</code></td></tr>
+<tr><td><code>IRoomTypeRepository</code></td><td><code>EfCoreRoomTypeRepository</code></td></tr>
+<tr><td><code>IIdentityTypeRepository</code></td><td><code>EfCoreIdentityTypeRepository</code></td></tr>
+</table>
+
+<h3>4.3 Migrations (PostgreSQL — الإنتاج)</h3>
+
+<table>
+<tr><th>Migration</th><th>الغرض</th></tr>
+<tr><td><code>20260602175955_Initial_PostgreSql</code></td><td>إنشاء القاعدة الأولية</td></tr>
+<tr><td><code>20260603105602_Add_HotelAppUsers</code></td><td>جدول المستخدمين</td></tr>
+<tr><td><code>20260603141349_Add_HotelAppUserRole</code></td><td>حقل الدور</td></tr>
+<tr><td><code>20260604120136_Add_GuestRegistryCodingFields</code></td><td>حقول ترميز الضيوف</td></tr>
+<tr><td><code>20260604140602_Add_RoomView</code></td><td>إطلالة الغرفة</td></tr>
+<tr><td><code>20260604145038_Add_RoomArchitectureLocationFeatures</code></td><td>معمار، موقع، مميزات</td></tr>
+<tr><td><code>20260605163000_Add_GeneralCodePrefCategoryFields</code></td><td>حقول فئة العربية</td></tr>
+<tr><td><code>20260606150021_Add_GeneralCodeRoomClassCounts</code></td><td>عدد الغرف والأسرّة</td></tr>
+<tr><td><code>20260606151057_Replace_GeneralCodeBedCountWithBedTypes</code></td><td>أسرّة عادية/عائلية</td></tr>
+</table>
+
+<p><strong>Legacy SQL Server:</strong> مجلد <code>Migrations/LegacySqlServer/</code> — ترحيلات قديمة للتطوير المحلي.</p>
+
+<hr/>
+
+<h2>5. HttpApi.Host — نقطة التشغيل</h2>
+
+<h3>5.1 HotelHttpApiHostModule</h3>
+
+<p><strong>المسار:</strong> <code>HttpApi.Host/HotelHttpApiHostModule.cs</code></p>
+
+<p class="meta"><em><strong>الوحدات المعتمدة:</strong></em></p>
+
+<ul>
+<li><code>HotelHttpApiModule</code>, <code>HotelApplicationModule</code>, <code>HotelEntityFrameworkCoreModule</code></li>
+<li><code>AbpAutofacModule</code>, <code>AbpAccountWebOpenIddictModule</code></li>
+<li><code>AbpAspNetCoreSerilogModule</code>, <code>AbpSwashbuckleModule</code></li>
+<li><code>AbpAspNetCoreMvcUiLeptonXLiteThemeModule</code></li>
+</ul>
+
+<p class="meta"><em><strong>الإعدادات الرئيسية:</strong></em></p>
+
+<table>
+<tr><th>الإعداد</th><th>الوظيفة</th></tr>
+<tr><td><code>ConfigureConventionalControllers</code></td><td>API تلقائي من Application</td></tr>
+<tr><td><code>ConfigureCors</code></td><td>السماح لـ Angular (localhost + Workers)</td></tr>
+<tr><td><code>ConfigureSwaggerServices</code></td><td>توثيق API</td></tr>
+<tr><td><code>ConfigureUiTranslations</code></td><td>مجلد <code>UiTranslations/</code></td></tr>
+<tr><td>OpenIddict Validation</td><td>جمهور <code>Hotel</code></td></tr>
+</table>
+
+<h3>5.2 appsettings.json</h3>
+
+<pre><code>
+{
+  "Database": { "Provider": "SqlServer" },
+  "ConnectionStrings": { "Default": "..." },
+  "App": { "SelfUrl", "ClientUrl", "CorsOrigins" },
+  "AuthServer": { "Authority", "RequireHttpsMetadata" },
+  "UiTranslations": { "FolderName": "UiTranslations" }
+}
+</code></pre>
+
+<p><strong>الإنتاج (Render):</strong> <code>Database__Provider=PostgreSql</code> + Connection String من متغيرات البيئة.</p>
+
+<hr/>
+
+<h2>6. DbMigrator</h2>
+
+<p><strong>المشروع:</strong> <code>Modiaf.Al.Arab.Hotel.DbMigrator</code>  </p>
+<p><strong>الوظيفة:</strong> تشغيل Migrations وتطبيق Data Seed عند أول نشر أو تحديث.</p>
+
+<pre><code>
+cd aspnet-core/src/Modiaf.Al.Arab.Hotel.DbMigrator
+dotnet run
+</code></pre>
+
+<hr/>
+
+<h2>7. بذور البيانات (Data Seed)</h2>
+
+<table>
+<tr><th>المساهم</th><th>الملف</th><th>الوظيفة</th></tr>
+<tr><td><code>HotelAppUserDataSeedContributor</code></td><td>Domain/HotelUsers</td><td>مستخدم مدير افتراضي</td></tr>
+<tr><td><code>HotelSettingsDataSeedContributor</code></td><td>Domain/HotelSettings</td><td>إعدادات singleton</td></tr>
+<tr><td><code>HotelCurrencyDataSeedContributor</code></td><td>Domain/GeneralCodes</td><td>عملات (YER, SAR, USD, EUR…)</td></tr>
+<tr><td><code>HotelDataSeedContributor</code></td><td>Domain</td><td>أنواع هوية افتراضية</td></tr>
+<tr><td><code>OpenIddictDataSeedContributor</code></td><td>Domain/OpenIddict</td><td>OAuth clients</td></tr>
+<tr><td>ABP Identity</td><td>—</td><td>admin@abp.io</td></tr>
+</table>
+
+<hr/>
+
+<h2>8. فئات المدخلات العامة (General Codes)</h2>
+
+<p><strong>الثابت:</strong> <code>GeneralCodesCategories.cs</code></p>
+
+<table>
+<tr><th>المعرف</th><th>الاسم</th></tr>
+<tr><td><code>purposes-of-stay</code></td><td>أغراض الإقامة</td></tr>
+<tr><td><code>nationalities</code></td><td>الجنسيات</td></tr>
+<tr><td><code>relationship-types</code></td><td>صلة القرابة</td></tr>
+<tr><td><code>identification-types</code></td><td>أنواع الهوية</td></tr>
+<tr><td><code>preference-type</code></td><td>نوع التفضيل</td></tr>
+<tr><td><code>preference-category</code></td><td>فئة اللغة العربية</td></tr>
+<tr><td><code>vip-levels</code></td><td>مستويات VIP</td></tr>
+<tr><td><code>age-qualifying-codes</code></td><td>أكواد العمر</td></tr>
+<tr><td><code>floor-types</code></td><td>أنواع الطوابق</td></tr>
+<tr><td><code>room-architecture</code></td><td>معمار الغرف</td></tr>
+<tr><td><code>room-features</code></td><td>مميزات الغرف</td></tr>
+<tr><td><code>room-locations</code></td><td>مواقع الغرف</td></tr>
+<tr><td><code>room-views</code></td><td>إطلالات الغرف</td></tr>
+<tr><td><code>room-classes</code></td><td>فئات الغرف</td></tr>
+<tr><td><code>room-maintenance-reasons</code></td><td>أسباب الصيانة</td></tr>
+<tr><td><code>room-move-reasons</code></td><td>أسباب النقل</td></tr>
+<tr><td><code>hotel-currency</code></td><td>عملات الفندق</td></tr>
+</table>
+
+<hr/>
+
+<h2>9. نقاط API الرئيسية (ABP Convention)</h2>
+
+<table>
+<tr><th>الخدمة</th><th>المسار التقريبي</th></tr>
+<tr><td>Room</td><td><code>/api/app/room</code></td></tr>
+<tr><td>Booking</td><td><code>/api/app/booking</code></td></tr>
+<tr><td>Floor</td><td><code>/api/app/floor</code></td></tr>
+<tr><td>GuestRegistry</td><td><code>/api/app/guest-registry</code></td></tr>
+<tr><td>IdentityType</td><td><code>/api/app/identity-type</code></td></tr>
+<tr><td>RoomType</td><td><code>/api/app/room-type</code></td></tr>
+<tr><td>HotelAuth</td><td><code>/api/app/hotel-auth/login</code></td></tr>
+<tr><td>HotelAppUser</td><td><code>/api/app/hotel-app-user</code></td></tr>
+<tr><td>HotelSettings</td><td><code>/api/app/hotel-settings</code></td></tr>
+<tr><td>PaymentMethod</td><td><code>/api/app/payment-method</code></td></tr>
+<tr><td>GeneralCodes</td><td><code>/api/app/general-codes</code></td></tr>
+<tr><td>UiTranslationsBlob</td><td><code>/api/app/ui-translations-blob</code></td></tr>
+<tr><td>HotelDatabaseAdmin</td><td><code>/api/app/hotel-database-admin</code></td></tr>
+</table>
+
+<p><strong>ملاحظة:</strong> معظم الخدمات عليها <code>[AllowAnonymous]</code> حالياً — المصادقة تتم عبر <code>HotelAuth</code> في الواجهة.</p>
+
+<hr/>
+
+<h2>10. مشاريع الاختبار</h2>
+
+<table>
+<tr><th>المشروع</th><th>الغرض</th></tr>
+<tr><td><code>Modiaf.Al.Arab.Hotel.TestBase</code></td><td>قاعدة الاختبارات</td></tr>
+<tr><td><code>Modiaf.Al.Arab.Hotel.Domain.Tests</code></td><td>اختبارات Domain</td></tr>
+<tr><td><code>Modiaf.Al.Arab.Hotel.Application.Tests</code></td><td>اختبارات Application</td></tr>
+<tr><td><code>Modiaf.Al.Arab.Hotel.EntityFrameworkCore.Tests</code></td><td>اختبارات EF</td></tr>
+<tr><td><code>HttpApi.Client.ConsoleTestApp</code></td><td>عميل API تجريبي</td></tr>
+</table>
+
+<hr/>
+
+<h2>11. النشر والتشغيل</h2>
+
+<h3>محلي</h3>
+
+<pre><code>
+# API
+cd aspnet-core/src/Modiaf.Al.Arab.Hotel.HttpApi.Host
+dotnet run
+
+# ترحيل DB
+cd aspnet-core/src/Modiaf.Al.Arab.Hotel.DbMigrator
+dotnet run
+</code></pre>
+
+<h3>إنتاج</h3>
+
+<table>
+<tr><th>المكوّن</th><th>المنصة</th><th>الملف</th></tr>
+<tr><td>API</td><td>Render (Docker)</td><td><code>render.yaml</code></td></tr>
+<tr><td>Frontend</td><td>Cloudflare Workers</td><td><code>angular/wrangler.toml</code></td></tr>
+</table>
+
+<p><strong>render.yaml:</strong> <code>rootDir: aspnet-core</code>, <code>runtime: docker</code>, PostgreSQL.</p>
+
+<hr/>
+
+<h2>12. مخطط تدفق البيانات</h2>
+
+<pre><code>
+Angular SPA
+    ↓ HTTP REST
+HotelHttpApiHost (CORS + Swagger)
+    ↓ Conventional Controllers
+Application AppServices
+    ↓ IRepository / IGeneralCodesStore
+EntityFrameworkCore (HotelDbContext)
+    ↓
+PostgreSQL / SQL Server
+</code></pre>
+
+<hr/>
+
+<p class="meta"><em>*نهاية ملخص الباك-اند — Modiaf.Al.Arab.Hotel v2.3.3*</em></p>
+
+</body>
+</html>

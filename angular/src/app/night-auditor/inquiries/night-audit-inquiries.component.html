@@ -1,0 +1,131 @@
+<div class="nai-page" dir="rtl">
+  <section class="nai-filters-bar">
+    <div class="nai-filter-tags">
+      <span *ngIf="appliedFromDate" class="nai-filter-tag">
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="filterFrom" />: {{ formatChipDate(appliedFromDate) }}
+        <button type="button" class="nai-filter-tag__remove" (click)="removeFromDate()" [attr.aria-label]="label('removeFromDateAria')">×</button>
+      </span>
+      <span *ngIf="appliedToDate" class="nai-filter-tag">
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="filterTo" />: {{ formatChipDate(appliedToDate) }}
+        <button type="button" class="nai-filter-tag__remove" (click)="removeToDate()" [attr.aria-label]="label('removeToDateAria')">×</button>
+      </span>
+      <button *ngIf="hasActiveDateFilters" type="button" class="nai-btn nai-btn--ghost" (click)="clearDateFilters()">
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="clearFilters" />
+      </button>
+    </div>
+
+    <div class="nai-toolbar">
+      <button type="button" class="nai-btn nai-btn--primary" [class.nai-btn--active]="filterPanelOpen" (click)="toggleFilterPanel()">
+        <i class="fas fa-filter" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="filter" />
+      </button>
+      <button type="button" class="nai-btn nai-btn--outline" (click)="refresh()">
+        <i class="fas fa-sync-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="refresh" />
+      </button>
+      <button type="button" class="nai-btn nai-btn--outline" (click)="printTable()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="nightAuditInquiries" key="print" />
+      </button>
+    </div>
+  </section>
+
+  <section *ngIf="filterPanelOpen" class="nai-filter-panel nai-panel">
+    <label class="nai-date-field">
+      <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="filterFrom" /></span>
+      <input type="date" [(ngModel)]="filterFromDate" />
+    </label>
+    <label class="nai-date-field">
+      <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="filterTo" /></span>
+      <input type="date" [(ngModel)]="filterToDate" />
+    </label>
+    <button type="button" class="nai-btn nai-btn--primary" (click)="applyDateFilter()">
+      <ui-inline-text kind="screen" screen="nightAuditInquiries" key="applyFilter" />
+    </button>
+  </section>
+
+  <section class="nai-table-card nai-panel">
+    <div class="nai-table-wrap">
+      <table class="nai-table">
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('transactionNo')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colTransactionNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('transactionNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('documentDate')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colDocumentDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('documentDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('documentNo')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colDocumentNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('documentNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('account')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colAccount" /></span>
+                <i class="fas" [ngClass]="sortIcon('account')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('bookingNo')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colBookingNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('bookingNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="nai-sort" (click)="toggleSort('description')">
+                <span><ui-inline-text kind="screen" screen="nightAuditInquiries" key="colDescription" /></span>
+                <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows; trackBy: trackRow">
+            <td>{{ row.transactionNo | localeNumber }}</td>
+            <td dir="ltr">{{ formatDate(row.documentDate) }}</td>
+            <td dir="ltr">{{ row.documentNo | localeNumber }}</td>
+            <td>{{ accountLabel(row) }}</td>
+            <td dir="ltr" class="nai-booking">{{ cellValue(row.bookingNo) }}</td>
+            <td>{{ descriptionLabel(row) }}</td>
+          </tr>
+          <tr *ngIf="pagedRows.length === 0">
+            <td colspan="6" class="nai-empty"><ui-inline-text kind="screen" screen="nightAuditInquiries" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="nai-pager">
+      <div class="nai-pager__sizes">
+        <button
+          *ngFor="let size of pageSizeOptions"
+          type="button"
+          class="nai-size"
+          [class.nai-size--active]="pageSize === size"
+          (click)="setPageSize(size)">
+          {{ size | localeNumber }}
+        </button>
+      </div>
+
+      <div class="nai-pager__nav">
+        <button type="button" class="nai-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="nai-page-current">{{ currentPage | localeNumber }}</span>
+        <button type="button" class="nai-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <p class="nai-pager__summary">{{ pageSummary() }}</p>
+    </footer>
+  </section>
+</div>

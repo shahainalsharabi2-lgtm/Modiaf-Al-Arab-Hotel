@@ -1,0 +1,194 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+            [placeholder]="ui.screenText('settings', 'bookingTypesSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="bookingTypesFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter" (ngModelChange)="onSearchChange()">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="bookingTypesFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="bookingTypesFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="bookingTypesFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="bookingTypesAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'bookingTypesViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'bookingTypesViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'bookingTypesViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-cogs" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="bookingTypesEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table bt-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" rowspan="2" (click)="toggleSort('id')">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColSerial" />
+              <i class="fas" [ngClass]="sortIcon('id')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" rowspan="2" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" rowspan="2" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="bt-check" rowspan="2">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColDeduct" />
+            </th>
+            <th class="bt-group-head" colspan="4">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColMandatoryGroup" />
+            </th>
+            <th class="bt-check" rowspan="2">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColActive" />
+            </th>
+            <th class="hc-page__sortable bt-order" rowspan="2" (click)="toggleSort('displayOrder')">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColDisplayOrder" />
+              <i class="fas" [ngClass]="sortIcon('displayOrder')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" rowspan="2" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColActions" />
+            </th>
+          </tr>
+          <tr>
+            <th class="bt-check">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColCreditCard" />
+            </th>
+            <th class="bt-check">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColAdvancePayment" />
+            </th>
+            <th class="bt-check">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColPhone" />
+            </th>
+            <th class="bt-check">
+              <ui-inline-text kind="screen" screen="settings" key="bookingTypesColArrivalTime" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows()">
+            <td class="hc-page__col-order">{{ row.id }}</td>
+            <td class="hc-page__code" dir="ltr">{{ row.code || '' }}</td>
+            <td>{{ row.name }}</td>
+            <td class="bt-check">
+              <input type="checkbox" [checked]="row.deductFromAvailable" disabled />
+            </td>
+            <td class="bt-check">
+              <input type="checkbox" [checked]="row.requireCreditCard" disabled />
+            </td>
+            <td class="bt-check">
+              <input type="checkbox" [checked]="row.requireAdvancePayment" disabled />
+            </td>
+            <td class="bt-check">
+              <input type="checkbox" [checked]="row.requirePhone" disabled />
+            </td>
+            <td class="bt-check">
+              <input type="checkbox" [checked]="row.requireArrivalTime" disabled />
+            </td>
+            <td class="bt-check">
+              <label class="bt-toggle">
+                <input type="checkbox" [checked]="row.isActive" disabled />
+                <span class="bt-toggle__slider"></span>
+              </label>
+            </td>
+            <td class="bt-order">{{ row.displayOrder }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'bookingTypesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="bookingTypesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="bookingTypesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="bt-footer" *ngIf="viewMode === 'list' && totalRows()">
+      <div class="bt-footer__info">
+        <ui-inline-text kind="screen" screen="settings" key="bookingTypesPage" />
+        {{ pageIndex }}
+        <ui-inline-text kind="screen" screen="settings" key="bookingTypesPageOf" />
+        {{ totalPages() }}
+        ({{ totalRows() }}
+        <ui-inline-text kind="screen" screen="settings" key="bookingTypesItemsCount" />)
+      </div>
+
+      <div class="bt-footer__pages">
+        <button type="button" class="bt-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-right" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="bt-page-btn"
+          *ngFor="let page of pageNumbers()"
+          [class.bt-page-btn--active]="pageIndex === page"
+          (click)="setPage(page)">
+          {{ page }}
+        </button>
+        <button type="button" class="bt-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <label class="bt-footer__size">
+        <span><ui-inline-text kind="screen" screen="settings" key="bookingTypesPageSize" /></span>
+        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </label>
+    </footer>
+  </section>
+</div>

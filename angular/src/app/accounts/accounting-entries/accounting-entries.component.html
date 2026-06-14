@@ -1,0 +1,122 @@
+<div class="hc-page ae-page" dir="rtl">
+  <section class="coa-hero ae-hero">
+    <div class="coa-hero__main">
+      <div class="coa-hero__icon" aria-hidden="true">
+        <i class="fas fa-book"></i>
+      </div>
+      <div>
+        <h1><ui-inline-text kind="screen" screen="accountingEntries" key="pageTitle" /></h1>
+        <p><ui-inline-text kind="screen" screen="accountingEntries" key="pageSubtitle" /></p>
+      </div>
+    </div>
+    <div class="coa-hero__stat">
+      <strong>{{ totalEntries() | localeNumber:'int' }}</strong>
+      <span><ui-inline-text kind="screen" screen="accountingEntries" key="totalEntries" /></span>
+    </div>
+  </section>
+
+  <section class="ae-filters">
+    <label class="ae-date">
+      <span><ui-inline-text kind="screen" screen="accountingEntries" key="filterFrom" /></span>
+      <input type="date" [(ngModel)]="fromDate" />
+    </label>
+    <label class="ae-date">
+      <span><ui-inline-text kind="screen" screen="accountingEntries" key="filterTo" /></span>
+      <input type="date" [(ngModel)]="toDate" />
+    </label>
+    <div class="ae-filters__actions">
+      <button type="button" class="coa-btn coa-btn--primary" (click)="viewEntries()">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="accountingEntries" key="viewBtn" />
+      </button>
+      <button type="button" class="coa-btn coa-btn--outline" (click)="printEntries()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="accountingEntries" key="printBtn" />
+      </button>
+    </div>
+  </section>
+
+  <section class="ae-actions">
+    <button type="button" class="ae-action-card ae-action-card--create" (click)="createEntries()">
+      <span class="ae-action-card__icon"><i class="fas fa-plus" aria-hidden="true"></i></span>
+      <strong><ui-inline-text kind="screen" screen="accountingEntries" key="createTitle" /></strong>
+      <small><ui-inline-text kind="screen" screen="accountingEntries" key="createHint" /></small>
+    </button>
+    <button type="button" class="ae-action-card ae-action-card--cancel" (click)="cancelEntries()">
+      <span class="ae-action-card__icon"><i class="fas fa-ban" aria-hidden="true"></i></span>
+      <strong><ui-inline-text kind="screen" screen="accountingEntries" key="cancelTitle" /></strong>
+      <small><ui-inline-text kind="screen" screen="accountingEntries" key="cancelHintLabel" /></small>
+    </button>
+    <button type="button" class="ae-action-card ae-action-card--transfer" (click)="transferEntries()">
+      <span class="ae-action-card__icon"><i class="fas fa-exchange-alt" aria-hidden="true"></i></span>
+      <strong><ui-inline-text kind="screen" screen="accountingEntries" key="transferTitle" /></strong>
+      <small><ui-inline-text kind="screen" screen="accountingEntries" key="transferHintLabel" /></small>
+    </button>
+  </section>
+
+  <section class="hc-page__panel coa-panel">
+    <header class="coa-panel__head">
+      <h2>
+        <i class="fas fa-th" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="accountingEntries" key="listTitle" />
+      </h2>
+    </header>
+
+    <div class="hc-page__empty coa-empty" *ngIf="!rows.length">
+      <i class="fas fa-inbox" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="accountingEntries" key="emptyTitle" /></p>
+      <small><ui-inline-text kind="screen" screen="accountingEntries" key="emptyHint" /></small>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="rows.length">
+      <table class="hc-page__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="accountingEntries" key="colDate" /></th>
+            <th><ui-inline-text kind="screen" screen="accountingEntries" key="colDescription" /></th>
+            <th><ui-inline-text kind="screen" screen="accountingEntries" key="colDebit" /></th>
+            <th><ui-inline-text kind="screen" screen="accountingEntries" key="colCredit" /></th>
+            <th><ui-inline-text kind="screen" screen="accountingEntries" key="colStatus" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows">
+            <td dir="ltr">{{ row.entryDate }}</td>
+            <td>{{ row.description }}</td>
+            <td dir="ltr">{{ row.debit | localeNumber:'int' }}</td>
+            <td dir="ltr">{{ row.credit | localeNumber:'int' }}</td>
+            <td>{{ row.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="hc-modal ae-warnings" *ngIf="warningsOpen" role="dialog" aria-modal="true">
+  <div class="hc-modal__backdrop" (click)="closeWarnings()"></div>
+  <div class="hc-modal__card ae-warnings__card">
+    <header class="ae-warnings__head">
+      <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+      <h3><ui-inline-text kind="screen" screen="accountingEntries" key="warningsTitle" /></h3>
+      <button type="button" class="hc-modal__close" (click)="closeWarnings()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="ae-warnings__body">
+      <p><ui-inline-text kind="screen" screen="accountingEntries" key="warningsIntro" /></p>
+      <ul>
+        <li *ngFor="let key of warningKeys">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+          <span>{{ label(key) }}</span>
+        </li>
+      </ul>
+    </div>
+    <footer class="ae-warnings__foot">
+      <button type="button" class="coa-btn coa-btn--outline" (click)="closeWarnings()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="accountingEntries" key="warningsClose" />
+      </button>
+    </footer>
+  </div>
+</div>

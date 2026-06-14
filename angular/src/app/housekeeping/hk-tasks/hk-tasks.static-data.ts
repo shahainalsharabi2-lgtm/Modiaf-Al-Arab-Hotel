@@ -1,0 +1,43 @@
+import type { HkTaskRow } from './hk-tasks.types';
+
+export const HK_TASK_ROWS: ReadonlyArray<HkTaskRow> = [
+  {
+    id: '1',
+    rowNo: 1,
+    name: 'نظافة',
+    foreignName: 'tast',
+    code: '01',
+    description: '',
+    points: 10,
+    color: '#5d4037',
+    timeUnit: 0,
+    requiredTime: 10,
+    displayOrder: 1,
+  },
+  {
+    id: '2',
+    rowNo: 2,
+    name: 'محمد',
+    foreignName: '',
+    code: '2',
+    description: 'اشراف داخلي',
+    points: 30,
+    color: '#880e4f',
+    timeUnit: 1,
+    requiredTime: 20,
+    displayOrder: 2,
+  },
+  {
+    id: '3',
+    rowNo: 3,
+    name: 'تغيير الملايات والفوط',
+    foreignName: '',
+    code: '3',
+    description: 'تغيير الملايات والفوط',
+    points: 2,
+    color: '#6a1b9a',
+    timeUnit: 2,
+    requiredTime: 9,
+    displayOrder: 3,
+  },
+];

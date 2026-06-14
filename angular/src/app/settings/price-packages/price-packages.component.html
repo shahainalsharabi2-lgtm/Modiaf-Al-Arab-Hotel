@@ -1,0 +1,415 @@
+<div class="pp-page rt-page" dir="rtl">
+  <section class="hc-page__panel" *ngIf="screenMode === 'list'">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'pricePackagesSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="rt-outline-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="pricePackagesNew" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'pricePackagesViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'pricePackagesViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'pricePackagesViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-box-open" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="pricePackagesEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table pp-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('calculationMethodKey')">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcMethod" />
+              <i class="fas" [ngClass]="sortIcon('calculationMethodKey')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('calculationRuleKey')">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcRule" />
+              <i class="fas" [ngClass]="sortIcon('calculationRuleKey')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName || '' }}</td>
+            <td>{{ calcMethodLabel(row.calculationMethodKey) }}</td>
+            <td>{{ calcRuleLabel(row.calculationRuleKey) }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'pricePackagesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rt-page__panel" *ngIf="screenMode === 'form'">
+    <div class="rt-page__actions">
+      <button type="button" class="rt-action rt-action--undo" (click)="undoChanges()" [disabled]="!canEdit">
+        <i class="fas fa-undo" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionUndo" />
+      </button>
+      <button type="button" class="rt-action rt-action--print" (click)="printForm()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionPrint" />
+      </button>
+      <button type="button" class="rt-action rt-action--list" (click)="openList()">
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionList" />
+      </button>
+      <button type="button" class="rt-action rt-action--save" (click)="saveForm()" [disabled]="!canEdit">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionSave" />
+      </button>
+      <button type="button" class="rt-action rt-action--delete" (click)="deleteForm()" [disabled]="!canEdit">
+        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionDelete" />
+      </button>
+      <button type="button" class="rt-action rt-action--new" (click)="openCreate()" [disabled]="!canEdit">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionNew" />
+      </button>
+    </div>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesFormBasicTitle" />
+      </header>
+      <div class="pp-basic-grid">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCode" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.code" [disabled]="!canEdit" />
+            <i class="fas fa-code rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesColName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.name" [disabled]="!canEdit" />
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesColForeignName" /></span>
+          <div class="rt-field__control">
+            <input type="text" dir="ltr" [(ngModel)]="form.foreignName" [disabled]="!canEdit" />
+            <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormDescription" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.description" [disabled]="!canEdit" />
+            <i class="fas fa-file-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-check-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormMeals" /></span>
+          <div class="rt-check-field__box">
+            <input type="checkbox" [(ngModel)]="form.meals" [disabled]="!canEdit" />
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesFormDetailsTitle" />
+      </header>
+      <div class="pp-details-layout">
+        <div class="pp-details-fields">
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcMethod" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.calculationMethod" [disabled]="!canEdit">
+                <option *ngFor="let key of calcMethodOptions" [value]="key">{{ calcMethodLabel(key) }}</option>
+              </select>
+              <i class="fas fa-sync-alt rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesColCalcRule" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.calculationRule" [disabled]="!canEdit">
+                <option *ngFor="let key of calcRuleOptions" [value]="key">{{ calcRuleLabel(key) }}</option>
+              </select>
+              <i class="fas fa-calculator rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormRevenueAccount" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.revenueAccount" [disabled]="!canEdit">
+                <option value=""><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormRevenueAccountPlaceholder" /></option>
+              </select>
+              <i class="fas fa-calculator rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+        </div>
+        <div class="pp-posting-checks">
+          <span class="pp-posting-checks__title"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormPostingTitle" /></span>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormAddedToPriceCode" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.addedToPriceCode" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormCalculateNextDay" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.calculateNextDay" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormTaxInclusive" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.taxInclusive" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormSellSeparately" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.sellSeparately" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFormPrintSeparateLine" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.printSeparateLine" [disabled]="!canEdit" />
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="pp-pricing-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingTitle" />
+      </header>
+
+      <div class="pp-pricing-panel">
+        <div class="hc-page__toolbar">
+          <div class="hc-page__filters">
+            <div class="hc-page__search">
+              <i class="fas fa-search" aria-hidden="true"></i>
+              <input
+                type="search"
+                [(ngModel)]="pricingSearchQuery"
+                [placeholder]="ui.screenText('settings', 'pricePackagesSearchPh')" />
+            </div>
+            <label class="hc-page__select-wrap">
+              <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterStatus" /></span>
+              <select>
+                <option value="all"><ui-inline-text kind="screen" screen="settings" key="pricePackagesFilterAll" /></option>
+              </select>
+            </label>
+          </div>
+          <div class="hc-page__toolbar-start">
+            <button type="button" class="rt-outline-btn" *ngIf="canEdit" (click)="openPricingCreate()">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+              <ui-inline-text kind="screen" screen="settings" key="pricePackagesNew" />
+            </button>
+            <div class="hc-page__view-toggle" role="group">
+              <button
+                type="button"
+                class="hc-page__view-btn"
+                [class.hc-page__view-btn--active]="pricingViewMode === 'grid'"
+                (click)="setPricingViewMode('grid')">
+                <i class="fas fa-th-large" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="hc-page__view-btn"
+                [class.hc-page__view-btn--active]="pricingViewMode === 'list'"
+                (click)="setPricingViewMode('list')">
+                <i class="fas fa-list" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hc-page__empty" *ngIf="!filteredPricingRows().length">
+          <i class="fas fa-box" aria-hidden="true"></i>
+          <p><ui-inline-text kind="screen" screen="settings" key="pricePackagesEmpty" /></p>
+        </div>
+
+        <div class="hc-page__table-wrap" *ngIf="pricingViewMode === 'list' && filteredPricingRows().length">
+          <table class="hc-page__table">
+            <thead>
+              <tr>
+                <th class="hc-page__sortable" dir="ltr" (click)="togglePricingSort('fromDate')">
+                  <ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColFromDate" />
+                  <i class="fas" [ngClass]="pricingSortIcon('fromDate')" aria-hidden="true"></i>
+                </th>
+                <th class="hc-page__sortable" dir="ltr" (click)="togglePricingSort('toDate')">
+                  <ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColToDate" />
+                  <i class="fas" [ngClass]="pricingSortIcon('toDate')" aria-hidden="true"></i>
+                </th>
+                <th class="hc-page__sortable" dir="ltr" (click)="togglePricingSort('price')">
+                  <ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColPrice" />
+                  <i class="fas" [ngClass]="pricingSortIcon('price')" aria-hidden="true"></i>
+                </th>
+                <th class="hc-page__col-actions" *ngIf="canEdit">
+                  <ui-inline-text kind="screen" screen="settings" key="pricePackagesColActions" />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredPricingRows()">
+                <td dir="ltr">{{ formatPackageDate(row.fromDate) }}</td>
+                <td dir="ltr">{{ formatPackageDate(row.toDate) }}</td>
+                <td dir="ltr">{{ row.price }}</td>
+                <td class="hc-page__col-actions" *ngIf="canEdit">
+                  <div class="hc-page__actions">
+                    <button
+                      type="button"
+                      class="hc-page__actions-btn"
+                      (click)="togglePricingActionsMenu(row.id, $event)"
+                      [attr.aria-expanded]="openPricingActionsId === row.id">
+                      <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                    </button>
+                    <div class="hc-page__menu" *ngIf="openPricingActionsId === row.id" (click)="$event.stopPropagation()">
+                      <button type="button" (click)="openPricingEdit(row)">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
+                        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionEdit" />
+                      </button>
+                      <button type="button" class="hc-page__menu-danger" (click)="deletePricingRow(row)">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
+                        <ui-inline-text kind="screen" screen="settings" key="pricePackagesActionDelete" />
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>
+
+<div
+  class="ps-modal"
+  *ngIf="pricingModalOpen"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="ui.screenText('settings', pricingModalTitleKey())">
+  <div class="ps-modal__backdrop" (click)="closePricingModal()"></div>
+  <form class="ps-modal__card" (ngSubmit)="savePricingForm()">
+    <header class="ps-modal__head">
+      <h3><ui-inline-text kind="screen" screen="settings" [key]="pricingModalTitleKey()" /></h3>
+      <button type="button" class="ps-modal__close" (click)="closePricingModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="ps-modal__body">
+      <div class="ps-modal__dates">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColFromDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="pricingForm.fromDate" name="fromDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColToDate" /></span>
+          <div class="rt-field__control">
+            <input type="date" dir="ltr" [(ngModel)]="pricingForm.toDate" name="toDate" />
+            <i class="fas fa-calendar-alt rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+      <label class="rt-field">
+        <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="pricePackagesPricingColPrice" /></span>
+        <div class="rt-field__control">
+          <input type="text" dir="ltr" [(ngModel)]="pricingForm.price" name="price" />
+          <i class="fas fa-money-bill-wave rt-field__icon" aria-hidden="true"></i>
+        </div>
+      </label>
+    </div>
+    <footer class="ps-modal__foot">
+      <button type="submit" class="ps-modal__save">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="pricePackagesFormSave" />
+      </button>
+      <button type="button" class="ps-modal__cancel" (click)="closePricingModal()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="cancelBtn" />
+      </button>
+    </footer>
+  </form>
+</div>

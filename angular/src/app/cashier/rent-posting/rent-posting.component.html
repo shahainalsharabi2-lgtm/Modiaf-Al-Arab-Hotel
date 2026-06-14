@@ -1,0 +1,180 @@
+<div class="rp-post-page">
+  <div *ngIf="loading" class="rp-post-state rp-post-state--loading">
+    <div class="rp-post-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="rentPosting" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="rp-post-state rp-post-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="rp-post-btn rp-post-btn--outline" (click)="loadRows()">
+      <ui-inline-text kind="screen" screen="rentPosting" key="retryLoad" />
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+  <header class="rp-post-top">
+    <button type="button" class="rp-post-btn rp-post-btn--outline" (click)="postAll()">
+      <ui-inline-text kind="screen" screen="rentPosting" key="postAll" />
+    </button>
+    <button type="button" class="rp-post-btn rp-post-btn--primary" (click)="postRentAndTax()">
+      <ui-inline-text kind="screen" screen="rentPosting" key="postRentAndTax" />
+    </button>
+  </header>
+
+  <section class="rp-post-table-card">
+    <div class="rp-post-table-wrap">
+      <table class="rp-post-table">
+        <thead>
+          <tr class="rp-post-table__head-row">
+            <th class="rp-post-col-check">
+              <input
+                type="checkbox"
+                class="rp-post-check"
+                [checked]="allVisibleSelected"
+                (change)="toggleSelectAllVisible()"
+                [attr.aria-label]="label('selectAllAria')" />
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('bookingNo')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colBookingNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('bookingNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('roomNo')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colRoomNo" /></span>
+                <i class="fas" [ngClass]="sortIcon('roomNo')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('guestName')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colGuestName" /></span>
+                <i class="fas" [ngClass]="sortIcon('guestName')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('arrivalDate')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colArrivalDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('arrivalDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('departureDate')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colDepartureDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('departureDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="rp-post-sort" (click)="toggleSort('lastPostDate')">
+                <span><ui-inline-text kind="screen" screen="rentPosting" key="colLastPostDate" /></span>
+                <i class="fas" [ngClass]="sortIcon('lastPostDate')" aria-hidden="true"></i>
+              </button>
+            </th>
+          </tr>
+          <tr class="rp-post-table__filter-row">
+            <th></th>
+            <th>
+              <label class="rp-post-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterBookingNo" [attr.aria-label]="label('filterBookingNoAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="rp-post-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterRoomNo" [attr.aria-label]="label('filterRoomNoAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="rp-post-filter">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" [(ngModel)]="filterGuestName" [attr.aria-label]="label('filterGuestNameAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="rp-post-filter rp-post-filter--date">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <input type="date" [(ngModel)]="filterArrival" [attr.aria-label]="label('filterArrivalAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="rp-post-filter rp-post-filter--date">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <input type="date" [(ngModel)]="filterDeparture" [attr.aria-label]="label('filterDepartureAria')" />
+              </label>
+            </th>
+            <th>
+              <label class="rp-post-filter rp-post-filter--date">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                <input type="date" [(ngModel)]="filterLastPost" [attr.aria-label]="label('filterLastPostAria')" />
+              </label>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let row of pagedRows; trackBy: trackRow"
+            class="rp-post-row"
+            [class.rp-post-row--selected]="isSelected(row)">
+            <td class="rp-post-col-check">
+              <input
+                type="checkbox"
+                class="rp-post-check"
+                [checked]="isSelected(row)"
+                (change)="toggleRow(row)"
+                [attr.aria-label]="row.bookingNo" />
+            </td>
+            <td>{{ row.bookingNo | localeNumber }}</td>
+            <td>{{ row.roomNo | localeNumber }}</td>
+            <td>{{ row.guestName }}</td>
+            <td dir="ltr">{{ formatDate(row.arrivalDate) }}</td>
+            <td dir="ltr">{{ formatDate(row.departureDate) }}</td>
+            <td dir="ltr">{{ formatDate(row.lastPostDate) }}</td>
+          </tr>
+          <tr *ngIf="pagedRows.length === 0">
+            <td colspan="7" class="rp-post-empty"><ui-inline-text kind="screen" screen="rentPosting" key="emptyRows" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="rp-post-pager">
+      <div class="rp-post-pager__sizes">
+        <button
+          *ngFor="let size of pageSizeOptions"
+          type="button"
+          class="rp-post-size"
+          [class.rp-post-size--active]="pageSize === size"
+          (click)="setPageSize(size)">
+          {{ size | localeNumber }}
+        </button>
+      </div>
+
+      <div class="rp-post-pager__nav">
+        <button type="button" class="rp-post-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="rp-post-page-current">{{ currentPage | localeNumber }}</span>
+        <button
+          type="button"
+          class="rp-post-page-btn"
+          [disabled]="currentPage >= totalPages"
+          (click)="goToPage(currentPage + 1)">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <p class="rp-post-pager__summary">{{ pageSummary() }}</p>
+    </footer>
+  </section>
+
+  <footer class="rp-post-bottom">
+    <button type="button" class="rp-post-btn rp-post-btn--primary" (click)="postSelected()">
+      <ui-inline-text kind="screen" screen="rentPosting" key="post" />
+    </button>
+    <button type="button" class="rp-post-btn rp-post-btn--outline" (click)="cancelPosting()">
+      <ui-inline-text kind="screen" screen="rentPosting" key="cancelPosting" />
+    </button>
+  </footer>
+  </ng-container>
+</div>

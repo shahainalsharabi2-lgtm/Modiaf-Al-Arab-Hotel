@@ -1,0 +1,65 @@
+.ara-page .hc-page__toolbar-start {
+  margin-inline-start: auto;
+}
+
+.ara-table-wrap {
+  overflow-x: auto;
+}
+
+.ara-table {
+  min-width: 1180px;
+}
+
+.ara-check {
+  width: 4.5rem;
+  text-align: center;
+}
+
+.ara-check input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+  cursor: default;
+}
+
+.ara-balance-col {
+  min-width: 6.5rem;
+}
+
+.ara-balance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  background: #eceff1;
+  color: rgba(15, 23, 42, 0.82);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ara-card__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  margin: 0.75rem 0 0;
+}
+
+.ara-card__meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ara-card__meta dt {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.ara-card__meta dd {
+  margin: 0;
+  font-weight: 700;
+}

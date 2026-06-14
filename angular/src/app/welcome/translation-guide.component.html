@@ -1,0 +1,128 @@
+<div class="tg-page" dir="rtl">
+  <header class="tg-hero">
+    <div class="tg-hero__badge">
+      <i class="fas fa-language" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="translationGuide" key="heroBadge" />
+    </div>
+    <h1 class="tg-hero__title"><ui-inline-text kind="screen" screen="translationGuide" key="pageTitle" /></h1>
+    <p class="tg-hero__subtitle"><ui-inline-text kind="screen" screen="translationGuide" key="pageSubtitle" /></p>
+  </header>
+
+  <div class="tg-steps">
+    <article class="tg-step">
+      <div class="tg-step__visual" aria-hidden="true">
+        <div class="tg-mock tg-mock--topbar">
+          <span class="tg-mock__pill tg-mock__pill--active">EN</span>
+          <span class="tg-mock__pill">FR</span>
+          <span class="tg-mock__pill">TR</span>
+          <span class="tg-mock__arrow"><i class="fas fa-hand-pointer"></i></span>
+        </div>
+      </div>
+      <div class="tg-step__copy">
+        <span class="tg-step__num">1</span>
+        <h2><ui-inline-text kind="screen" screen="translationGuide" key="step1Title" /></h2>
+        <p><ui-inline-text kind="screen" screen="translationGuide" key="step1Body" /></p>
+        <p class="tg-step__tip"><i class="fas fa-lightbulb"></i> <ui-inline-text kind="screen" screen="translationGuide" key="step1Tip" /></p>
+      </div>
+    </article>
+
+    <article class="tg-step tg-step--reverse">
+      <div class="tg-step__visual" aria-hidden="true">
+        <div class="tg-mock tg-mock--rail">
+          <div class="tg-mock__sidebar"></div>
+          <button type="button" class="tg-mock__rail-btn tg-mock__rail-btn--pulse">
+            <i class="fas fa-language"></i>
+          </button>
+          <span class="tg-mock__arrow tg-mock__arrow--left"><i class="fas fa-hand-pointer"></i></span>
+        </div>
+      </div>
+      <div class="tg-step__copy">
+        <span class="tg-step__num">2</span>
+        <h2><ui-inline-text kind="screen" screen="translationGuide" key="step2Title" /></h2>
+        <p><ui-inline-text kind="screen" screen="translationGuide" key="step2Body" /></p>
+        <p class="tg-step__tip"><i class="fas fa-lightbulb"></i> <ui-inline-text kind="screen" screen="translationGuide" key="step2Tip" /></p>
+      </div>
+    </article>
+
+    <article class="tg-step">
+      <div class="tg-step__visual" aria-hidden="true">
+        <div class="tg-mock tg-mock--inline">
+          <p class="tg-mock__line">
+            <span class="tg-mock__text tg-mock__text--editable">نص عربي قابل للتحرير</span>
+          </p>
+          <div class="tg-mock__input">English translation…</div>
+          <span class="tg-mock__arrow tg-mock__arrow--down"><i class="fas fa-hand-pointer"></i></span>
+        </div>
+      </div>
+      <div class="tg-step__copy">
+        <span class="tg-step__num">3</span>
+        <h2><ui-inline-text kind="screen" screen="translationGuide" key="step3Title" /></h2>
+        <p><ui-inline-text kind="screen" screen="translationGuide" key="step3Body" /></p>
+        <p class="tg-step__tip"><i class="fas fa-lightbulb"></i> <ui-inline-text kind="screen" screen="translationGuide" key="step3Tip" /></p>
+      </div>
+    </article>
+
+    <article class="tg-step tg-step--reverse">
+      <div class="tg-step__visual" aria-hidden="true">
+        <div class="tg-mock tg-mock--save">
+          <div class="tg-mock__autosave"><i class="fas fa-check-circle"></i> حفظ تلقائي</div>
+          <button type="button" class="tg-mock__rail-btn tg-mock__rail-btn--save">
+            <i class="fas fa-save"></i>
+          </button>
+        </div>
+      </div>
+      <div class="tg-step__copy">
+        <span class="tg-step__num">4</span>
+        <h2><ui-inline-text kind="screen" screen="translationGuide" key="step4Title" /></h2>
+        <p><ui-inline-text kind="screen" screen="translationGuide" key="step4Body" /></p>
+        <p class="tg-step__tip"><i class="fas fa-lightbulb"></i> <ui-inline-text kind="screen" screen="translationGuide" key="step4Tip" /></p>
+      </div>
+    </article>
+
+    <article class="tg-step">
+      <div class="tg-step__visual" aria-hidden="true">
+        <div class="tg-mock tg-mock--table">
+          <div class="tg-mock__table-head">
+            <span>عربي</span><span>إنجليزي</span><span>تحرير</span>
+          </div>
+          <div class="tg-mock__table-row">
+            <span>حجز جديد</span><span>New booking</span><span class="tg-mock__cell-input"></span>
+          </div>
+          <div class="tg-mock__table-row">
+            <span>لوحة التحكم</span><span>Dashboard</span><span class="tg-mock__cell-input"></span>
+          </div>
+        </div>
+      </div>
+      <div class="tg-step__copy">
+        <span class="tg-step__num">5</span>
+        <h2><ui-inline-text kind="screen" screen="translationGuide" key="step5Title" /></h2>
+        <p><ui-inline-text kind="screen" screen="translationGuide" key="step5Body" /></p>
+        <p class="tg-step__tip"><i class="fas fa-lightbulb"></i> <ui-inline-text kind="screen" screen="translationGuide" key="step5Tip" /></p>
+      </div>
+    </article>
+  </div>
+
+  <footer class="tg-footer">
+    <label class="tg-footer__check">
+      <input type="checkbox" [(ngModel)]="dontShowOnStartup" />
+      <ui-inline-text kind="screen" screen="translationGuide" key="dontShowAgain" />
+    </label>
+    <div class="tg-footer__actions">
+      <button type="button" class="tg-btn tg-btn--ghost" (click)="skipGuide()">
+        <ui-inline-text kind="screen" screen="translationGuide" key="skipBtn" />
+      </button>
+      <button type="button" class="tg-btn tg-btn--secondary" (click)="openInlineTranslationDemo()">
+        <i class="fas fa-play-circle" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="translationGuide" key="tryBtn" />
+      </button>
+      <button type="button" class="tg-btn tg-btn--primary" (click)="startUsingSystem()">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="translationGuide" key="startBtn" />
+      </button>
+    </div>
+    <p class="tg-footer__hint">
+      <ui-inline-text kind="screen" screen="translationGuide" key="reopenHint" />
+      <a routerLink="/welcome" class="tg-footer__link"><ui-inline-text kind="screen" screen="translationGuide" key="reopenLink" /></a>
+    </p>
+  </footer>
+</div>

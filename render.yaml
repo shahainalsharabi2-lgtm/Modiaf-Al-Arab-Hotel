@@ -1,0 +1,28 @@
+# Render Blueprint — نشر API مجانًا (Docker + PostgreSQL من Neon)
+# استخدم: Render Dashboard → New + → Blueprint → اختر المستودع
+databases: []
+
+services:
+  - type: web
+    name: hotel-api
+    runtime: docker
+    rootDir: aspnet-core
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__Provider
+        value: PostgreSql
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: App__SelfUrl
+        sync: false
+      - key: AuthServer__Authority
+        sync: false
+      - key: App__ClientUrl
+        sync: false
+      - key: App__CorsOrigins
+        sync: false
+      - key: App__RedirectAllowedUrls
+        sync: false

@@ -1,0 +1,154 @@
+<div class="mgmt-reports" dir="rtl">
+  <header class="mgmt-reports__head">
+    <div class="mgmt-reports__head-copy">
+      <p class="mgmt-reports__crumb">
+        <ui-inline-text kind="sidebar" key="reports" />
+        <span aria-hidden="true">/</span>
+        <ui-inline-text kind="screen" screen="reports" key="hubManagementTitle" />
+      </p>
+      <h1><ui-inline-text kind="screen" screen="reports" key="hubManagementTitle" /></h1>
+    </div>
+    <a
+      class="mgmt-reports__back"
+      routerLink="/reports"
+      [attr.aria-label]="ui.screenText('reports', 'hubBackAria')">
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      <ui-inline-text kind="screen" screen="reports" key="hubBack" />
+    </a>
+  </header>
+
+  <section class="mgmt-reports__panel">
+    <div class="mgmt-reports__toolbar">
+      <div class="mgmt-reports__view-toggle" role="group" [attr.aria-label]="ui.screenText('reports', 'mgmtViewToggleAria')">
+        <button
+          type="button"
+          class="mgmt-reports__view-btn"
+          [class.mgmt-reports__view-btn--active]="viewMode === 'list'"
+          (click)="setViewMode('list')"
+          [title]="ui.screenText('reports', 'mgmtViewList')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="mgmt-reports__view-btn"
+          [class.mgmt-reports__view-btn--active]="viewMode === 'grid'"
+          (click)="setViewMode('grid')"
+          [title]="ui.screenText('reports', 'mgmtViewGrid')">
+          <i class="fas fa-th-large" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="mgmt-reports__filters">
+        <div class="mgmt-reports__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('reports', 'mgmtSearchPh')" />
+        </div>
+        <label class="mgmt-reports__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="reports" key="mgmtFilterCategory" /></span>
+          <select [(ngModel)]="categoryFilter">
+            <option *ngFor="let cat of categories" [ngValue]="cat.id">
+              {{ ui.screenText('reports', cat.labelKey) }}
+            </option>
+          </select>
+        </label>
+        <label class="mgmt-reports__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="reports" key="mgmtFilterVisibility" /></span>
+          <select [(ngModel)]="visibilityFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="reports" key="mgmtFilterAll" /></option>
+            <option value="visible"><ui-inline-text kind="screen" screen="reports" key="mgmtFilterVisible" /></option>
+            <option value="hidden"><ui-inline-text kind="screen" screen="reports" key="mgmtFilterHidden" /></option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="mgmt-reports__table-wrap" *ngIf="viewMode === 'list'">
+      <table class="mgmt-reports__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="reports" key="mgmtColProgrammatic" /></th>
+            <th><ui-inline-text kind="screen" screen="reports" key="mgmtColDisplayAr" /></th>
+            <th><ui-inline-text kind="screen" screen="reports" key="mgmtColDisplayEn" /></th>
+            <th class="mgmt-reports__col-check"><ui-inline-text kind="screen" screen="reports" key="mgmtColShowInAll" /></th>
+            <th class="mgmt-reports__col-actions"><ui-inline-text kind="screen" screen="reports" key="mgmtColActions" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="mgmt-reports__code" dir="ltr">{{ row.id }}</td>
+            <td><ui-inline-text kind="screen" screen="reports" [key]="row.labelKey" /></td>
+            <td dir="ltr"><ui-inline-text kind="screen" screen="reports" [key]="row.foreignLabelKey" /></td>
+            <td class="mgmt-reports__col-check">
+              <label class="mgmt-reports__check">
+                <input type="checkbox" [checked]="row.showInAll" (change)="toggleShowInAll(row)" />
+                <span class="sr-only"><ui-inline-text kind="screen" screen="reports" key="mgmtColShowInAll" /></span>
+              </label>
+            </td>
+            <td class="mgmt-reports__col-actions">
+              <div class="mgmt-reports__actions">
+                <button
+                  type="button"
+                  class="mgmt-reports__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('reports', 'mgmtColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="mgmt-reports__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="toggleVisibilityFromMenu(row)">
+                    <ui-inline-text kind="screen" screen="reports" key="mgmtActionToggleVisibility" />
+                  </button>
+                  <button type="button" (click)="copyProgrammaticId(row)">
+                    <ui-inline-text kind="screen" screen="reports" key="mgmtActionCopyId" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!filteredRows().length">
+            <td colspan="5" class="mgmt-reports__empty">
+              <ui-inline-text kind="screen" screen="reports" key="mgmtEmpty" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mgmt-reports__grid" *ngIf="viewMode === 'grid'">
+      <article *ngFor="let row of filteredRows()" class="mgmt-reports__card">
+        <header class="mgmt-reports__card-head">
+          <code dir="ltr">{{ row.id }}</code>
+          <div class="mgmt-reports__actions">
+            <button
+              type="button"
+              class="mgmt-reports__actions-btn"
+              (click)="toggleActionsMenu(row.id, $event)"
+              [attr.aria-expanded]="openActionsId === row.id">
+              <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+            </button>
+            <div class="mgmt-reports__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+              <button type="button" (click)="toggleVisibilityFromMenu(row)">
+                <ui-inline-text kind="screen" screen="reports" key="mgmtActionToggleVisibility" />
+              </button>
+              <button type="button" (click)="copyProgrammaticId(row)">
+                <ui-inline-text kind="screen" screen="reports" key="mgmtActionCopyId" />
+              </button>
+            </div>
+          </div>
+        </header>
+        <h3><ui-inline-text kind="screen" screen="reports" [key]="row.labelKey" /></h3>
+        <p dir="ltr"><ui-inline-text kind="screen" screen="reports" [key]="row.foreignLabelKey" /></p>
+        <label class="mgmt-reports__card-check">
+          <input type="checkbox" [checked]="row.showInAll" (change)="toggleShowInAll(row)" />
+          <ui-inline-text kind="screen" screen="reports" key="mgmtColShowInAll" />
+        </label>
+      </article>
+      <p class="mgmt-reports__empty mgmt-reports__empty--grid" *ngIf="!filteredRows().length">
+        <ui-inline-text kind="screen" screen="reports" key="mgmtEmpty" />
+      </p>
+    </div>
+  </section>
+</div>

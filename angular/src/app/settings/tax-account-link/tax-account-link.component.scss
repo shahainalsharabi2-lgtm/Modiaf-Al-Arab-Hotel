@@ -1,0 +1,278 @@
+.tal-page {
+  padding: 0;
+  color: var(--app-text);
+}
+
+.tal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.tal-head i {
+  color: #1a3a32;
+  font-size: 1rem;
+}
+
+.tal-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.tal-page__panel {
+  background: #fff;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: var(--app-shadow-sm);
+  overflow: hidden;
+}
+
+.tal-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.tal-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.95rem;
+  border: 0;
+  border-radius: 10px;
+  background: #1a3a32;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tal-table-wrap {
+  overflow: auto;
+}
+
+.tal-table {
+  min-width: 1180px;
+}
+
+.tal-table th,
+.tal-table td {
+  text-align: center;
+}
+
+.tal-method-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  background: #1a3a32;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.tal-empty {
+  padding: 2rem 1rem !important;
+  color: var(--app-text-muted);
+  font-weight: 700;
+}
+
+.tal-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--app-border);
+  background: #fff;
+}
+
+.tal-footer__sizes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tal-size-btn {
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--app-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tal-size-btn--active {
+  background: #1a3a32;
+  border-color: #1a3a32;
+  color: #fff;
+}
+
+.tal-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.tal-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.tal-modal__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(96vw, 1100px);
+  max-height: min(92vh, 760px);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.tal-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: #1a3a32;
+  color: #fff;
+}
+
+.tal-modal__head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.tal-modal__close {
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.tal-modal__toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.tal-modal__field {
+  min-width: min(220px, 100%);
+  flex: 1;
+}
+
+.tal-modal__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--app-text);
+  white-space: nowrap;
+}
+
+.tal-modal__check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+}
+
+.tal-modal__fetch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tal-modal__table-wrap {
+  flex: 1;
+  min-height: 14rem;
+  overflow: auto;
+  padding: 0 1.1rem;
+}
+
+.tal-modal__table {
+  min-width: 980px;
+}
+
+.tal-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem 1rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.tal-modal__save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 1.1rem;
+  border: 0;
+  border-radius: 10px;
+  background: #0d9488;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tal-modal__cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 1.1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .tal-modal__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

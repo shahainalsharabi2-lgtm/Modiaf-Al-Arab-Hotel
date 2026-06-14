@@ -1,0 +1,176 @@
+<div class="hc-page" dir="rtl">
+  <section class="hc-page__panel">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+            [placeholder]="ui.screenText('settings', 'sequenceSettingsSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter" (ngModelChange)="onSearchChange()">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="hc-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsAdd" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'sequenceSettingsViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'sequenceSettingsViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'sequenceSettingsViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!pagedRows().length">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && pagedRows().length">
+      <table class="hc-page__table seq-table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('sequenceLength')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColLength" />
+              <i class="fas" [ngClass]="sortIcon('sequenceLength')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('module')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColModule" />
+              <i class="fas" [ngClass]="sortIcon('module')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('documentType')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColDocumentType" />
+              <i class="fas" [ngClass]="sortIcon('documentType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('sequenceType')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColType" />
+              <i class="fas" [ngClass]="sortIcon('sequenceType')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('startsFrom')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColStartsFrom" />
+              <i class="fas" [ngClass]="sortIcon('startsFrom')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('increment')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColIncrement" />
+              <i class="fas" [ngClass]="sortIcon('increment')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('lastValue')">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColLastValue" />
+              <i class="fas" [ngClass]="sortIcon('lastValue')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-active">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColResetYearly" />
+            </th>
+            <th class="hc-page__col-active">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColActive" />
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of pagedRows()">
+            <td>{{ row.name }}</td>
+            <td class="hc-page__col-order">{{ row.sequenceLength }}</td>
+            <td>{{ row.module }}</td>
+            <td>{{ row.documentType }}</td>
+            <td>{{ row.sequenceType }}</td>
+            <td class="hc-page__col-order">{{ row.startsFrom }}</td>
+            <td class="hc-page__col-order">{{ row.increment }}</td>
+            <td class="hc-page__col-order">{{ row.lastValue }}</td>
+            <td class="hc-page__col-active">
+              <input type="checkbox" [checked]="row.resetEveryYear" disabled />
+            </td>
+            <td class="hc-page__col-active">
+              <input type="checkbox" [checked]="row.isActive" disabled />
+            </td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <button
+                type="button"
+                class="seq-edit-btn"
+                (click)="openEdit(row)"
+                [attr.aria-label]="ui.screenText('settings', 'sequenceSettingsActionEdit')">
+                <i class="far fa-edit" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="seq-footer" *ngIf="viewMode === 'list' && totalRows()">
+      <div class="seq-footer__range">
+        <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsShowing" />
+        {{ rangeFrom() }}
+        <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsTo" />
+        {{ rangeTo() }}
+        <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsOf" />
+        {{ totalRows() }}
+        <ui-inline-text kind="screen" screen="settings" key="sequenceSettingsRecords" />
+      </div>
+
+      <div class="seq-footer__pages">
+        <button type="button" class="seq-page-btn" (click)="setPage(1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="seq-page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
+          <i class="fas fa-angle-right" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="seq-page-btn"
+          *ngFor="let page of pageNumbers()"
+          [class.seq-page-btn--active]="pageIndex === page"
+          (click)="setPage(page)">
+          {{ page }}
+        </button>
+        <button type="button" class="seq-page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="seq-page-btn" (click)="setPage(totalPages())" [disabled]="pageIndex === totalPages()">
+          <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <label class="seq-footer__size">
+        <span><ui-inline-text kind="screen" screen="settings" key="sequenceSettingsPageSize" /></span>
+        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </label>
+    </footer>
+  </section>
+</div>

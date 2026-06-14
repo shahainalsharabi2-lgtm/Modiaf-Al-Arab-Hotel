@@ -1,0 +1,238 @@
+.uu-page {
+  padding: 0;
+}
+
+.uu-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.95rem;
+  border: 0;
+  border-radius: 10px;
+  background: #1a3a32;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uu-table {
+  min-width: 920px;
+}
+
+.uu-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.uu-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.uu-check-col {
+  text-align: center;
+  width: 5.5rem;
+}
+
+.uu-check-col input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+}
+
+.uu-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.uu-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.uu-modal__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: min(92vh, 720px);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.uu-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: #1a3a32;
+  color: #fff;
+}
+
+.uu-modal__head h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.uu-modal__close {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.25rem;
+}
+
+.uu-modal__tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.65rem 1.1rem 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.uu-modal__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.85rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uu-modal__tab--active {
+  color: #1a3a32;
+  border-bottom-color: #1a3a32;
+}
+
+.uu-modal__body {
+  overflow: auto;
+  padding: 1rem 1.1rem;
+}
+
+.uu-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.uu-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+.uu-password-field {
+  position: relative;
+}
+
+.uu-password-toggle {
+  position: absolute;
+  inset-inline-start: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.uu-password-field input {
+  padding-inline-start: 2.2rem;
+}
+
+.uu-groups-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.uu-group-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.uu-group-item input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #1a3a32;
+}
+
+.uu-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem 1rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.uu-modal__save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 1.1rem;
+  border: 0;
+  border-radius: 10px;
+  background: #0d9488;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uu-modal__cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 1.1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .uu-form-grid,
+  .uu-groups-list {
+    grid-template-columns: 1fr;
+  }
+}

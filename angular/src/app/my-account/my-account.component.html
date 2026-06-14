@@ -1,0 +1,169 @@
+<div class="my-account-page">
+  <p class="my-account-loading" *ngIf="loading">
+    <ui-inline-text kind="screen" screen="myAccount" key="loading" />
+  </p>
+
+  <section class="my-account-shell" *ngIf="!loading && profile">
+    <aside class="my-account-tabs" aria-label="account sections">
+      <button
+        type="button"
+        class="my-account-tab"
+        [class.my-account-tab--active]="activeSection === 'password'"
+        (click)="setActiveSection('password')">
+        <ui-inline-text kind="screen" screen="myAccount" key="tabPassword" />
+      </button>
+      <button
+        type="button"
+        class="my-account-tab"
+        [class.my-account-tab--active]="activeSection === 'profile'"
+        (click)="setActiveSection('profile')">
+        <ui-inline-text kind="screen" screen="myAccount" key="tabProfile" />
+      </button>
+    </aside>
+
+    <main class="my-account-content">
+      <header class="my-account-title">
+        <h1>
+          <ui-inline-text
+            kind="screen"
+            screen="myAccount"
+            [key]="activeSection === 'password' ? 'passwordTitle' : 'profileTitle'" />
+        </h1>
+      </header>
+
+      <form *ngIf="activeSection === 'profile'" class="my-account-form" (ngSubmit)="save()">
+        <div class="my-account-layout">
+          <div class="my-account-avatar-card">
+            <button type="button" class="my-account-remove-image">
+              <ui-inline-text kind="screen" screen="myAccount" key="removeImage" />
+              <i class="fas fa-trash-alt" aria-hidden="true"></i>
+            </button>
+            <div class="my-account-avatar-preview" aria-hidden="true">
+              <span>{{ initials() }}</span>
+            </div>
+          </div>
+
+          <div class="my-account-fields">
+            <div class="my-account-grid">
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldUserName" /></span>
+                <span class="my-account-input">
+                  <input type="text" [(ngModel)]="profile.userName" name="userName" dir="ltr" autocomplete="username" />
+                  <i class="fas fa-user" aria-hidden="true"></i>
+                </span>
+              </label>
+
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldEmail" /></span>
+                <span class="my-account-input">
+                  <input type="email" [(ngModel)]="profile.email" name="email" dir="ltr" />
+                  <i class="fas fa-envelope" aria-hidden="true"></i>
+                </span>
+              </label>
+
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldFirstName" /></span>
+                <span class="my-account-input">
+                  <input type="text" [(ngModel)]="profile.firstName" name="firstName" />
+                  <i class="fas fa-id-badge" aria-hidden="true"></i>
+                </span>
+              </label>
+
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldLastName" /></span>
+                <span class="my-account-input">
+                  <input type="text" [(ngModel)]="profile.lastName" name="lastName" />
+                  <i class="fas fa-users" aria-hidden="true"></i>
+                </span>
+              </label>
+            </div>
+
+            <label class="my-account-field my-account-field--wide">
+              <span><ui-inline-text kind="screen" screen="myAccount" key="fieldPhone" /></span>
+              <span class="my-account-input">
+                <input type="tel" [(ngModel)]="profile.phoneNumber" name="phone" dir="ltr" />
+                <i class="fas fa-phone" aria-hidden="true"></i>
+              </span>
+            </label>
+
+            <label class="my-account-field my-account-field--wide">
+              <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultHotel" /></span>
+              <span class="my-account-input my-account-input--readonly">
+                <input type="text" [value]="roleLabel(profile.role)" readonly />
+                <i class="fas fa-hotel" aria-hidden="true"></i>
+              </span>
+            </label>
+
+            <div class="my-account-grid">
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultLanguage" /></span>
+                <span class="my-account-input my-account-input--select">
+                  <select>
+                    <option><ui-inline-text kind="screen" screen="myAccount" key="languageArabic" /></option>
+                  </select>
+                  <i class="fas fa-language" aria-hidden="true"></i>
+                </span>
+              </label>
+
+              <label class="my-account-field">
+                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultTheme" /></span>
+                <span class="my-account-input my-account-input--select">
+                  <select>
+                    <option><ui-inline-text kind="screen" screen="myAccount" key="themeDefault" /></option>
+                  </select>
+                  <i class="fas fa-window-maximize" aria-hidden="true"></i>
+                </span>
+              </label>
+            </div>
+
+            <label class="my-account-field my-account-field--wide">
+              <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultScreen" /></span>
+              <span class="my-account-input">
+                <input type="text" value="/" readonly />
+                <i class="fas fa-link" aria-hidden="true"></i>
+              </span>
+            </label>
+
+            <button type="submit" class="my-account-save" [disabled]="saving">
+              <ui-inline-text kind="screen" screen="myAccount" [key]="saving ? 'saving' : 'saveBtn'" />
+              <i class="fas fa-check" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <form *ngIf="activeSection === 'password'" class="my-account-password-form" (ngSubmit)="savePassword()">
+        <div class="my-account-password-stack">
+          <label class="my-account-field my-account-field--wide">
+            <span><ui-inline-text kind="screen" screen="myAccount" key="currentPassword" /></span>
+            <span class="my-account-input">
+              <input type="password" [(ngModel)]="currentPassword" name="currentPassword" autocomplete="current-password" />
+              <i class="fas fa-lock" aria-hidden="true"></i>
+            </span>
+          </label>
+
+          <label class="my-account-field my-account-field--wide">
+            <span><ui-inline-text kind="screen" screen="myAccount" key="newPassword" /></span>
+            <span class="my-account-input">
+              <input type="password" [(ngModel)]="newPassword" name="newPassword" autocomplete="new-password" />
+              <i class="fas fa-key" aria-hidden="true"></i>
+            </span>
+          </label>
+
+          <label class="my-account-field my-account-field--wide">
+            <span><ui-inline-text kind="screen" screen="myAccount" key="confirmPassword" /></span>
+            <span class="my-account-input">
+              <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" autocomplete="new-password" />
+              <i class="fas fa-check-double" aria-hidden="true"></i>
+            </span>
+          </label>
+
+          <button type="submit" class="my-account-save" [disabled]="saving">
+            <ui-inline-text kind="screen" screen="myAccount" [key]="saving ? 'saving' : 'saveBtn'" />
+            <i class="fas fa-check" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </main>
+  </section>
+</div>

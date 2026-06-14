@@ -1,0 +1,249 @@
+.coa-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+}
+
+.coa-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1a3a32 0%, #245247 100%);
+  color: #fff;
+}
+
+.coa-hero__main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.coa-hero__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 1.15rem;
+}
+
+.coa-hero h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.coa-hero p {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  opacity: 0.85;
+}
+
+.coa-hero__stat {
+  min-width: 7rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+
+.coa-hero__stat strong {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.coa-hero__stat span {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.coa-new-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.coa-new-card__btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 0;
+  border-radius: 10px;
+  background: #1a3a32;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.coa-new-card strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.coa-new-card p {
+  margin: 0.15rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.84rem;
+}
+
+.coa-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.coa-panel__head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1976d2;
+}
+
+.coa-panel__search {
+  min-width: min(220px, 100%);
+}
+
+.coa-empty {
+  padding: 2.5rem 1rem;
+}
+
+.coa-empty i {
+  font-size: 2.5rem;
+  color: rgba(148, 163, 184, 0.55);
+  margin-bottom: 0.5rem;
+}
+
+.coa-empty small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--app-text-muted);
+  font-size: 0.86rem;
+}
+
+.coa-table {
+  min-width: 960px;
+}
+
+.coa-col-serial {
+  width: 4rem;
+  text-align: center;
+}
+
+.coa-modal__card {
+  max-width: 720px;
+}
+
+.coa-modal__head {
+  background: #1a3a32;
+  color: #fff;
+}
+
+.coa-modal__head h3 {
+  color: #fff;
+}
+
+.coa-modal__head .hc-modal__close {
+  color: #fff;
+}
+
+.coa-modal__form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.coa-modal__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.coa-modal__form label span {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.coa-field {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.coa-field i {
+  color: var(--app-text-muted);
+  width: 1rem;
+  text-align: center;
+}
+
+.coa-field input,
+.coa-field select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
+.coa-field input:focus,
+.coa-field select:focus {
+  outline: none;
+}
+
+.coa-modal__foot {
+  justify-content: flex-start;
+  gap: 0.65rem;
+}
+
+.coa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.coa-btn--primary {
+  border: 1px solid #1a3a32;
+  background: #1a3a32;
+  color: #fff;
+}
+
+.coa-btn--outline {
+  border: 1px solid var(--app-border);
+  background: #fff;
+  color: var(--app-text);
+}
+
+@media (max-width: 720px) {
+  .coa-modal__form {
+    grid-template-columns: 1fr;
+  }
+}

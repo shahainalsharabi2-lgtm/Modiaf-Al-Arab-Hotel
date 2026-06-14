@@ -1,0 +1,120 @@
+<div class="cc-page">
+  <div *ngIf="loading" class="cc-state cc-state--loading">
+    <div class="cc-loader" aria-hidden="true"></div>
+    <p><ui-inline-text kind="screen" screen="crmCompanies" key="loading" /></p>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="cc-state cc-state--error">
+    <p>{{ loadError }}</p>
+    <button type="button" class="cc-btn cc-btn--outline" (click)="loadRows()"><ui-inline-text kind="screen" screen="crmCompanies" key="retryLoad" /></button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError">
+    <header class="cc-toolbar">
+      <div class="cc-toolbar__actions">
+        <button type="button" class="cc-btn cc-btn--outline" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmCompanies" key="importExport" />
+        </button>
+        <button type="button" class="cc-btn cc-btn--outline" (click)="addCompany()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="crmCompanies" key="addCompany" />
+        </button>
+
+        <label class="cc-scope">
+          <select [(ngModel)]="scopeFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="crmCompanies" key="filterAll" /></option>
+            <option value="withMobile"><ui-inline-text kind="screen" screen="crmCompanies" key="filterWithMobile" /></option>
+            <option value="withForeignName"><ui-inline-text kind="screen" screen="crmCompanies" key="filterWithForeignName" /></option>
+          </select>
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+
+        <label class="cc-search">
+          <input type="search" [(ngModel)]="searchQuery" [placeholder]="label('searchPlaceholder')" [attr.aria-label]="label('searchPlaceholder')" />
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </label>
+      </div>
+
+      <div class="cc-toolbar__views">
+        <button type="button" class="cc-view-btn" [class.cc-view-btn--active]="viewMode === 'grid'" (click)="setViewMode('grid')" [attr.title]="label('viewGrid')" [attr.aria-label]="label('viewGrid')">
+          <i class="fas fa-th" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="cc-view-btn" [class.cc-view-btn--active]="viewMode === 'table'" (click)="setViewMode('table')" [attr.title]="label('viewTable')" [attr.aria-label]="label('viewTable')">
+          <i class="fas fa-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <section *ngIf="viewMode === 'table'" class="cc-table-card">
+      <div class="cc-table-wrap">
+        <table class="cc-table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="cc-sort" (click)="toggleSort('name')">
+                  <span><ui-inline-text kind="screen" screen="crmCompanies" key="colName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="cc-sort" (click)="toggleSort('foreignName')">
+                  <span><ui-inline-text kind="screen" screen="crmCompanies" key="colForeignName" /></span>
+                  <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="cc-sort" (click)="toggleSort('country')">
+                  <span><ui-inline-text kind="screen" screen="crmCompanies" key="colCountry" /></span>
+                  <i class="fas" [ngClass]="sortIcon('country')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="cc-sort" (click)="toggleSort('mobile')">
+                  <span><ui-inline-text kind="screen" screen="crmCompanies" key="colMobile" /></span>
+                  <i class="fas" [ngClass]="sortIcon('mobile')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="cc-sort" (click)="toggleSort('email')">
+                  <span><ui-inline-text kind="screen" screen="crmCompanies" key="colEmail" /></span>
+                  <i class="fas" [ngClass]="sortIcon('email')" aria-hidden="true"></i>
+                </button>
+              </th>
+              <th class="cc-col-actions"><ui-inline-text kind="screen" screen="crmCompanies" key="colActions" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of filteredRows; trackBy: trackRow">
+              <td>{{ cellValue(row.name) }}</td>
+              <td>{{ cellValue(row.foreignName) }}</td>
+              <td>{{ cellValue(row.country) }}</td>
+              <td dir="ltr">{{ cellValue(row.mobile) | localeNumber }}</td>
+              <td>{{ cellValue(row.email) }}</td>
+              <td class="cc-col-actions">
+                <button type="button" class="cc-row-menu" (click)="rowActions(row)" [attr.aria-label]="label('rowActionsAria')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredRows.length === 0">
+              <td colspan="6" class="cc-empty"><ui-inline-text kind="screen" screen="crmCompanies" key="emptyRows" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section *ngIf="viewMode === 'grid'" class="cc-grid">
+      <article *ngFor="let row of filteredRows; trackBy: trackRow" class="cc-grid-card">
+        <h3>{{ cellValue(row.name) }}</h3>
+        <dl>
+          <div><dt><ui-inline-text kind="screen" screen="crmCompanies" key="colForeignName" /></dt><dd>{{ cellValue(row.foreignName) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmCompanies" key="colMobile" /></dt><dd dir="ltr">{{ cellValue(row.mobile) }}</dd></div>
+          <div><dt><ui-inline-text kind="screen" screen="crmCompanies" key="colEmail" /></dt><dd>{{ cellValue(row.email) }}</dd></div>
+        </dl>
+      </article>
+      <p *ngIf="filteredRows.length === 0" class="cc-grid-empty"><ui-inline-text kind="screen" screen="crmCompanies" key="emptyRows" /></p>
+    </section>
+  </ng-container>
+</div>

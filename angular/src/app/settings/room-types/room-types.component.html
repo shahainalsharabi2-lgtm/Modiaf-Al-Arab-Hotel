@@ -1,0 +1,306 @@
+<div class="rt-page" dir="rtl">
+  <section class="hc-page__panel" *ngIf="screenMode === 'list'">
+    <div class="hc-page__toolbar">
+      <div class="hc-page__filters">
+        <div class="hc-page__search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            [placeholder]="ui.screenText('settings', 'roomTypesSearchPh')" />
+        </div>
+        <label class="hc-page__select-wrap">
+          <span class="sr-only"><ui-inline-text kind="screen" screen="settings" key="roomTypesFilterStatus" /></span>
+          <select [(ngModel)]="statusFilter">
+            <option value="all"><ui-inline-text kind="screen" screen="settings" key="roomTypesFilterAll" /></option>
+            <option value="active"><ui-inline-text kind="screen" screen="settings" key="roomTypesFilterActive" /></option>
+            <option value="inactive"><ui-inline-text kind="screen" screen="settings" key="roomTypesFilterInactive" /></option>
+          </select>
+        </label>
+      </div>
+
+      <div class="hc-page__toolbar-start">
+        <button type="button" class="rt-outline-btn" *ngIf="canEdit" (click)="importExport()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="roomTypesImportExport" />
+        </button>
+        <button type="button" class="rt-outline-btn" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="settings" key="roomTypesActionNew" />
+        </button>
+
+        <div class="hc-page__view-toggle" role="group" [attr.aria-label]="ui.screenText('settings', 'roomTypesViewToggleAria')">
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            [title]="ui.screenText('settings', 'roomTypesViewGrid')">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="hc-page__view-btn"
+            [class.hc-page__view-btn--active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            [title]="ui.screenText('settings', 'roomTypesViewList')">
+            <i class="fas fa-list" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hc-page__empty" *ngIf="!filteredRows().length">
+      <i class="fas fa-bed" aria-hidden="true"></i>
+      <p><ui-inline-text kind="screen" screen="settings" key="roomTypesEmpty" /></p>
+    </div>
+
+    <div class="hc-page__table-wrap" *ngIf="viewMode === 'list' && filteredRows().length">
+      <table class="hc-page__table">
+        <thead>
+          <tr>
+            <th class="hc-page__sortable hc-page__col-order" (click)="toggleSort('number')">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesColNumber" />
+              <i class="fas" [ngClass]="sortIcon('number')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('code')">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesFieldCode" />
+              <i class="fas" [ngClass]="sortIcon('code')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" (click)="toggleSort('name')">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesFieldName" />
+              <i class="fas" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('foreignName')">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesFieldForeignName" />
+              <i class="fas" [ngClass]="sortIcon('foreignName')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__sortable" dir="ltr" (click)="toggleSort('description')">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesFieldDescription" />
+              <i class="fas" [ngClass]="sortIcon('description')" aria-hidden="true"></i>
+            </th>
+            <th class="hc-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="roomTypesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows()">
+            <td class="hc-page__col-order">{{ row.number }}</td>
+            <td class="hc-page__code" dir="ltr">{{ row.code }}</td>
+            <td>{{ row.name }}</td>
+            <td dir="ltr">{{ row.foreignName }}</td>
+            <td dir="ltr">{{ row.description }}</td>
+            <td class="hc-page__col-actions" *ngIf="canEdit">
+              <div class="hc-page__actions">
+                <button
+                  type="button"
+                  class="hc-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'roomTypesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="hc-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomTypesActionEdit" />
+                  </button>
+                  <button type="button" class="hc-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="roomTypesActionDeleteRow" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rt-page__panel" *ngIf="screenMode === 'form'">
+    <div class="rt-page__actions">
+      <button type="button" class="rt-action rt-action--undo" (click)="undoChanges()" [disabled]="!canEdit">
+        <i class="fas fa-undo" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionUndo" />
+      </button>
+      <button type="button" class="rt-action rt-action--print" (click)="printForm()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionPrint" />
+      </button>
+      <button type="button" class="rt-action rt-action--list" (click)="openList()">
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionList" />
+      </button>
+      <button type="button" class="rt-action rt-action--save" (click)="saveForm()" [disabled]="!canEdit">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionSave" />
+      </button>
+      <button type="button" class="rt-action rt-action--delete" (click)="deleteForm()" [disabled]="!canEdit">
+        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionDelete" />
+      </button>
+      <button type="button" class="rt-action rt-action--new" (click)="openCreate()" [disabled]="!canEdit">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesActionNew" />
+      </button>
+    </div>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesMainFieldsTitle" />
+      </header>
+      <div class="rt-section__grid rt-section__grid--main">
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldCode" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.code" [disabled]="!canEdit" dir="ltr" />
+            <i class="fas fa-barcode rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.name" [disabled]="!canEdit" />
+            <i class="fas fa-tag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldForeignName" /></span>
+          <div class="rt-field__control">
+            <input type="text" [(ngModel)]="form.foreignName" [disabled]="!canEdit" dir="ltr" />
+            <i class="fas fa-font rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldCategory" /></span>
+          <div class="rt-field__control rt-field__control--select">
+            <select [(ngModel)]="form.roomCategory" [disabled]="!canEdit">
+              <option value="standard">{{ ui.screenText('settings', 'roomTypesCategoryStandard') }}</option>
+            </select>
+            <i class="fas fa-layer-group rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+        <label class="rt-field">
+          <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldRoomCount" /></span>
+          <div class="rt-field__control">
+            <input type="number" [(ngModel)]="form.numberOfRooms" [disabled]="!canEdit" min="0" />
+            <i class="fas fa-hashtag rt-field__icon" aria-hidden="true"></i>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <section class="rt-section">
+      <header class="rt-section__head">
+        <ui-inline-text kind="screen" screen="settings" key="roomTypesDetailsTitle" />
+      </header>
+
+      <div class="rt-section__grid rt-section__grid--details">
+        <div class="rt-details-col">
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldDefaultCapacity" /></span>
+            <div class="rt-field__control">
+              <input type="number" [(ngModel)]="form.defaultCapacity" [disabled]="!canEdit" min="0" />
+              <i class="fas fa-users rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMinCapacity" /></span>
+            <div class="rt-field__control">
+              <input type="number" [(ngModel)]="form.minCapacity" [disabled]="!canEdit" min="0" />
+              <i class="fas fa-user-minus rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMaxCapacity" /></span>
+            <div class="rt-field__control">
+              <input type="number" [(ngModel)]="form.maxCapacity" [disabled]="!canEdit" min="0" />
+              <i class="fas fa-user-plus rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMaxAdults" /></span>
+            <div class="rt-field__control">
+              <input type="number" [(ngModel)]="form.maxAdults" [disabled]="!canEdit" min="0" />
+              <i class="fas fa-user rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMaxChildren" /></span>
+            <div class="rt-field__control">
+              <input type="number" [(ngModel)]="form.maxChildren" [disabled]="!canEdit" min="0" />
+              <i class="fas fa-child rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+        </div>
+
+        <div class="rt-details-col rt-details-col--checks">
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldSpecialNeeds" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.specialNeeds" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldVirtualRoom" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.virtualRoom" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMeetingRoom" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.meetingRoom" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldMaintenanceRoom" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.maintenanceRoom" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-check-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldSuite" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.suite" [disabled]="!canEdit" />
+            </div>
+          </label>
+        </div>
+
+        <div class="rt-details-col">
+          <label class="rt-check-field rt-check-field--active">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldActive" /></span>
+            <div class="rt-check-field__box">
+              <input type="checkbox" [(ngModel)]="form.isActive" [disabled]="!canEdit" />
+            </div>
+          </label>
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldShortDescription" /></span>
+            <div class="rt-field__control">
+              <input type="text" [(ngModel)]="form.shortDescription" [disabled]="!canEdit" dir="ltr" />
+              <i class="fas fa-info-circle rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+          <label class="rt-field rt-field--textarea">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldDescription" /></span>
+            <textarea [(ngModel)]="form.description" [disabled]="!canEdit" rows="5" dir="ltr"></textarea>
+          </label>
+        </div>
+
+        <div class="rt-details-col">
+          <label class="rt-field">
+            <span class="rt-field__label"><ui-inline-text kind="screen" screen="settings" key="roomTypesFieldFeatures" /></span>
+            <div class="rt-field__control rt-field__control--select">
+              <select [(ngModel)]="form.roomFeatures" [disabled]="!canEdit">
+                <option value=""></option>
+              </select>
+              <i class="fas fa-star rt-field__icon" aria-hidden="true"></i>
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>

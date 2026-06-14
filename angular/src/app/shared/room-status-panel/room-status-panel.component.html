@@ -1,0 +1,94 @@
+<div class="room-status-root" *ngIf="open" (click)="onBackdropClick()">
+  <aside
+    class="room-status-panel"
+    role="dialog"
+    [attr.aria-label]="ui.chromeLabel('roomStatusPanelAria')"
+    (click)="onPanelClick($event)">
+    <button
+      type="button"
+      class="room-status-panel__close"
+      (click)="requestClose()"
+      [attr.aria-label]="ui.chromeLabel('roomStatusCloseAria')">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+
+    <header class="room-status-panel__head">
+      <h2 class="room-status-panel__title"><ui-inline-text kind="chrome" key="roomStatusHousekeepingTitle" /></h2>
+    </header>
+
+    <p class="room-status-panel__loading" *ngIf="loading"><ui-inline-text kind="chrome" key="roomStatusLoading" /></p>
+    <p class="room-status-panel__error" *ngIf="!loading && error" role="alert">{{ error }}</p>
+
+    <ng-container *ngIf="!loading && summary as s">
+      <section class="room-status-panel__section">
+        <div class="room-status-panel__metric room-status-panel__metric--clean">
+          <span class="room-status-panel__metric-icon" aria-hidden="true"><i class="fas fa-check"></i></span>
+          <span class="room-status-panel__metric-label"><ui-inline-text kind="chrome" key="roomStatusCleanRooms" /></span>
+          <strong class="room-status-panel__metric-value">{{ s.cleanRooms | localeNumber }}</strong>
+        </div>
+        <div class="room-status-panel__metric room-status-panel__metric--dirty">
+          <span class="room-status-panel__metric-icon" aria-hidden="true"><i class="fas fa-times"></i></span>
+          <span class="room-status-panel__metric-label"><ui-inline-text kind="chrome" key="roomStatusDirtyRooms" /></span>
+          <strong class="room-status-panel__metric-value">{{ s.dirtyRooms | localeNumber }}</strong>
+        </div>
+      </section>
+
+      <section class="room-status-panel__section">
+        <h3 class="room-status-panel__section-title"><ui-inline-text kind="chrome" key="roomStatusSummaryTitle" /></h3>
+        <div class="room-status-panel__grid">
+          <div class="room-status-panel__tile">
+            <i class="fas fa-hotel" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusTotalRooms" /></span>
+            <strong>{{ s.totalRooms | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="far fa-calendar-check" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusReserved" /></span>
+            <strong>{{ s.reserved | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-door-open" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusVacant" /></span>
+            <strong>{{ s.vacantAvailable | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-bed" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusOccupied" /></span>
+            <strong>{{ s.occupied | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-screwdriver-wrench" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusMaintenance" /></span>
+            <strong>{{ s.maintenance | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-ban" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusOutOfService" /></span>
+            <strong>{{ s.outOfService | localeNumber }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="room-status-panel__section">
+        <h3 class="room-status-panel__section-title"><ui-inline-text kind="chrome" key="roomStatusBookingsTitle" /></h3>
+        <div class="room-status-panel__grid room-status-panel__grid--compact">
+          <div class="room-status-panel__tile">
+            <i class="fas fa-user-check" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusResidents" /></span>
+            <strong>{{ s.residents | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-plane-arrival" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusArriving" /></span>
+            <strong>{{ s.arriving | localeNumber }}</strong>
+          </div>
+          <div class="room-status-panel__tile">
+            <i class="fas fa-plane-departure" aria-hidden="true"></i>
+            <span><ui-inline-text kind="chrome" key="roomStatusDeparting" /></span>
+            <strong>{{ s.departing | localeNumber }}</strong>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+  </aside>
+</div>

@@ -1,0 +1,60 @@
+{
+  "statsRow1": [
+    { "key": "availableTonight", "labelKey": "statAvailableTonight", "count": 349, "icon": "fa-check", "tone": "white", "labelMenu": true },
+    { "key": "occupiedNow", "labelKey": "statOccupiedNow", "count": 5, "icon": "fa-bed", "tone": "white", "labelMenu": true },
+    { "key": "vacantNow", "labelKey": "statVacantNow", "count": 379, "icon": "fa-key", "tone": "white", "labelMenu": true },
+    { "key": "groupAllotment", "labelKey": "statGroupAllotment", "count": 30, "icon": "fa-users", "tone": "purple" },
+    { "key": "overbooking", "labelKey": "statOverbooking", "count": 0, "icon": "fa-layer-group", "tone": "orange" },
+    { "key": "expectedDepartureReserved", "labelKey": "statExpectedDepartureReserved", "count": 0, "icon": "fa-sign-out-alt", "tone": "cyan" },
+    { "key": "expectedDeparture", "labelKey": "statExpectedDeparture", "count": 0, "icon": "fa-user-clock", "tone": "peach" },
+    { "key": "reservedClean", "labelKey": "statReservedClean", "count": 1, "icon": "fa-magic", "tone": "blue" }
+  ],
+  "statsRow2": [
+    { "key": "reservedDirty", "labelKey": "statReservedDirty", "count": 3, "icon": "fa-broom", "tone": "wine" },
+    { "key": "occupiedClean", "labelKey": "statOccupiedClean", "count": 2, "icon": "fa-bed", "tone": "teal" },
+    { "key": "occupiedDirty", "labelKey": "statOccupiedDirty", "count": 3, "icon": "fa-bed", "tone": "rose" },
+    { "key": "availableClean", "labelKey": "statAvailableClean", "count": 202, "icon": "fa-magic", "tone": "green" },
+    { "key": "availableDirty", "labelKey": "statAvailableDirty", "count": 177, "icon": "fa-door-open", "tone": "yellow" },
+    { "key": "outOfService", "labelKey": "statOutOfService", "count": 0, "icon": "fa-exclamation-triangle", "tone": "grey" }
+  ],
+  "buildings": [
+    { "id": "main", "labelKey": "buildingMain", "count": 388 },
+    { "id": "a", "labelKey": "buildingA", "count": 0 }
+  ],
+  "floors": [1, 2, 3, 4, 5],
+  "rooms": [
+    { "id": "102", "number": "102", "typeKey": "typeQuintuple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "103", "number": "103", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "104", "number": "104", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "105", "number": "105", "typeKey": "typeQuintuple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "106", "number": "106", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "107", "number": "107", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 1, "buildingId": "main" },
+    { "id": "108", "number": "108", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 1, "buildingId": "main" },
+    { "id": "109", "number": "109", "typeKey": "typeQuintuple", "balance": 0, "status": "occupied", "floor": 1, "buildingId": "main", "hasArrival": true },
+    { "id": "110", "number": "110", "typeKey": "typeQuadruple", "balance": 0, "status": "clean", "floor": 1, "buildingId": "main" },
+    { "id": "202", "number": "202", "typeKey": "typeQuintuple", "balance": 0, "status": "dirty", "floor": 2, "buildingId": "main" },
+    { "id": "203", "number": "203", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 2, "buildingId": "main" },
+    { "id": "204", "number": "204", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 2, "buildingId": "main" },
+    { "id": "205", "number": "205", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 2, "buildingId": "main" },
+    { "id": "206", "number": "206", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 2, "buildingId": "main" },
+    { "id": "207", "number": "207", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 2, "buildingId": "main" },
+    { "id": "208", "number": "208", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 2, "buildingId": "main" },
+    { "id": "209", "number": "209", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 2, "buildingId": "main" },
+    { "id": "210", "number": "210", "typeKey": "typeQuadruple", "balance": 0, "status": "clean", "floor": 2, "buildingId": "main" },
+    { "id": "302", "number": "302", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 3, "buildingId": "main" },
+    { "id": "303", "number": "303", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 3, "buildingId": "main" },
+    { "id": "304", "number": "304", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 3, "buildingId": "main" },
+    { "id": "305", "number": "305", "typeKey": "typeQuintuple", "balance": 0, "status": "dirty", "floor": 3, "buildingId": "main" },
+    { "id": "306", "number": "306", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 3, "buildingId": "main" },
+    { "id": "307", "number": "307", "typeKey": "typeQuintuple", "balance": 0, "status": "clean", "floor": 3, "buildingId": "main" },
+    { "id": "308", "number": "308", "typeKey": "typeQuadruple", "balance": 0, "status": "dirty", "floor": 3, "buildingId": "main" },
+    { "id": "309", "number": "309", "typeKey": "typeDouble", "balance": 0, "status": "occupied", "floor": 3, "buildingId": "main" },
+    { "id": "310", "number": "310", "typeKey": "typeQuadruple", "balance": 0, "status": "clean", "floor": 3, "buildingId": "main" }
+  ],
+  "footer": {
+    "occupancyRate": 1.29,
+    "totalCredit": 1592,
+    "totalDebit": 8,
+    "totalNet": -1584
+  }
+}

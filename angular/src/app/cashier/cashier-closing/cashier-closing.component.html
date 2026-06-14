@@ -1,0 +1,163 @@
+<div class="cc-page" dir="rtl">
+  <section class="cc-user-row">
+    <label class="cc-user-field">
+      <span class="cc-user-field__label"><ui-inline-text kind="screen" screen="cashierClosing" key="usersLabel" /></span>
+      <div class="cc-user-select-wrap">
+        <select class="cc-user-select" [(ngModel)]="selectedUserId">
+          <option *ngFor="let user of users" [value]="user.id">{{ user.username }}</option>
+        </select>
+        <i class="fas fa-chevron-down cc-user-chev" aria-hidden="true"></i>
+      </div>
+    </label>
+  </section>
+
+  <section class="cc-banner">
+    <div class="cc-banner__profile">
+      <div class="cc-avatar">{{ userInitial(selectedUser.username) }}</div>
+      <div class="cc-banner__identity">
+        <strong class="cc-banner__name">{{ selectedUser.username }}</strong>
+        <span class="cc-banner__cashier">
+          <ui-inline-text kind="screen" screen="cashierClosing" key="cashierNo" />: {{ selectedUser.cashierNo | localeNumber }}
+        </span>
+      </div>
+      <span class="cc-status" [class.cc-status--closed]="status === 'closed'">
+        <ui-inline-text kind="screen" screen="cashierClosing" [key]="status === 'open' ? 'statusOpen' : 'statusClosed'" />
+      </span>
+    </div>
+    <div class="cc-banner__meta">
+      <div class="cc-meta-box">
+        <span class="cc-meta-box__label"><ui-inline-text kind="screen" screen="cashierClosing" key="shiftDate" /></span>
+        <strong class="cc-meta-box__value">{{ formatDate(shiftDate) }}</strong>
+      </div>
+      <div class="cc-meta-box">
+        <span class="cc-meta-box__label"><ui-inline-text kind="screen" screen="cashierClosing" key="openingBalance" /></span>
+        <strong class="cc-meta-box__value">{{ formatMoney(openingBalance) }} <small>{{ '' | hotelSymbol }}</small></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="cc-summary">
+    <article class="cc-summary-card cc-summary-card--receipts">
+      <div class="cc-summary-card__icon"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+      <div class="cc-summary-card__body">
+        <span class="cc-summary-card__label"><ui-inline-text kind="screen" screen="cashierClosing" key="summaryReceipts" /></span>
+        <strong class="cc-summary-card__value">{{ formatMoney(receipts) }} <small>{{ '' | hotelSymbol }}</small></strong>
+      </div>
+    </article>
+    <article class="cc-summary-card cc-summary-card--payments">
+      <div class="cc-summary-card__icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></div>
+      <div class="cc-summary-card__body">
+        <span class="cc-summary-card__label"><ui-inline-text kind="screen" screen="cashierClosing" key="summaryPayments" /></span>
+        <strong class="cc-summary-card__value">{{ formatMoney(payments) }} <small>{{ '' | hotelSymbol }}</small></strong>
+      </div>
+    </article>
+    <article class="cc-summary-card cc-summary-card--total">
+      <div class="cc-summary-card__icon"><i class="fas fa-calculator" aria-hidden="true"></i></div>
+      <div class="cc-summary-card__body">
+        <span class="cc-summary-card__label"><ui-inline-text kind="screen" screen="cashierClosing" key="summaryTotal" /></span>
+        <strong class="cc-summary-card__value">{{ formatMoney(total) }} <small>{{ '' | hotelSymbol }}</small></strong>
+      </div>
+    </article>
+    <article class="cc-summary-card cc-summary-card--balance">
+      <div class="cc-summary-card__icon"><i class="fas fa-coins" aria-hidden="true"></i></div>
+      <div class="cc-summary-card__body">
+        <span class="cc-summary-card__label"><ui-inline-text kind="screen" screen="cashierClosing" key="summaryBalance" /></span>
+        <strong class="cc-summary-card__value">{{ formatMoney(balance) }} <small>{{ '' | hotelSymbol }}</small></strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="cc-split">
+    <aside class="cc-closing-panel cc-panel">
+      <header class="cc-panel__head">
+        <i class="fas fa-lock cc-panel__head-icon cc-panel__head-icon--gold" aria-hidden="true"></i>
+        <h2 class="cc-panel__title"><ui-inline-text kind="screen" screen="cashierClosing" key="closingTitle" /></h2>
+      </header>
+
+      <label class="cc-field">
+        <span class="cc-field__label">
+          <i class="fas fa-money-bill-wave cc-field__icon cc-field__icon--cash" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="cashierClosing" key="actualCashBalance" />
+        </span>
+        <input type="number" class="cc-field__input" [(ngModel)]="actualCash" [disabled]="status === 'closed'" />
+      </label>
+
+      <label class="cc-field">
+        <span class="cc-field__label">
+          <i class="fas fa-money-check cc-field__icon" aria-hidden="true"></i>
+          <ui-inline-text kind="screen" screen="cashierClosing" key="actualCheckBalance" />
+        </span>
+        <input type="number" class="cc-field__input" [(ngModel)]="actualChecks" [disabled]="status === 'closed'" />
+      </label>
+
+      <button type="button" class="cc-btn cc-btn--primary" [disabled]="status === 'closed' || closing" (click)="closeCashier()">
+        <i class="fas fa-lock" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="cashierClosing" key="closeCashierBtn" />
+      </button>
+      <button type="button" class="cc-btn cc-btn--secondary" (click)="printReport()">
+        <i class="fas fa-print" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="cashierClosing" key="printReportBtn" />
+      </button>
+    </aside>
+
+    <div class="cc-operations cc-panel">
+      <header class="cc-panel__head">
+        <i class="fas fa-list-alt cc-panel__head-icon cc-panel__head-icon--blue" aria-hidden="true"></i>
+        <h2 class="cc-panel__title"><ui-inline-text kind="screen" screen="cashierClosing" key="operationsTitle" /></h2>
+      </header>
+
+      <div class="cc-table-wrap">
+        <table class="cc-table">
+          <thead>
+            <tr>
+              <th><ui-inline-text kind="screen" screen="cashierClosing" key="colAccount" /></th>
+              <th><ui-inline-text kind="screen" screen="cashierClosing" key="colDescription" /></th>
+              <th><ui-inline-text kind="screen" screen="cashierClosing" key="colCount" /></th>
+              <th><ui-inline-text kind="screen" screen="cashierClosing" key="colAmount" /></th>
+              <th><ui-inline-text kind="screen" screen="cashierClosing" key="colCurrency" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of pagedOperations; trackBy: trackOp">
+              <td>{{ row.accountNo | localeNumber }}</td>
+              <td>{{ opLabel(row) }}</td>
+              <td>{{ row.count | localeNumber }}</td>
+              <td [ngClass]="amountClass(row.amount)">{{ formatMoney(row.amount) }}</td>
+              <td>{{ row.currency }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"></td>
+              <td class="cc-table__total-count">{{ totalOperationCount | localeNumber }}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <footer class="cc-pager">
+        <div class="cc-pager__sizes">
+          <button
+            *ngFor="let size of pageSizeOptions"
+            type="button"
+            class="cc-size"
+            [class.cc-size--active]="pageSize === size"
+            (click)="setPageSize(size)">
+            {{ size | localeNumber }}
+          </button>
+        </div>
+        <div class="cc-pager__nav">
+          <button type="button" class="cc-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
+          <span class="cc-page-current">{{ currentPage | localeNumber }}</span>
+          <button type="button" class="cc-page-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
+        </div>
+        <p class="cc-pager__summary">{{ pageSummary() }}</p>
+      </footer>
+    </div>
+  </section>
+</div>

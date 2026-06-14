@@ -1,0 +1,95 @@
+<div class="app-page" dir="rtl">
+  <section class="app-page__panel">
+    <header class="app-page__hero">
+      <div class="app-page__hero-main">
+        <div class="app-page__hero-icon" aria-hidden="true">
+          <i class="fas fa-piggy-bank"></i>
+        </div>
+        <div class="app-page__hero-text">
+          <h2><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesTitle" /></h2>
+          <p><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesSubtitle" /></p>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-page__toolbar">
+      <button type="button" class="app-page__add-btn" *ngIf="canEdit" (click)="openCreate()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesAdd" />
+      </button>
+
+      <label class="app-page__search">
+        <span><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesSearchLabel" /></span>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          [placeholder]="ui.screenText('settings', 'advancePaymentPoliciesSearchPh')" />
+      </label>
+    </div>
+
+    <div class="app-page__table-wrap">
+      <table class="app-page__table">
+        <thead>
+          <tr>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColName" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColPaymentType" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColValue" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColTimingType" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColTiming" /></th>
+            <th><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColBookingType" /></th>
+            <th class="app-page__check"><ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColActive" /></th>
+            <th class="app-page__col-actions" *ngIf="canEdit">
+              <ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesColActions" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!filteredRows().length">
+            <td class="app-page__empty" [attr.colspan]="canEdit ? 8 : 7">
+              <ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesEmpty" />
+            </td>
+          </tr>
+          <tr *ngFor="let row of filteredRows()">
+            <td>
+              <button type="button" class="app-page__link" (click)="openEdit(row)">{{ row.name }}</button>
+            </td>
+            <td>{{ paymentTypeLabel(row.paymentType) }}</td>
+            <td>{{ row.value }}</td>
+            <td>
+              <span class="app-page__badge app-page__badge--timing-type">{{ policyTimingTypeLabel(row.policyTimingType) }}</span>
+            </td>
+            <td>
+              <span class="app-page__badge app-page__badge--timing">{{ policyTimingLabel(row) }}</span>
+            </td>
+            <td>{{ row.bookingType }}</td>
+            <td class="app-page__check">
+              <input type="checkbox" [checked]="row.isActive" disabled />
+            </td>
+            <td class="app-page__col-actions" *ngIf="canEdit">
+              <div class="app-page__actions">
+                <button
+                  type="button"
+                  class="app-page__actions-btn"
+                  (click)="toggleActionsMenu(row.id, $event)"
+                  [attr.aria-expanded]="openActionsId === row.id"
+                  [attr.aria-label]="ui.screenText('settings', 'advancePaymentPoliciesColActions')">
+                  <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                </button>
+                <div class="app-page__menu" *ngIf="openActionsId === row.id" (click)="$event.stopPropagation()">
+                  <button type="button" (click)="openEdit(row)">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesActionEdit" />
+                  </button>
+                  <button type="button" class="app-page__menu-danger" (click)="deleteRow(row)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <ui-inline-text kind="screen" screen="settings" key="advancePaymentPoliciesActionDelete" />
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

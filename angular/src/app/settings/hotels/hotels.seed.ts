@@ -1,0 +1,136 @@
+export interface HotelRowDto {
+  id: number;
+  chain: string;
+  name: string;
+  country: string;
+  city: string;
+  buildingCount: number;
+  roomCount: number;
+  checkInTime: string;
+  checkOutTime: string;
+  currency: string;
+}
+
+/** بيانات ثابتة مطابقة لشاشة Ultimate — الفنادق */
+export const HOTELS_SEED: HotelRowDto[] = [
+  {
+    id: 10,
+    chain: 'شركة الوسام اسكان الفندقية',
+    name: 'ضواحي',
+    country: 'المملكة العربية السعودية',
+    city: 'أبها',
+    buildingCount: 1,
+    roomCount: 200,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 9,
+    chain: 'شركة الحلول النهائية 2',
+    name: 'فندق الحلول 9',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 200,
+    checkInTime: '12:00 م',
+    checkOutTime: '5:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 8,
+    chain: 'شركة الحلول النهائية 2',
+    name: 'فندق الحلول 8',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 150,
+    checkInTime: '12:00 م',
+    checkOutTime: '4:30 م',
+    currency: 'SAR',
+  },
+  {
+    id: 7,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 7',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 168,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 6,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 6',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 208,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 5,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 5',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 266,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 4,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 4',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 67,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 3,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 3',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 140,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 2,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 2',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 120,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+  {
+    id: 1,
+    chain: 'شركة الحلول النهائية 1',
+    name: 'فندق الحلول 1',
+    country: 'المملكة العربية السعودية',
+    city: 'المدينة المنورة',
+    buildingCount: 1,
+    roomCount: 100,
+    checkInTime: '12:00 م',
+    checkOutTime: '2:00 م',
+    currency: 'SAR',
+  },
+];
