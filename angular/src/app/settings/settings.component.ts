@@ -1185,6 +1185,7 @@ export class SettingsComponent implements OnInit {
       password: '',
       role: HOTEL_USER_ROLE.Regular,
       allowNavigation: true,
+      landingPagePath: '/dashboard',
     };
   }
 
@@ -1311,6 +1312,7 @@ export class SettingsComponent implements OnInit {
       password: (raw.password ?? '').trim(),
       role: normalizeHotelUserRole(raw.role),
       allowNavigation: raw.allowNavigation !== false,
+      landingPagePath: (raw.landingPagePath ?? '/dashboard').trim() || '/dashboard',
     };
   }
 

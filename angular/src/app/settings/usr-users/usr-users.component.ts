@@ -13,6 +13,7 @@ import { UiMessageService } from '../../services/ui-message.service';
 import { UiTranslationsService } from '../../services/ui-translations.service';
 import { UiInlineTextComponent } from '../../shared/ui-inline-text/ui-inline-text.component';
 import { bindUiTranslationRefresh } from '../../utils/ui-screen-i18n.helper';
+import { normalizeLandingPagePath } from '../../utils/landing-page-path.util';
 import { HOTELS_SEED } from '../hotels/hotels.seed';
 import { USR_GROUPS_SEED } from '../usr-groups/usr-groups.seed';
 import {
@@ -26,6 +27,7 @@ import {
   HotelAppUserService,
 } from '../../services/hotel-app-user.service';
 import {
+  UsrPageAccessMode,
   UsrUserFormDto,
   UsrUserRowDto,
   apiUserToRow,
@@ -74,6 +76,7 @@ export class UsrUsersComponent implements OnInit {
   openActionsId: number | null = null;
   loading = true;
   saving = false;
+  private retainedPassword = '';
 
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
@@ -219,11 +222,14 @@ export class UsrUsersComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  setAllowNavigation(value: boolean): void {
+  setPageAccessMode(mode: UsrPageAccessMode): void {
     if (!this.canEdit) {
       return;
     }
-    this.form.allowNavigation = value;
+    this.form.pageAccessMode = mode;
+    if (mode === 'all') {
+      this.form.landingPagePath = '/dashboard';
+    }
     this.cdr.markForCheck();
   }
 
@@ -245,16 +251,28 @@ export class UsrUsersComponent implements OnInit {
     }
     this.openActionsId = null;
     this.editingId = row.id;
-    this.form = usrUserRowToForm(row);
+    this.retainedPassword = '';
     this.activeModalTab = 'info';
     this.showPassword = false;
     this.modalOpen = true;
+    this.userService.get(row.id).subscribe({
+      next: (user) => {
+        this.retainedPassword = (user.password ?? '').trim();
+        this.form = usrUserRowToForm(apiUserToRow(user));
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.form = usrUserRowToForm(row);
+        this.cdr.markForCheck();
+      },
+    });
     this.cdr.markForCheck();
   }
 
   closeModal(): void {
     this.modalOpen = false;
     this.editingId = null;
+    this.retainedPassword = '';
     this.form = emptyUsrUserForm();
     this.activeModalTab = 'info';
     this.showPassword = false;
@@ -276,8 +294,15 @@ export class UsrUsersComponent implements OnInit {
       this.uiMsg.show(this.ui.screenText('settings', 'usersRequiredFields'));
       return;
     }
+    if (this.form.pageAccessMode === 'specific' && !this.form.landingPagePath.trim()) {
+      this.uiMsg.show(this.ui.screenText('settings', 'usrUsersLandingPageRequired'));
+      return;
+    }
+    if (this.form.pageAccessMode === 'specific') {
+      this.form.landingPagePath = normalizeLandingPagePath(this.form.landingPagePath);
+    }
 
-    const input = rowToApiInput(this.form);
+    const input = rowToApiInput(this.form, this.retainedPassword);
     this.saving = true;
     const request$ = isEdit
       ? this.userService.update(this.form.id!, input)

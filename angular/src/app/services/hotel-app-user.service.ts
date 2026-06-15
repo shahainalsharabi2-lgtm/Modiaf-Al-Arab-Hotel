@@ -14,6 +14,7 @@ export interface HotelAppUserDto {
   password: string;
   role: string;
   allowNavigation: boolean;
+  landingPagePath: string;
 }
 
 export interface CreateUpdateHotelAppUserDto {
@@ -25,6 +26,7 @@ export interface CreateUpdateHotelAppUserDto {
   password: string;
   role: string;
   allowNavigation: boolean;
+  landingPagePath: string;
 }
 
 @Injectable({ providedIn: 'root' })

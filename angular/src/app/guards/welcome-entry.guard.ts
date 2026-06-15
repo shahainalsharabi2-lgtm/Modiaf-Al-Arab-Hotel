@@ -18,7 +18,7 @@ export const welcomeEntryGuard: CanActivateFn = () => {
       if (auth.canNavigateApp()) {
         return router.createUrlTree(['/dashboard']);
       }
-      return router.createUrlTree([auth.lockedHomePath()]);
+      return router.parseUrl(auth.lockedHomePath());
     }
   } catch {
     /* ignore */

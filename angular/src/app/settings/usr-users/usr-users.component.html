@@ -214,26 +214,42 @@
         </label>
       </div>
 
-      <section class="uu-nav-permission">
-        <h4 class="uu-nav-permission__title">
-          <ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionTitle" />
+      <section class="uu-page-access">
+        <h4 class="uu-page-access__title">
+          <ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessTitle" />
         </h4>
-        <label class="uu-nav-permission__option">
+        <label class="uu-page-access__option">
           <input
             type="radio"
-            name="allowNavigation"
-            [checked]="form.allowNavigation"
-            (change)="setAllowNavigation(true)" />
-          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionAllow" /></span>
+            name="pageAccessMode"
+            [checked]="form.pageAccessMode === 'all'"
+            (change)="setPageAccessMode('all')" />
+          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessAll" /></span>
         </label>
-        <label class="uu-nav-permission__option">
+        <label class="uu-page-access__option">
           <input
             type="radio"
-            name="allowNavigation"
-            [checked]="!form.allowNavigation"
-            (change)="setAllowNavigation(false)" />
-          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionDeny" /></span>
+            name="pageAccessMode"
+            [checked]="form.pageAccessMode === 'specific'"
+            (change)="setPageAccessMode('specific')" />
+          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessSpecific" /></span>
         </label>
+        <div class="uu-page-access__url" *ngIf="form.pageAccessMode === 'specific'">
+          <label class="uu-page-access__field">
+            <span class="uu-page-access__label">
+              <ui-inline-text kind="screen" screen="settings" key="usrUsersLandingPageLabel" />
+            </span>
+            <input
+              type="text"
+              dir="ltr"
+              name="landingPagePath"
+              [(ngModel)]="form.landingPagePath"
+              [placeholder]="ui.screenText('settings', 'usrUsersLandingPagePh')" />
+          </label>
+          <p class="uu-page-access__hint">
+            <ui-inline-text kind="screen" screen="settings" key="usrUsersLandingPageHint" />
+          </p>
+        </div>
       </section>
     </div>
 

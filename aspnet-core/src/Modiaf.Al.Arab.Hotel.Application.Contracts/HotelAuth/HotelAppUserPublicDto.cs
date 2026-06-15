@@ -17,4 +17,6 @@ public class HotelAppUserPublicDto
     public string Role { get; set; } = string.Empty;
 
     public bool AllowNavigation { get; set; } = true;
+
+    public string LandingPagePath { get; set; } = "/dashboard";
 }

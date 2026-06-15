@@ -8,6 +8,10 @@ import {
   normalizeHotelUserRole,
   type HotelUserRole,
 } from '../utils/hotel-user-role';
+import {
+  DEFAULT_LANDING_PAGE_PATH,
+  normalizeLandingPagePath,
+} from '../utils/landing-page-path.util';
 
 export interface HotelAppUserSession {
   id: number;
@@ -18,6 +22,7 @@ export interface HotelAppUserSession {
   phoneNumber: string;
   role: HotelUserRole;
   allowNavigation: boolean;
+  landingPagePath: string;
 }
 
 export interface HotelLoginResult {
@@ -27,7 +32,7 @@ export interface HotelLoginResult {
 }
 
 const SESSION_STORAGE_KEY = 'hotelAppUserSession';
-export const LOCKED_HOME_PATH = '/dashboard';
+export const LOCKED_HOME_PATH = DEFAULT_LANDING_PAGE_PATH;
 
 @Injectable({ providedIn: 'root' })
 export class HotelAuthService {
@@ -74,7 +79,10 @@ export class HotelAuthService {
   }
 
   lockedHomePath(): string {
-    return LOCKED_HOME_PATH;
+    if (this.session?.allowNavigation !== false) {
+      return DEFAULT_LANDING_PAGE_PATH;
+    }
+    return normalizeLandingPagePath(this.session?.landingPagePath);
   }
 
   login(userName: string, password: string): Observable<HotelLoginResult> {
@@ -110,6 +118,7 @@ export class HotelAuthService {
       ...user,
       role: normalizeHotelUserRole(user.role),
       allowNavigation: user.allowNavigation !== false,
+      landingPagePath: normalizeLandingPagePath(user.landingPagePath),
     };
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.session));
@@ -130,6 +139,7 @@ export class HotelAuthService {
           ...parsed,
           role: normalizeHotelUserRole(parsed.role),
           allowNavigation: parsed.allowNavigation !== false,
+          landingPagePath: normalizeLandingPagePath(parsed.landingPagePath),
         };
       }
     } catch {

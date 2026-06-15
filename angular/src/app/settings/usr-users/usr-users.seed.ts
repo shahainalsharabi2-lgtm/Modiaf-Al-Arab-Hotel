@@ -3,7 +3,13 @@ import {
   normalizeHotelUserRole,
   type HotelUserRole,
 } from '../../utils/hotel-user-role';
+import {
+  DEFAULT_LANDING_PAGE_PATH,
+  normalizeLandingPagePath,
+} from '../../utils/landing-page-path.util';
 import type { CreateUpdateHotelAppUserDto, HotelAppUserDto } from '../../services/hotel-app-user.service';
+
+export type UsrPageAccessMode = 'all' | 'specific';
 
 export interface UsrUserRowDto {
   id: number;
@@ -15,7 +21,8 @@ export interface UsrUserRowDto {
   isActive: boolean;
   defaultHotelId: number;
   groupIds: number[];
-  allowNavigation: boolean;
+  pageAccessMode: UsrPageAccessMode;
+  landingPagePath: string;
 }
 
 export interface UsrUserFormDto {
@@ -29,7 +36,8 @@ export interface UsrUserFormDto {
   isActive: boolean;
   defaultHotelId: number | null;
   groupIds: number[];
-  allowNavigation: boolean;
+  pageAccessMode: UsrPageAccessMode;
+  landingPagePath: string;
 }
 
 /** بيانات ثابتة مطابقة لشاشة Ultimate — المستخدمين */
@@ -44,7 +52,8 @@ export const USR_USERS_SEED: UsrUserRowDto[] = [
     isActive: true,
     defaultHotelId: 1,
     groupIds: [1],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   },
   {
     id: 2,
@@ -56,7 +65,8 @@ export const USR_USERS_SEED: UsrUserRowDto[] = [
     isActive: true,
     defaultHotelId: 1,
     groupIds: [3],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   },
   {
     id: 3,
@@ -68,7 +78,8 @@ export const USR_USERS_SEED: UsrUserRowDto[] = [
     isActive: true,
     defaultHotelId: 1,
     groupIds: [8],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   },
   {
     id: 4,
@@ -80,7 +91,8 @@ export const USR_USERS_SEED: UsrUserRowDto[] = [
     isActive: true,
     defaultHotelId: 10,
     groupIds: [2, 6],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   },
   {
     id: 5,
@@ -92,7 +104,8 @@ export const USR_USERS_SEED: UsrUserRowDto[] = [
     isActive: false,
     defaultHotelId: 1,
     groupIds: [4],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   },
 ];
 
@@ -108,7 +121,8 @@ export function emptyUsrUserForm(defaultHotelId: number | null = 1): UsrUserForm
     isActive: true,
     defaultHotelId,
     groupIds: [],
-    allowNavigation: true,
+    pageAccessMode: 'all',
+    landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   };
 }
 
@@ -124,7 +138,8 @@ export function usrUserRowToForm(row: UsrUserRowDto): UsrUserFormDto {
     isActive: row.isActive,
     defaultHotelId: row.defaultHotelId,
     groupIds: [...row.groupIds],
-    allowNavigation: row.allowNavigation,
+    pageAccessMode: row.pageAccessMode,
+    landingPagePath: row.landingPagePath,
   };
 }
 
@@ -141,12 +156,12 @@ export function roleToGroupIds(role: string | null | undefined): number[] {
     return [2];
   }
   if (normalized === HOTEL_USER_ROLE.Cashier) {
-    return [3];
+    return [3, 8];
   }
-  return [2];
+  return [];
 }
 
-export function groupIdsToRole(groupIds: readonly number[]): HotelUserRole {
+export function groupIdsToRole(groupIds: number[]): HotelUserRole {
   if (groupIds.includes(1)) {
     return HOTEL_USER_ROLE.Manager;
   }
@@ -160,6 +175,7 @@ export function groupIdsToRole(groupIds: readonly number[]): HotelUserRole {
 }
 
 export function apiUserToRow(dto: HotelAppUserDto): UsrUserRowDto {
+  const allPages = dto.allowNavigation !== false;
   return {
     id: dto.id,
     firstName: dto.firstName,
@@ -170,21 +186,30 @@ export function apiUserToRow(dto: HotelAppUserDto): UsrUserRowDto {
     isActive: true,
     defaultHotelId: 1,
     groupIds: roleToGroupIds(dto.role),
-    allowNavigation: dto.allowNavigation !== false,
+    pageAccessMode: allPages ? 'all' : 'specific',
+    landingPagePath: normalizeLandingPagePath(dto.landingPagePath),
   };
 }
 
-export function rowToApiInput(form: UsrUserFormDto): CreateUpdateHotelAppUserDto {
+export function rowToApiInput(
+  form: UsrUserFormDto,
+  retainedPassword = '',
+): CreateUpdateHotelAppUserDto {
   const password = form.password.trim();
   const keepPassword = password === '' || password === '********';
+  const allPages = form.pageAccessMode === 'all';
+  const effectivePassword = keepPassword ? retainedPassword : password;
   return {
     firstName: form.firstName.trim(),
-    lastName: form.surname.trim(),
+    lastName: form.surname.trim() || form.firstName.trim() || '-',
     userName: form.userName.trim(),
     email: form.email.trim(),
     phoneNumber: form.mobile.trim(),
-    password: keepPassword ? '' : password,
+    password: effectivePassword,
     role: groupIdsToRole(form.groupIds),
-    allowNavigation: form.allowNavigation !== false,
+    allowNavigation: allPages,
+    landingPagePath: allPages
+      ? DEFAULT_LANDING_PAGE_PATH
+      : normalizeLandingPagePath(form.landingPagePath),
   };
 }

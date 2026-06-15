@@ -8,7 +8,6 @@ public class CreateUpdateHotelAppUserDto
     [StringLength(128)]
     public string FirstName { get; set; } = string.Empty;
 
-    [Required]
     [StringLength(128)]
     public string LastName { get; set; } = string.Empty;
 
@@ -22,7 +21,6 @@ public class CreateUpdateHotelAppUserDto
     [StringLength(32)]
     public string PhoneNumber { get; set; } = string.Empty;
 
-    [Required]
     [StringLength(128)]
     public string Password { get; set; } = string.Empty;
 
@@ -31,4 +29,7 @@ public class CreateUpdateHotelAppUserDto
     public string Role { get; set; } = HotelUserRoles.Default;
 
     public bool AllowNavigation { get; set; } = true;
+
+    [StringLength(512)]
+    public string LandingPagePath { get; set; } = "/dashboard";
 }

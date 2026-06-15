@@ -504,6 +504,13 @@ namespace Modiaf.Al.Arab.Hotel.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("LandingPagePath")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)")
+                        .HasDefaultValue("/dashboard");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(64)

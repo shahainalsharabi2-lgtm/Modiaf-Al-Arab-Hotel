@@ -231,6 +231,7 @@ public class HotelDbContext(DbContextOptions<HotelDbContext> options) :
             b.Property(x => x.Password).IsRequired().HasMaxLength(128);
             b.Property(x => x.Role).IsRequired().HasMaxLength(32).HasDefaultValue(HotelUserRoles.Default);
             b.Property(x => x.AllowNavigation).IsRequired().HasDefaultValue(true);
+            b.Property(x => x.LandingPagePath).IsRequired().HasMaxLength(512).HasDefaultValue("/dashboard");
             b.HasIndex(x => x.UserName).IsUnique();
         });
 

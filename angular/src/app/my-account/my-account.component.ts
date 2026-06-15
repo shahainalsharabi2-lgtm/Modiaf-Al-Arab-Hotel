@@ -87,6 +87,7 @@ export class MyAccountComponent implements OnInit {
       password: (this.profile.password ?? '').trim(),
       role: lockedRole,
       allowNavigation: this.auth.currentUser()?.allowNavigation !== false,
+      landingPagePath: this.profile?.landingPagePath ?? '/dashboard',
     };
     if (!input.firstName || !input.lastName || !input.userName) {
       this.uiMsg.show(this.ui.screenText('myAccount', 'requiredFields'));
@@ -102,6 +103,7 @@ export class MyAccountComponent implements OnInit {
         phoneNumber: input.phoneNumber,
         role: input.role,
         allowNavigation: input.allowNavigation,
+        landingPagePath: input.landingPagePath,
       });
       this.uiMsg.show(this.ui.screenText('myAccount', 'saveSuccess'));
       this.cdr.markForCheck();
@@ -131,6 +133,7 @@ export class MyAccountComponent implements OnInit {
               phoneNumber: input.phoneNumber,
               role: input.role,
               allowNavigation: input.allowNavigation,
+              landingPagePath: input.landingPagePath,
             });
             this.uiMsg.show(this.ui.screenText('myAccount', 'saveSuccess'));
             this.cdr.markForCheck();

@@ -20,6 +20,8 @@ public class HotelAppUser : Entity<int>
 
     public bool AllowNavigation { get; set; } = true;
 
+    public string LandingPagePath { get; set; } = "/dashboard";
+
     protected HotelAppUser()
     {
     }

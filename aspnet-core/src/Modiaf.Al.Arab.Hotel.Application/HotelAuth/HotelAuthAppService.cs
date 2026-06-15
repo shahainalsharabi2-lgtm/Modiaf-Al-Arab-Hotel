@@ -44,6 +44,7 @@ public class HotelAuthAppService(IRepository<HotelUsers.HotelAppUser, int> repos
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
                 AllowNavigation = user.AllowNavigation,
+                LandingPagePath = user.LandingPagePath,
             },
         };
     }
