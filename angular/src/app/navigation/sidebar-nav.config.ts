@@ -139,11 +139,12 @@ export interface SettingsPageNavItem {
   icon: string;
   tab: string | null;
   requiresUsers?: boolean;
+  requiresSettings?: boolean;
 }
 
 /** عناصر شريط الإعدادات داخل صفحة /settings */
 export const SETTINGS_PAGE_NAV_ITEMS: ReadonlyArray<SettingsPageNavItem> = [
-  { labelKey: 'settingsMenuUiTranslation', icon: 'svg-language', tab: 'uiTranslations' },
+  { labelKey: 'settingsMenuUiTranslation', icon: 'svg-language', tab: 'uiTranslations', requiresSettings: true },
   { labelKey: 'navSettingsSystemSetup', icon: 'svg-settings', tab: 'general' },
   { labelKey: 'navSettingsMasterData', icon: 'svg-inputs', tab: 'translations' },
   { labelKey: 'navSettingsRoomMgmt', icon: 'svg-layout', tab: 'layout' },

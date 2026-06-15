@@ -29,4 +29,6 @@ public class CreateUpdateHotelAppUserDto
     [Required]
     [StringLength(32)]
     public string Role { get; set; } = HotelUserRoles.Default;
+
+    public bool AllowNavigation { get; set; } = true;
 }

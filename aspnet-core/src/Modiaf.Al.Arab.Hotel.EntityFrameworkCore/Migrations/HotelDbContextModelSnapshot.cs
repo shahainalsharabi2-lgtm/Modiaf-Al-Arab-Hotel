@@ -499,6 +499,11 @@ namespace Modiaf.Al.Arab.Hotel.Migrations
                         .HasColumnType("nvarchar(32)")
                         .HasDefaultValue("user");
 
+                    b.Property<bool>("AllowNavigation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(64)

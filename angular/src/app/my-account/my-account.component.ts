@@ -35,19 +35,8 @@ export class MyAccountComponent implements OnInit {
 
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
-    this.auth.ensureGuestSession();
     const session = this.auth.currentUser();
     if (!session?.id) {
-      this.profile = {
-        id: session?.id ?? 0,
-        firstName: session?.firstName ?? 'Hotel',
-        lastName: session?.lastName ?? 'Premio',
-        userName: session?.userName ?? 'admin',
-        email: session?.email ?? '',
-        phoneNumber: session?.phoneNumber ?? '',
-        password: '',
-        role: session?.role ?? 'manager',
-      };
       this.loading = false;
       return;
     }
@@ -97,6 +86,7 @@ export class MyAccountComponent implements OnInit {
       phoneNumber: (this.profile.phoneNumber ?? '').trim(),
       password: (this.profile.password ?? '').trim(),
       role: lockedRole,
+      allowNavigation: this.auth.currentUser()?.allowNavigation !== false,
     };
     if (!input.firstName || !input.lastName || !input.userName) {
       this.uiMsg.show(this.ui.screenText('myAccount', 'requiredFields'));
@@ -111,6 +101,7 @@ export class MyAccountComponent implements OnInit {
         email: input.email,
         phoneNumber: input.phoneNumber,
         role: input.role,
+        allowNavigation: input.allowNavigation,
       });
       this.uiMsg.show(this.ui.screenText('myAccount', 'saveSuccess'));
       this.cdr.markForCheck();
@@ -139,6 +130,7 @@ export class MyAccountComponent implements OnInit {
               email: input.email,
               phoneNumber: input.phoneNumber,
               role: input.role,
+              allowNavigation: input.allowNavigation,
             });
             this.uiMsg.show(this.ui.screenText('myAccount', 'saveSuccess'));
             this.cdr.markForCheck();

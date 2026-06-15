@@ -148,24 +148,92 @@
   grid-column: 1 / -1;
 }
 
+/* حقول النموذج — نصوص الإدخال متناسقة مع الإطار */
+.uu-modal__card .rt-field__control input,
+.uu-modal__card .rt-field__control select {
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+  padding-block: 0;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 2.5rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  box-sizing: border-box;
+  color: var(--app-text);
+}
+
+.uu-modal__card .rt-field__control input::placeholder {
+  font-size: 0.95rem;
+  color: var(--app-text-muted);
+  opacity: 0.85;
+}
+
+.uu-modal__card .rt-field__control input[dir='ltr'] {
+  direction: ltr;
+  text-align: left;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 2.5rem;
+}
+
+.uu-modal__card .rt-field__control--select select {
+  appearance: none;
+  cursor: pointer;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 2.5rem;
+}
+
+.uu-modal__card .rt-field__icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0.8rem;
+  inset-inline-start: auto;
+  transform: translateY(-50%);
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.uu-modal__card .rt-field__control:has(input[dir='ltr']) .rt-field__icon,
+.uu-modal__card .rt-field__control--select .rt-field__icon {
+  inset-inline-end: auto;
+  inset-inline-start: 0.8rem;
+}
+
 .uu-password-field {
   position: relative;
 }
 
 .uu-password-toggle {
   position: absolute;
-  inset-inline-start: 0.55rem;
+  inset-inline-start: 0.45rem;
+  inset-inline-end: auto;
   top: 50%;
   transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
   border: 0;
+  border-radius: 8px;
   background: transparent;
   color: var(--app-text-muted);
   cursor: pointer;
-  padding: 0.2rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.uu-password-toggle:hover {
+  color: var(--app-primary-mid);
+  background: var(--app-nav-hover, #f1f5f9);
 }
 
 .uu-password-field input {
-  padding-inline-start: 2.2rem;
+  padding-inline-start: 2.5rem;
+  padding-inline-end: 0.75rem;
 }
 
 .uu-groups-list {
@@ -189,6 +257,46 @@
   width: 1rem;
   height: 1rem;
   accent-color: #1a3a32;
+}
+
+.uu-nav-permission {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  text-align: start;
+}
+
+.uu-nav-permission__title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1a3a32;
+}
+
+.uu-nav-permission__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.uu-nav-permission__option input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+  accent-color: #1a3a32;
+  flex-shrink: 0;
+}
+
+.uu-nav-permission__option span {
+  line-height: 1.45;
 }
 
 .uu-modal__foot {

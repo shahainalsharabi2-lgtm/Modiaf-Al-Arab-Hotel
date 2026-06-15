@@ -43,6 +43,7 @@ public class HotelAuthAppService(IRepository<HotelUsers.HotelAppUser, int> repos
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
+                AllowNavigation = user.AllowNavigation,
             },
         };
     }

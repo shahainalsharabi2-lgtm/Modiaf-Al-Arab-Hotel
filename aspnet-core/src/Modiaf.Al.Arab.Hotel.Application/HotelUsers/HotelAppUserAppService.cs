@@ -31,10 +31,12 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
             PhoneNumber = entity.PhoneNumber,
             Password = entity.Password,
             Role = entity.Role,
+            AllowNavigation = entity.AllowNavigation,
         };
 
-    protected override HotelAppUser MapToEntity(CreateUpdateHotelAppUserDto createInput) =>
-        new(
+    protected override HotelAppUser MapToEntity(CreateUpdateHotelAppUserDto createInput)
+    {
+        var entity = new HotelAppUser(
             createInput.FirstName.Trim(),
             createInput.LastName.Trim(),
             createInput.UserName.Trim(),
@@ -42,6 +44,9 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
             (createInput.PhoneNumber ?? string.Empty).Trim(),
             createInput.Password,
             createInput.Role);
+        entity.AllowNavigation = createInput.AllowNavigation;
+        return entity;
+    }
 
     protected override void MapToEntity(CreateUpdateHotelAppUserDto updateInput, HotelAppUser entity)
     {
@@ -51,6 +56,7 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
         entity.Email = (updateInput.Email ?? string.Empty).Trim();
         entity.PhoneNumber = (updateInput.PhoneNumber ?? string.Empty).Trim();
         entity.Role = HotelUserRoles.Normalize(updateInput.Role);
+        entity.AllowNavigation = updateInput.AllowNavigation;
         if (!string.IsNullOrWhiteSpace(updateInput.Password))
         {
             entity.Password = updateInput.Password;

@@ -100,6 +100,6 @@ export class AccountHubPanelComponent {
   logout(): void {
     this.auth.logout();
     this.requestClose();
-    void this.router.navigate(['/settings'], { queryParams: { tab: 'uiTranslations' } });
+    void this.router.navigate(['/login']);
   }
 }

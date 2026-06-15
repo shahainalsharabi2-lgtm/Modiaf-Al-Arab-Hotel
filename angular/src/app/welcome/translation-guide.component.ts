@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { UiInlineTextComponent } from '../shared/ui-inline-text/ui-inline-text.component';
+import { HotelAuthService } from '../services/hotel-auth.service';
 import { UiTranslationsService } from '../services/ui-translations.service';
 import { WELCOME_GUIDE_STORAGE_KEY } from '../guards/welcome-entry.guard';
 import { bindUiTranslationRefresh } from '../utils/ui-screen-i18n.helper';
@@ -17,6 +18,7 @@ import { bindUiTranslationRefresh } from '../utils/ui-screen-i18n.helper';
 })
 export class TranslationGuideComponent implements OnInit {
   readonly ui = inject(UiTranslationsService);
+  private readonly auth = inject(HotelAuthService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -27,14 +29,28 @@ export class TranslationGuideComponent implements OnInit {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
   }
 
+  private postGuideDestination(): string[] {
+    return this.auth.canManageSettings() ? ['/settings'] : ['/dashboard'];
+  }
+
+  private postGuideQueryParams(): Record<string, string> | null {
+    return this.auth.canManageSettings() ? { tab: 'uiTranslations' } : null;
+  }
+
   startUsingSystem(): void {
     if (this.dontShowOnStartup) {
       this.markGuideCompleted();
     }
-    void this.router.navigate(['/settings'], { queryParams: { tab: 'uiTranslations' } });
+    void this.router.navigate(this.postGuideDestination(), {
+      queryParams: this.postGuideQueryParams(),
+    });
   }
 
   openInlineTranslationDemo(): void {
+    if (!this.auth.canManageSettings()) {
+      void this.router.navigate(['/dashboard']);
+      return;
+    }
     if (this.ui.displayLocale() === 'ar') {
       this.ui.setDisplayLocale('en', { skipToast: true });
     }
@@ -54,6 +70,8 @@ export class TranslationGuideComponent implements OnInit {
 
   skipGuide(): void {
     this.markGuideCompleted();
-    void this.router.navigate(['/settings'], { queryParams: { tab: 'uiTranslations' } });
+    void this.router.navigate(this.postGuideDestination(), {
+      queryParams: this.postGuideQueryParams(),
+    });
   }
 }

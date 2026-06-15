@@ -16,11 +16,22 @@ import { bindUiTranslationRefresh } from '../../utils/ui-screen-i18n.helper';
 import { HOTELS_SEED } from '../hotels/hotels.seed';
 import { USR_GROUPS_SEED } from '../usr-groups/usr-groups.seed';
 import {
-  USR_USERS_SEED,
+  HOTEL_USER_ROLE,
+  normalizeHotelUserRole,
+  type HotelUserRole,
+} from '../../utils/hotel-user-role';
+import {
+  CreateUpdateHotelAppUserDto,
+  HotelAppUserDto,
+  HotelAppUserService,
+} from '../../services/hotel-app-user.service';
+import {
   UsrUserFormDto,
   UsrUserRowDto,
+  apiUserToRow,
   displayUsrUserName,
   emptyUsrUserForm,
+  rowToApiInput,
   usrUserRowToForm,
 } from './usr-users.seed';
 
@@ -42,6 +53,7 @@ type SortDir = 'asc' | 'desc';
 export class UsrUsersComponent implements OnInit {
   readonly ui = inject(UiTranslationsService);
   private readonly uiMsg = inject(UiMessageService);
+  private readonly userService = inject(HotelAppUserService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -60,10 +72,28 @@ export class UsrUsersComponent implements OnInit {
   sortKey: SortKey | null = null;
   sortDir: SortDir = 'asc';
   openActionsId: number | null = null;
+  loading = true;
+  saving = false;
 
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
-    this.rows = USR_USERS_SEED.map((row) => ({ ...row, groupIds: [...row.groupIds] }));
+    this.loadRows();
+  }
+
+  private loadRows(): void {
+    this.loading = true;
+    this.userService.getAll().subscribe({
+      next: (users) => {
+        this.rows = users.map((user) => apiUserToRow(user));
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loading = false;
+        this.rows = [];
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   @HostListener('document:click')
@@ -189,6 +219,14 @@ export class UsrUsersComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  setAllowNavigation(value: boolean): void {
+    if (!this.canEdit) {
+      return;
+    }
+    this.form.allowNavigation = value;
+    this.cdr.markForCheck();
+  }
+
   openCreate(): void {
     if (!this.canEdit) {
       return;
@@ -224,26 +262,45 @@ export class UsrUsersComponent implements OnInit {
   }
 
   saveForm(): void {
-    if (!this.canEdit) {
+    if (!this.canEdit || this.saving) {
       return;
     }
-    const payload: UsrUserRowDto = {
-      id: this.form.id ?? this.rows.reduce((max, row) => Math.max(max, row.id), 0) + 1,
-      firstName: this.form.firstName.trim(),
-      surname: this.form.surname.trim(),
-      userName: this.form.userName.trim(),
-      mobile: this.form.mobile.trim(),
-      email: this.form.email.trim(),
-      isActive: this.form.isActive,
-      defaultHotelId: this.form.defaultHotelId ?? 1,
-      groupIds: [...this.form.groupIds],
-    };
-    if (this.form.id) {
-      this.rows = this.rows.map((row) => (row.id === payload.id ? payload : row));
-    } else {
-      this.rows = [...this.rows, payload];
+    const userName = this.form.userName.trim();
+    if (!userName || !this.form.firstName.trim()) {
+      this.uiMsg.show(this.ui.screenText('settings', 'usersRequiredFields'));
+      return;
     }
-    this.closeModal();
+    const password = this.form.password.trim();
+    const isEdit = !!this.form.id;
+    if (!isEdit && !password) {
+      this.uiMsg.show(this.ui.screenText('settings', 'usersRequiredFields'));
+      return;
+    }
+
+    const input = rowToApiInput(this.form);
+    this.saving = true;
+    const request$ = isEdit
+      ? this.userService.update(this.form.id!, input)
+      : this.userService.create(input);
+
+    request$.subscribe({
+      next: (saved) => {
+        const row = apiUserToRow(saved);
+        if (isEdit) {
+          this.rows = this.rows.map((r) => (r.id === row.id ? row : r));
+        } else {
+          this.rows = [...this.rows, row];
+        }
+        this.saving = false;
+        this.closeModal();
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.saving = false;
+        this.uiMsg.show(this.ui.screenText('settings', 'usersSaveFail'));
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   deleteRow(row: UsrUserRowDto): void {
@@ -255,8 +312,16 @@ export class UsrUsersComponent implements OnInit {
       if (!ok) {
         return;
       }
-      this.rows = this.rows.filter((r) => r.id !== row.id);
-      this.cdr.markForCheck();
+      this.userService.delete(row.id).subscribe({
+        next: () => {
+          this.rows = this.rows.filter((r) => r.id !== row.id);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.uiMsg.show(this.ui.screenText('settings', 'usersSaveFail'));
+          this.cdr.markForCheck();
+        },
+      });
     });
   }
 

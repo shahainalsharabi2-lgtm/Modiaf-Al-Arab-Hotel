@@ -13,6 +13,7 @@ export interface HotelAppUserDto {
   phoneNumber: string;
   password: string;
   role: string;
+  allowNavigation: boolean;
 }
 
 export interface CreateUpdateHotelAppUserDto {
@@ -23,6 +24,7 @@ export interface CreateUpdateHotelAppUserDto {
   phoneNumber: string;
   password: string;
   role: string;
+  allowNavigation: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

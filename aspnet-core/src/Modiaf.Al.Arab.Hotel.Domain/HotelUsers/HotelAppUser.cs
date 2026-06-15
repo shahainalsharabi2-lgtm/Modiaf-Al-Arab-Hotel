@@ -18,6 +18,8 @@ public class HotelAppUser : Entity<int>
 
     public string Role { get; set; } = HotelUserRoles.Default;
 
+    public bool AllowNavigation { get; set; } = true;
+
     protected HotelAppUser()
     {
     }

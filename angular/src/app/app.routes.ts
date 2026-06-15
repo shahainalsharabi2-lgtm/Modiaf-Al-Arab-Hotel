@@ -53,13 +53,17 @@ import { OpeningBalancesComponent } from './accounts/opening-balances/opening-ba
 import { ChartOfAccountsLinkComponent } from './accounts/chart-of-accounts-link/chart-of-accounts-link.component';
 import { AccountingEntriesComponent } from './accounts/accounting-entries/accounting-entries.component';
 import { TranslationGuideComponent } from './welcome/translation-guide.component';
+import { LoginComponent } from './login/login.component';
 import { authGuard } from './guards/auth.guard';
 import { inlineTranslationNavGuard } from './guards/inline-translation-nav.guard';
+import { loginGuard } from './guards/login.guard';
+import { navigationGuard } from './guards/navigation.guard';
 import { welcomeEntryGuard } from './guards/welcome-entry.guard';
 
-const protectedRoute = [authGuard, inlineTranslationNavGuard];
+const protectedRoute = [authGuard, navigationGuard, inlineTranslationNavGuard];
 
 export const appRoutes: Routes = [
+  { path: 'login', component: LoginComponent, canActivate: [loginGuard] },
   { path: '', pathMatch: 'full', canActivate: [welcomeEntryGuard], children: [] },
   { path: 'welcome', component: TranslationGuideComponent, canActivate: protectedRoute },
   { path: 'dashboard', component: DashboardComponent, canActivate: protectedRoute },

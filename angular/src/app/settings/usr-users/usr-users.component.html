@@ -110,7 +110,7 @@
   aria-modal="true"
   [attr.aria-label]="ui.screenText('settings', modalTitleKey())">
   <div class="uu-modal__backdrop" (click)="closeModal()"></div>
-  <form class="uu-modal__card" (ngSubmit)="saveForm()">
+  <form class="uu-modal__card" dir="rtl" (ngSubmit)="saveForm()">
     <header class="uu-modal__head">
       <h3>
         <i class="fas fa-user-plus" aria-hidden="true"></i>
@@ -192,7 +192,6 @@
             <button type="button" class="uu-password-toggle" (click)="togglePasswordVisibility()">
               <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'" aria-hidden="true"></i>
             </button>
-            <i class="fas fa-lock rt-field__icon" aria-hidden="true"></i>
           </div>
         </label>
         <label class="rt-field uu-form-grid__full">
@@ -214,6 +213,28 @@
           <span [attr.dir]="isLatinText(group.name) ? 'ltr' : null">{{ group.name }}</span>
         </label>
       </div>
+
+      <section class="uu-nav-permission">
+        <h4 class="uu-nav-permission__title">
+          <ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionTitle" />
+        </h4>
+        <label class="uu-nav-permission__option">
+          <input
+            type="radio"
+            name="allowNavigation"
+            [checked]="form.allowNavigation"
+            (change)="setAllowNavigation(true)" />
+          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionAllow" /></span>
+        </label>
+        <label class="uu-nav-permission__option">
+          <input
+            type="radio"
+            name="allowNavigation"
+            [checked]="!form.allowNavigation"
+            (change)="setAllowNavigation(false)" />
+          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersNavPermissionDeny" /></span>
+        </label>
+      </section>
     </div>
 
     <footer class="uu-modal__foot">

@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
-  HOTEL_USER_ROLE,
   canManageHotelUsers,
   canManageSettings,
   normalizeHotelUserRole,
@@ -18,6 +17,7 @@ export interface HotelAppUserSession {
   email: string;
   phoneNumber: string;
   role: HotelUserRole;
+  allowNavigation: boolean;
 }
 
 export interface HotelLoginResult {
@@ -27,17 +27,7 @@ export interface HotelLoginResult {
 }
 
 const SESSION_STORAGE_KEY = 'hotelAppUserSession';
-
-/** جلسة افتراضية — بدون صفحة تسجيل دخول */
-const DEFAULT_GUEST_SESSION: HotelAppUserSession = {
-  id: 0,
-  firstName: 'Hotel',
-  lastName: 'Premio',
-  userName: 'admin',
-  email: '',
-  phoneNumber: '',
-  role: HOTEL_USER_ROLE.Manager,
-};
+export const LOCKED_HOME_PATH = '/dashboard';
 
 @Injectable({ providedIn: 'root' })
 export class HotelAuthService {
@@ -46,24 +36,18 @@ export class HotelAuthService {
 
   constructor() {
     this.restoreSession();
-    this.ensureGuestSession();
   }
 
   private get apiUrl(): string {
     return `${environment.apis.default.url}/api/app/hotel-auth/login`;
   }
 
-  isLoggedIn(): boolean {
-    this.ensureGuestSession();
-    return this.session != null;
+  isAuthenticated(): boolean {
+    return (this.session?.id ?? 0) > 0;
   }
 
-  /** يضمن وجود جلسة نشطة دون صفحة login */
-  ensureGuestSession(): void {
-    if (this.session) {
-      return;
-    }
-    this.persistSession({ ...DEFAULT_GUEST_SESSION });
+  isLoggedIn(): boolean {
+    return this.isAuthenticated();
   }
 
   currentUser(): HotelAppUserSession | null {
@@ -80,6 +64,17 @@ export class HotelAuthService {
 
   canManageSettings(): boolean {
     return canManageSettings(this.session?.role);
+  }
+
+  canNavigateApp(): boolean {
+    if (canManageSettings(this.session?.role)) {
+      return true;
+    }
+    return this.session?.allowNavigation !== false;
+  }
+
+  lockedHomePath(): string {
+    return LOCKED_HOME_PATH;
   }
 
   login(userName: string, password: string): Observable<HotelLoginResult> {
@@ -108,16 +103,16 @@ export class HotelAuthService {
     } catch {
       /* ignore */
     }
-    this.ensureGuestSession();
   }
 
   private persistSession(user: HotelAppUserSession): void {
     this.session = {
       ...user,
       role: normalizeHotelUserRole(user.role),
+      allowNavigation: user.allowNavigation !== false,
     };
     try {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(user));
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.session));
     } catch {
       /* ignore */
     }
@@ -130,10 +125,11 @@ export class HotelAuthService {
         return;
       }
       const parsed = JSON.parse(raw) as HotelAppUserSession;
-      if (parsed?.id && parsed?.userName) {
+      if ((parsed?.id ?? 0) > 0 && parsed?.userName) {
         this.session = {
           ...parsed,
           role: normalizeHotelUserRole(parsed.role),
+          allowNavigation: parsed.allowNavigation !== false,
         };
       }
     } catch {

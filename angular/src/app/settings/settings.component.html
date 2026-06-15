@@ -1100,7 +1100,7 @@
           [canEdit]="settingsEditable" />
       </div>
 
-      <div class="tab-content" *ngIf="activeTab === 'uiTranslations'">
+      <div class="tab-content" *ngIf="activeTab === 'uiTranslations' && auth.canManageSettings()">
         <div class="settings-frame full-width ui-tr-editor">
           <div class="settings-tab-head settings-tab-head--with-actions">
             <h2>

@@ -7,6 +7,7 @@ export interface SettingsPageNavLeaf {
   icon: string;
   tab: string | null;
   requiresUsers?: boolean;
+  requiresSettings?: boolean;
 }
 
 export interface SettingsPageNavSection {
@@ -26,6 +27,7 @@ export const SETTINGS_PAGE_NAV: ReadonlyArray<SettingsPageNavEntry> = [
     labelKey: 'settingsMenuUiTranslation',
     icon: 'svg-language',
     tab: 'uiTranslations',
+    requiresSettings: true,
   },
   {
     kind: 'section',

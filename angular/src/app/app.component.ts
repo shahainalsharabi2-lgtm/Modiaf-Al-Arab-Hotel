@@ -234,7 +234,7 @@ interface AppSearchEntry {
           </div>
         </div>
 
-        <div class="sidebar-nav-wrap">
+        <div class="sidebar-nav-wrap" *ngIf="auth.canNavigateApp()">
         <nav class="sidebar-nav">
           <a
             routerLink="/dashboard"
@@ -833,7 +833,7 @@ interface AppSearchEntry {
         </main>
       </div>
 
-      <ng-container *ngIf="showMainChrome && !isUiTranslationsSettingsPage()">
+      <ng-container *ngIf="showMainChrome && !isUiTranslationsSettingsPage() && auth.canManageSettings()">
       <button
         type="button"
         class="sidebar-edge-toggle lang-rail-edge-toggle lang-rail-edge-toggle--fab"
@@ -3495,6 +3495,9 @@ export class AppComponent implements OnInit {
           this.ui.notifyInlineTranslationNavBlocked();
           return;
         }
+        if (!this.auth.canNavigateApp()) {
+          return;
+        }
         void this.router.navigate([shortcut.path], {
           queryParams: shortcut.queryParams ?? null,
         });
@@ -3628,6 +3631,9 @@ export class AppComponent implements OnInit {
   navigateFromSearch(item: AppSearchEntry): void {
     if (this.ui.inlineTranslationMode()) {
       this.ui.notifyInlineTranslationNavBlocked();
+      return;
+    }
+    if (!this.auth.canNavigateApp()) {
       return;
     }
     this.closeSearchOverlay();
@@ -3831,6 +3837,9 @@ export class AppComponent implements OnInit {
 
   async toggleInlineTranslationOnPage(event?: Event): Promise<void> {
     event?.stopPropagation();
+    if (!this.auth.canManageSettings()) {
+      return;
+    }
     this.closeSearchOverlay();
     this.notificationsOpen = false;
     if (this.ui.inlineTranslationMode()) {
@@ -3924,6 +3933,9 @@ export class AppComponent implements OnInit {
   }
 
   settingsSidebarLinkVisible(item: { labelKey: string; queryParams?: Record<string, string> }): boolean {
+    if (item.queryParams?.['tab'] === 'uiTranslations' || item.labelKey === 'settingsMenuUiTranslation') {
+      return this.auth.canManageSettings();
+    }
     if (item.queryParams?.['tab'] === 'users' || item.labelKey.startsWith('stgUsr')) {
       return this.auth.canManageUsers();
     }
@@ -4316,7 +4328,7 @@ export class AppComponent implements OnInit {
 
   private syncMainChromeForUrl(url: string): void {
     const path = (url.split('?')[0] || '').replace(/\/$/, '') || '/';
-    this.showMainChrome = true;
+    this.showMainChrome = path !== '/login';
     this.cdr.markForCheck();
   }
 

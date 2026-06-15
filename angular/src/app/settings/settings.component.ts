@@ -1126,7 +1126,7 @@ export class SettingsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.isAuthorized = true;
+    this.isAuthorized = this.auth.canManageSettings();
     this.applyTabFromRoute();
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.applyTabFromRoute();
@@ -1184,6 +1184,7 @@ export class SettingsComponent implements OnInit {
       phoneNumber: '',
       password: '',
       role: HOTEL_USER_ROLE.Regular,
+      allowNavigation: true,
     };
   }
 
@@ -1309,6 +1310,7 @@ export class SettingsComponent implements OnInit {
       phoneNumber: (raw.phoneNumber ?? '').trim(),
       password: (raw.password ?? '').trim(),
       role: normalizeHotelUserRole(raw.role),
+      allowNavigation: raw.allowNavigation !== false,
     };
   }
 
@@ -1322,6 +1324,10 @@ export class SettingsComponent implements OnInit {
     const navLeaf = findSettingsNavLeaf(navId);
     if (navLeaf) {
       if (navLeaf.requiresUsers && !this.auth.canManageUsers()) {
+        this.redirectSettingsFallback();
+        return;
+      }
+      if (navLeaf.requiresSettings && !this.auth.canManageSettings()) {
         this.redirectSettingsFallback();
         return;
       }
@@ -1343,21 +1349,30 @@ export class SettingsComponent implements OnInit {
       this.redirectSettingsFallback();
       return;
     }
+    if (tab === 'uiTranslations' && !this.auth.canManageSettings()) {
+      this.redirectSettingsFallback();
+      return;
+    }
     if (tab && this.settingsTabKeys.has(tab)) {
       this.activeTab = tab as typeof this.activeTab;
       this.activeSettingsNavId = navId || this.defaultNavIdForTab(tab);
       this.afterActiveTabChanged();
       return;
     }
-    this.activeTab = 'uiTranslations';
-    this.activeSettingsNavId = 'uiTranslation';
+    this.activeTab = this.auth.canManageSettings() ? 'uiTranslations' : 'general';
+    this.activeSettingsNavId = this.auth.canManageSettings() ? 'uiTranslation' : 'sys-hotels';
     if (!tab) {
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: 'uiTranslations', nav: 'uiTranslation' },
+        queryParams: {
+          tab: this.activeTab,
+          nav: this.activeSettingsNavId,
+        },
         replaceUrl: true,
       });
-      this.openUiTranslationsEditor();
+      if (this.activeTab === 'uiTranslations') {
+        this.openUiTranslationsEditor();
+      }
     }
   }
 
@@ -1470,6 +1485,9 @@ export class SettingsComponent implements OnInit {
 
   setActiveTab(tab: typeof this.activeTab, navId?: string | null): void {
     if (tab === 'users' && !this.auth.canManageUsers()) {
+      tab = 'general';
+    }
+    if (tab === 'uiTranslations' && !this.auth.canManageSettings()) {
       tab = 'general';
     }
     this.activeTab = tab;
@@ -1672,6 +1690,9 @@ export class SettingsComponent implements OnInit {
   }
 
   navigateToUiTranslationScreen(screenId: string, settingsNavId?: string): void {
+    if (!this.auth.canManageSettings()) {
+      return;
+    }
     const target = uiTranslationScreenNavigateTarget(screenId, settingsNavId);
     if (!target) {
       return;
@@ -1691,6 +1712,9 @@ export class SettingsComponent implements OnInit {
     screenId?: string,
     settingsNavId?: string,
   ): void {
+    if (!this.auth.canManageSettings()) {
+      return;
+    }
     const target = uiTranslationFieldNavigateTarget({
       kind,
       key,
