@@ -76,12 +76,12 @@ export class UiTranslationsService {
   private restoreLocaleFromStorage(): void {
     try {
       const raw = localStorage.getItem(HOTEL_UI_LOCALE_STORAGE_KEY);
-      if (raw === 'ar' || raw === 'en' || raw === 'fr' || raw === 'tr') {
+      if (raw === 'ar' || raw === 'en' || raw === 'fr' || raw === 'tr' || raw === 'id' || raw === 'am') {
         this.displayLocale.set(raw);
         if (raw !== 'ar') {
           this.hotelCurrency.syncForUiLocale(raw as HotelUiLocaleCode, { persist: false });
         }
-      } else if (raw === 'id' || raw === 'zh-Hans') {
+      } else if (raw === 'zh-Hans') {
         try {
           localStorage.setItem(HOTEL_UI_LOCALE_STORAGE_KEY, 'ar');
         } catch {
@@ -147,7 +147,7 @@ export class UiTranslationsService {
         if (this.lastPayloadMutationAt <= fetchStarted) {
           this.applyPayloadJson(dto?.payloadJson);
         }
-        this.mergeMissingLocalesFromAssets(done);
+        this.finalizePayloadFromApi(done);
       },
       error: () => {
         this.loadFallbackFromAssets(done);
@@ -155,7 +155,17 @@ export class UiTranslationsService {
     });
   }
 
-  /** يكمّل ar/en/tr من ملفات assets المحلية بعد استجابة API */
+  /** بعد جلب API: الخادم هو المصدر — لا نستبدل ar/en/tr من assets (كان يمسح الحفظ) */
+  private finalizePayloadFromApi(done?: () => void): void {
+    let payload = this.getPayload();
+    payload = this.ensureManualLocaleSkeleton(payload, 'fr');
+    payload = this.ensureManualLocaleSkeleton(payload, 'id');
+    payload = this.ensureManualLocaleSkeleton(payload, 'am');
+    this.payload.set(payload);
+    this.finishPayloadLoad(done);
+  }
+
+  /** يكمّل ar/en/tr من assets — فقط عند فشل API (loadFallbackFromAssets) */
   private mergeMissingLocalesFromAssets(done?: () => void): void {
     const assetLocales: Array<UiExtraLocaleCode | 'ar'> = ['ar', 'en', 'tr'];
     forkJoin(
@@ -173,6 +183,8 @@ export class UiTranslationsService {
         }
       });
       payload = this.ensureManualLocaleSkeleton(payload, 'fr');
+      payload = this.ensureManualLocaleSkeleton(payload, 'id');
+      payload = this.ensureManualLocaleSkeleton(payload, 'am');
       this.payload.set(payload);
       this.mergeArabicSettingsScreenCopyFromAssets(done);
     });
@@ -196,7 +208,7 @@ export class UiTranslationsService {
     locale: string,
     asset: UiLocaleFilePayload,
   ): UiManualTranslationsPayload {
-    if (locale === 'fr') {
+    if (locale === 'fr' || locale === 'id' || locale === 'am') {
       return payload;
     }
 
@@ -322,6 +334,8 @@ export class UiTranslationsService {
         }
       });
       payload = this.ensureManualLocaleSkeleton(payload, 'fr');
+      payload = this.ensureManualLocaleSkeleton(payload, 'id');
+      payload = this.ensureManualLocaleSkeleton(payload, 'am');
       this.payload.set(payload);
       this.mergeArabicSettingsScreenCopyFromAssets(done);
     });
