@@ -45,7 +45,7 @@ public class HotelDomainSharedModule : AbpModule
             options.Resources
                 .Add<HotelResource>("en")
                 .AddBaseTypes(typeof(AbpValidationResource))
-                .AddVirtualJson("/Localization/Hotel");
+                .AddVirtualJson("/Localization/Abp/Hotel");
 
             options.DefaultResourceType = typeof(HotelResource);
         });

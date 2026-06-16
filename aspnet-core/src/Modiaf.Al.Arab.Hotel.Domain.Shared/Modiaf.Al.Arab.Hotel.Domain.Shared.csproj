@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Localization\Hotel\*.json" />
-    <Content Remove="Localization\Hotel\*.json" />
+    <EmbeddedResource Include="Localization\Abp\Hotel\*.json" />
+    <Content Remove="Localization\Abp\Hotel\*.json" />
     <EmbeddedResource Include="Localization\ar.json" />
     <EmbeddedResource Include="Localization\en.json" />
     <EmbeddedResource Include="Localization\fr.json" />
