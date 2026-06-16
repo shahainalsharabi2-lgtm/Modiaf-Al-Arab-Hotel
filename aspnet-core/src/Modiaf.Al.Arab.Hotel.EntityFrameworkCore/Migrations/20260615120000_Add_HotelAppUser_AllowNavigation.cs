@@ -1,9 +1,13 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Modiaf.Al.Arab.Hotel.EntityFrameworkCore;
 
 #nullable disable
 
 namespace Modiaf.Al.Arab.Hotel.Migrations
 {
+    [DbContext(typeof(HotelDbContext))]
+    [Migration("20260615120000_Add_HotelAppUser_AllowNavigation")]
     /// <inheritdoc />
     public partial class Add_HotelAppUser_AllowNavigation : Migration
     {

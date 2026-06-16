@@ -13,9 +13,7 @@ namespace Modiaf.Al.Arab.Hotel.UiTranslations;
 public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
     : IUiTranslationsFileStore, ITransientDependency
 {
-    public static readonly string[] SupportedLocales = ["ar", "en", "fr", "tr"];
-
-    private static readonly SemaphoreSlim IoGate = new(1, 1);
+    public static readonly string[] SupportedLocales = UiTranslationsDefaults.SupportedLocales;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -26,19 +24,6 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
 
     public async Task<string> ReadCombinedPayloadJsonAsync(CancellationToken cancellationToken = default)
     {
-        await IoGate.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            return await ReadCombinedPayloadJsonCoreAsync(cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            IoGate.Release();
-        }
-    }
-
-    private async Task<string> ReadCombinedPayloadJsonCoreAsync(CancellationToken cancellationToken)
-    {
         await EnsureLocaleFilesExistAsync(cancellationToken).ConfigureAwait(false);
 
         var sidebarNav = new Dictionary<string, Dictionary<string, string>>();
@@ -48,18 +33,26 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
 
         foreach (var locale in SupportedLocales)
         {
-            var path = GetLocaleFilePath(locale);
-            if (!File.Exists(path))
+            var localeFile = await ReadLocaleFileAsync(locale, cancellationToken).ConfigureAwait(false);
+            if (localeFile.SidebarNav is { Count: > 0 })
             {
-                continue;
+                sidebarNav[locale] = localeFile.SidebarNav;
             }
 
-            var localeFile = await ReadLocaleFileAsync(locale, cancellationToken).ConfigureAwait(false);
-            sidebarNav[locale] = localeFile.SidebarNav ?? new Dictionary<string, string>();
-            brandSubtitle[locale] = localeFile.BrandSubtitle ?? string.Empty;
-            chrome[locale] = localeFile.Chrome ?? new Dictionary<string, string>();
-            screenCopy[locale] = localeFile.ScreenCopy ??
-                                 new Dictionary<string, Dictionary<string, string>>();
+            if (localeFile.BrandSubtitle is not null)
+            {
+                brandSubtitle[locale] = localeFile.BrandSubtitle;
+            }
+
+            if (localeFile.Chrome is { Count: > 0 })
+            {
+                chrome[locale] = localeFile.Chrome;
+            }
+
+            if (localeFile.ScreenCopy is { Count: > 0 })
+            {
+                screenCopy[locale] = localeFile.ScreenCopy;
+            }
         }
 
         var combined = new Dictionary<string, object?>();
@@ -90,63 +83,6 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
         string payloadJson,
         CancellationToken cancellationToken = default)
     {
-        await IoGate.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(payloadJson) ? "{}" : payloadJson);
-            var root = doc.RootElement;
-
-            Directory.CreateDirectory(GetRootDirectory());
-
-            foreach (var locale in SupportedLocales)
-            {
-                var incoming = ExtractLocaleFromCombined(root, locale);
-                if (!CombinedPayloadHasLocale(root, locale))
-                {
-                    // payload المرسل لا يتضمن هذه اللغة — لا نمسح ملفها (مثل en.json)
-                    continue;
-                }
-
-                await WriteLocaleFileAsync(locale, incoming, cancellationToken).ConfigureAwait(false);
-            }
-        }
-        finally
-        {
-            IoGate.Release();
-        }
-    }
-
-    private async Task EnsureLocaleFilesExistAsync(CancellationToken cancellationToken)
-    {
-        var root = GetRootDirectory();
-        if (!Directory.Exists(root))
-        {
-            Directory.CreateDirectory(root);
-        }
-
-        var anyMissing = false;
-        foreach (var locale in SupportedLocales)
-        {
-            if (!File.Exists(GetLocaleFilePath(locale)))
-            {
-                anyMissing = true;
-                break;
-            }
-        }
-
-        if (!anyMissing)
-        {
-            return;
-        }
-
-        var seedJson = UiTranslationsSeedDefaults.PayloadJson;
-        await WriteCombinedPayloadJsonCoreAsync(seedJson, cancellationToken).ConfigureAwait(false);
-    }
-
-    private async Task WriteCombinedPayloadJsonCoreAsync(
-        string payloadJson,
-        CancellationToken cancellationToken)
-    {
         using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(payloadJson) ? "{}" : payloadJson);
         var root = doc.RootElement;
 
@@ -154,111 +90,15 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
 
         foreach (var locale in SupportedLocales)
         {
-            var incoming = ExtractLocaleFromCombined(root, locale);
             if (!CombinedPayloadHasLocale(root, locale))
             {
+                // لا تُفرَغ ملفات اللغات غير الموجودة في payload المرسل
                 continue;
             }
 
-            await WriteLocaleFileAsync(locale, incoming, cancellationToken).ConfigureAwait(false);
+            var localeDto = ExtractLocaleFromCombined(root, locale);
+            await WriteLocaleFileAsync(locale, localeDto, cancellationToken).ConfigureAwait(false);
         }
-    }
-
-    private string GetRootDirectory()
-    {
-        if (string.IsNullOrWhiteSpace(options.Value.RootDirectory))
-        {
-            throw new InvalidOperationException(
-                "UiTranslations:RootDirectory is not configured. Set it in HotelHttpApiHostModule.");
-        }
-
-        return options.Value.RootDirectory;
-    }
-
-    private string GetLocaleFilePath(string locale) =>
-        Path.Combine(GetRootDirectory(), $"{locale}.json");
-
-    private async Task<UiTranslationsLocaleFileDto> ReadLocaleFileAsync(
-        string locale,
-        CancellationToken cancellationToken)
-    {
-        var path = GetLocaleFilePath(locale);
-        if (!File.Exists(path))
-        {
-            return new UiTranslationsLocaleFileDto();
-        }
-
-        return await RunWithIoRetryAsync(
-            async () =>
-            {
-                await using var stream = new FileStream(
-                    path,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite | FileShare.Delete);
-                var dto = await JsonSerializer
-                    .DeserializeAsync<UiTranslationsLocaleFileDto>(stream, JsonOptions, cancellationToken)
-                    .ConfigureAwait(false);
-                return dto ?? new UiTranslationsLocaleFileDto();
-            },
-            cancellationToken).ConfigureAwait(false);
-    }
-
-    private async Task WriteLocaleFileAsync(
-        string locale,
-        UiTranslationsLocaleFileDto dto,
-        CancellationToken cancellationToken)
-    {
-        var path = GetLocaleFilePath(locale);
-        var tempPath = path + ".tmp";
-
-        await RunWithIoRetryAsync(
-            async () =>
-            {
-                await using (var stream = new FileStream(
-                                 tempPath,
-                                 FileMode.Create,
-                                 FileAccess.Write,
-                                 FileShare.None))
-                {
-                    await JsonSerializer
-                        .SerializeAsync(stream, dto, JsonOptions, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-
-                if (File.Exists(path))
-                {
-                    File.Replace(tempPath, path, destinationBackupFileName: null);
-                }
-                else
-                {
-                    File.Move(tempPath, path);
-                }
-
-                return true;
-            },
-            cancellationToken).ConfigureAwait(false);
-    }
-
-    private static async Task<T> RunWithIoRetryAsync<T>(
-        Func<Task<T>> action,
-        CancellationToken cancellationToken)
-    {
-        const int maxAttempts = 5;
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            try
-            {
-                return await action().ConfigureAwait(false);
-            }
-            catch (IOException) when (attempt < maxAttempts)
-            {
-                await Task.Delay(50 * attempt, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        return await action().ConfigureAwait(false);
     }
 
     private static bool CombinedPayloadHasLocale(JsonElement root, string locale)
@@ -288,6 +128,80 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
         }
 
         return false;
+    }
+
+    private async Task EnsureLocaleFilesExistAsync(CancellationToken cancellationToken)
+    {
+        var root = GetRootDirectory();
+        Directory.CreateDirectory(root);
+
+        var anyMissing = false;
+        foreach (var locale in SupportedLocales)
+        {
+            if (File.Exists(GetLocaleFilePath(locale)))
+            {
+                continue;
+            }
+
+            var embeddedJson = UiTranslationsDefaults.TryReadEmbeddedLocaleJson(locale);
+            if (!string.IsNullOrWhiteSpace(embeddedJson))
+            {
+                await File.WriteAllTextAsync(GetLocaleFilePath(locale), embeddedJson, cancellationToken)
+                    .ConfigureAwait(false);
+                continue;
+            }
+
+            anyMissing = true;
+        }
+
+        if (!anyMissing)
+        {
+            return;
+        }
+
+        var seedJson = UiTranslationsSeedDefaults.PayloadJson;
+        await WriteCombinedPayloadJsonAsync(seedJson, cancellationToken).ConfigureAwait(false);
+    }
+
+    private string GetRootDirectory()
+    {
+        if (string.IsNullOrWhiteSpace(options.Value.RootDirectory))
+        {
+            throw new InvalidOperationException(
+                "UiTranslations:RootDirectory is not configured. Set it in HotelHttpApiHostModule.");
+        }
+
+        return options.Value.RootDirectory;
+    }
+
+    private string GetLocaleFilePath(string locale) =>
+        Path.Combine(GetRootDirectory(), $"{locale}.json");
+
+    private async Task<UiTranslationsLocaleFileDto> ReadLocaleFileAsync(
+        string locale,
+        CancellationToken cancellationToken)
+    {
+        var path = GetLocaleFilePath(locale);
+        if (!File.Exists(path))
+        {
+            return new UiTranslationsLocaleFileDto();
+        }
+
+        await using var stream = File.OpenRead(path);
+        var dto = await JsonSerializer
+            .DeserializeAsync<UiTranslationsLocaleFileDto>(stream, JsonOptions, cancellationToken)
+            .ConfigureAwait(false);
+        return dto ?? new UiTranslationsLocaleFileDto();
+    }
+
+    private async Task WriteLocaleFileAsync(
+        string locale,
+        UiTranslationsLocaleFileDto dto,
+        CancellationToken cancellationToken)
+    {
+        var path = GetLocaleFilePath(locale);
+        await using var stream = File.Create(path);
+        await JsonSerializer.SerializeAsync(stream, dto, JsonOptions, cancellationToken).ConfigureAwait(false);
     }
 
     private static UiTranslationsLocaleFileDto ExtractLocaleFromCombined(JsonElement root, string locale)

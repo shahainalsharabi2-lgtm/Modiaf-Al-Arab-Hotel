@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" role="img" aria-label="Ethiopia">
+  <rect width="24" height="16" rx="1" fill="#078930"/>
+  <rect y="5.33" width="24" height="5.34" fill="#fcd116"/>
+  <rect y="10.67" width="24" height="5.33" fill="#da121a"/>
+  <circle cx="12" cy="8" r="3.2" fill="#0f47af"/>
+  <path fill="#fcd116" d="M12 6.1l.55 1.7h1.78l-1.44 1.05.55 1.7L12 9.5l-1.44 1.05.55-1.7-1.44-1.05H11.45L12 6.1z"/>
+</svg>
