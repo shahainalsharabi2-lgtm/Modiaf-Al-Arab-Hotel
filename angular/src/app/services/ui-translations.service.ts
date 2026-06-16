@@ -155,14 +155,26 @@ export class UiTranslationsService {
     });
   }
 
-  /** بعد جلب API: الخادم هو المصدر — لا نستبدل ar/en/tr من assets (كان يمسح الحفظ) */
+  /** بعد جلب API: نكمّل الحقول الفارغة فقط من assets — دون مسح ما حفظه الخادم */
   private finalizePayloadFromApi(done?: () => void): void {
-    let payload = this.getPayload();
-    payload = this.ensureManualLocaleSkeleton(payload, 'fr');
-    payload = this.ensureManualLocaleSkeleton(payload, 'id');
-    payload = this.ensureManualLocaleSkeleton(payload, 'am');
-    this.payload.set(payload);
-    this.finishPayloadLoad(done);
+    const assetLocales: Array<UiExtraLocaleCode | 'ar'> = ['ar', 'en', 'fr', 'id', 'tr', 'am'];
+    forkJoin(
+      assetLocales.map((locale) =>
+        this.http.get<UiLocaleFilePayload>(`/assets/ui-translations/${locale}.json`).pipe(
+          catchError(() => of(null)),
+        ),
+      ),
+    ).subscribe((files) => {
+      let payload = this.getPayload();
+      assetLocales.forEach((locale, index) => {
+        const asset = files[index];
+        if (asset) {
+          payload = this.fillMissingLocaleFromAsset(payload, locale, asset);
+        }
+      });
+      this.payload.set(payload);
+      this.finishPayloadLoad(done);
+    });
   }
 
   /** يكمّل ar/en/tr من assets — فقط عند فشل API (loadFallbackFromAssets) */
@@ -208,10 +220,6 @@ export class UiTranslationsService {
     locale: string,
     asset: UiLocaleFilePayload,
   ): UiManualTranslationsPayload {
-    if (locale === 'fr' || locale === 'id' || locale === 'am') {
-      return payload;
-    }
-
     const next = structuredClone(payload) as UiManualTranslationsPayload;
 
     if (!next.sidebarNav) {

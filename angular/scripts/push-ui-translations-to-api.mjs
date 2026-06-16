@@ -10,8 +10,8 @@ const sourceDir = path.join(
 );
 const apiUrl =
   process.env.UI_TRANSLATIONS_API_URL ??
-  'https://hotel-api-fo0z.onrender.com/api/app/ui-translations-blob';
-const locales = ['ar', 'en', 'fr', 'tr'];
+  'https://hotel-management.shahainalsharabi2.workers.dev/api/app/ui-translations-blob';
+const locales = ['ar', 'en', 'fr', 'id', 'tr', 'am'];
 
 function readLocale(locale) {
   const filePath = path.join(sourceDir, `${locale}.json`);
