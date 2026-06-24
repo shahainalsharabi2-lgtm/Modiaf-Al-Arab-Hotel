@@ -22,6 +22,9 @@ public class HotelAppUser : Entity<int>
 
     public string LandingPagePath { get; set; } = "/dashboard";
 
+    /// <summary>عند true يُمنع المستخدم من صفحات إدارة المستخدمين.</summary>
+    public bool DenyUserManagement { get; set; } = true;
+
     protected HotelAppUser()
     {
     }

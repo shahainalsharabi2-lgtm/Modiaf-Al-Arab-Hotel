@@ -1,5 +1,6 @@
 ﻿using Localization.Resources.AbpUi;
 using Modiaf.Al.Arab.Hotel.Localization;
+using Modiaf.Al.Arab.Hotel.Reservations;
 using Volo.Abp.Account;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
@@ -13,6 +14,7 @@ namespace Modiaf.Al.Arab.Hotel;
 
 [DependsOn(
     typeof(HotelApplicationContractsModule),
+    typeof(ReservationsHttpApiModule),
     typeof(AbpAccountHttpApiModule),
     typeof(AbpIdentityHttpApiModule),
     typeof(AbpPermissionManagementHttpApiModule),

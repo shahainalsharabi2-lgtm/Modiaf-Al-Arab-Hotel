@@ -18,17 +18,38 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
         PagedAndSortedResultRequestDto input)
     {
         var query = await ReadOnlyRepository.GetQueryableAsync();
-        return query.OrderBy(x => x.UserName);
+        var excludedUserName = HotelSystemOwner.UserName.ToLowerInvariant();
+        return query
+            .Where(x => x.UserName.ToLower() != excludedUserName)
+            .OrderBy(x => x.UserName);
     }
 
     public override async Task<HotelAppUserDto> CreateAsync(CreateUpdateHotelAppUserDto input)
     {
+        EnsureNotSystemOwnerAccount(input.UserName);
         if (string.IsNullOrWhiteSpace(input.Password))
         {
             throw new UserFriendlyException("كلمة المرور مطلوبة عند إنشاء مستخدم جديد.");
         }
 
+        await EnsureUserNameAvailableAsync(input.UserName);
         return await base.CreateAsync(input);
+    }
+
+    public override async Task<HotelAppUserDto> UpdateAsync(int id, CreateUpdateHotelAppUserDto input)
+    {
+        var existing = await repository.GetAsync(id);
+        EnsureNotSystemOwnerAccount(existing.UserName);
+        EnsureNotSystemOwnerAccount(input.UserName);
+        await EnsureUserNameAvailableAsync(input.UserName, id);
+        return await base.UpdateAsync(id, input);
+    }
+
+    public override async Task DeleteAsync(int id)
+    {
+        var existing = await repository.GetAsync(id);
+        EnsureNotSystemOwnerAccount(existing.UserName);
+        await base.DeleteAsync(id);
     }
 
     protected override HotelAppUserDto MapToGetOutputDto(HotelAppUser entity) =>
@@ -44,6 +65,7 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
             Role = entity.Role,
             AllowNavigation = entity.AllowNavigation,
             LandingPagePath = entity.LandingPagePath,
+            DenyUserManagement = entity.DenyUserManagement,
         };
 
     protected override HotelAppUser MapToEntity(CreateUpdateHotelAppUserDto createInput)
@@ -58,6 +80,7 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
             createInput.Role);
         entity.AllowNavigation = createInput.AllowNavigation;
         entity.LandingPagePath = NormalizeLandingPagePath(createInput.LandingPagePath);
+        entity.DenyUserManagement = createInput.DenyUserManagement;
         return entity;
     }
 
@@ -71,9 +94,36 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
         entity.Role = HotelUserRoles.Normalize(updateInput.Role);
         entity.AllowNavigation = updateInput.AllowNavigation;
         entity.LandingPagePath = NormalizeLandingPagePath(updateInput.LandingPagePath);
+        entity.DenyUserManagement = updateInput.DenyUserManagement;
         if (!string.IsNullOrWhiteSpace(updateInput.Password))
         {
             entity.Password = updateInput.Password;
+        }
+    }
+
+    private static void EnsureNotSystemOwnerAccount(string? userName)
+    {
+        if (HotelSystemOwner.IsUserName(userName))
+        {
+            throw new UserFriendlyException("لا يمكن إنشاء أو تعديل حساب صاحب النظام من واجهة المستخدمين.");
+        }
+    }
+
+    private async Task EnsureUserNameAvailableAsync(string userName, int? excludeId = null)
+    {
+        var normalizedUserName = userName.Trim().ToLowerInvariant();
+        if (normalizedUserName.Length == 0)
+        {
+            return;
+        }
+
+        var matches = await repository.GetListAsync(
+            x => x.UserName.ToLower() == normalizedUserName &&
+                 (!excludeId.HasValue || x.Id != excludeId.Value));
+
+        if (matches.Count > 0)
+        {
+            throw new UserFriendlyException("اسم المستخدم مستخدم مسبقاً. يرجى اختيار اسم آخر.");
         }
     }
 
@@ -85,10 +135,32 @@ public class HotelAppUserAppService(IRepository<HotelAppUser, int> repository)
             return "/dashboard";
         }
 
+        var embeddedMatch = System.Text.RegularExpressions.Regex.Match(
+            trimmed,
+            @"\/?https?:\/\/[^\s]+",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (embeddedMatch.Success)
+        {
+            trimmed = embeddedMatch.Value.TrimStart('/');
+        }
+
         if (Uri.TryCreate(trimmed, UriKind.Absolute, out var absoluteUri) &&
             (absoluteUri.Scheme == Uri.UriSchemeHttp || absoluteUri.Scheme == Uri.UriSchemeHttps))
         {
             trimmed = absoluteUri.PathAndQuery;
+        }
+
+        if (trimmed.StartsWith("/http://", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("/https://", StringComparison.OrdinalIgnoreCase))
+        {
+            if (Uri.TryCreate(trimmed[1..], UriKind.Absolute, out var nestedUri))
+            {
+                trimmed = nestedUri.PathAndQuery;
+            }
+            else
+            {
+                return "/dashboard";
+            }
         }
 
         var withSlash = trimmed.StartsWith('/') ? trimmed : $"/{trimmed}";

@@ -15,16 +15,28 @@
   <div class="gc-layout">
     <aside class="gc-nav-col">
       <div class="gc-nav-card">
+        <div class="gc-nav-header">
+          <div class="gc-nav-header-icon" aria-hidden="true">
+            <i class="fas fa-list-ul"></i>
+          </div>
+          <h2 class="gc-nav-header-title">{{ navTitle() }}</h2>
+        </div>
         <div class="gc-nav-inner">
-          <ul class="gc-nav-list">
+          <ul class="gc-nav-list" role="tablist">
             @for (tab of tabs; track tab.id) {
-              <li>
+              <li class="gc-nav-item" role="none">
                 <button
                   type="button"
+                  role="tab"
                   class="gc-nav-link"
                   [class.gc-nav-link--active]="activeTab === tab.id"
+                  [attr.aria-selected]="activeTab === tab.id"
                   (click)="selectTab(tab.id)">
-                  {{ tabLabel(tab.labelKey) }}
+                  <i class="gc-nav-link__icon" [class]="tab.icon" aria-hidden="true"></i>
+                  <span class="gc-nav-link__label">{{ tabLabel(tab.labelKey) }}</span>
+                  @if (tabCount(tab.id) !== null) {
+                    <span class="gc-nav-link__badge">{{ tabCount(tab.id) }}</span>
+                  }
                 </button>
               </li>
             }
@@ -33,13 +45,14 @@
       </div>
     </aside>
 
-    <div class="gc-content-col">
+    <div class="gc-content-col" role="tabpanel">
       @for (tab of tabs; track tab.id) {
         @if (activeTab === tab.id) {
           <app-general-code-panel
             [category]="tab.id"
             [titleKey]="tab.labelKey"
-            [descriptionKey]="tab.descriptionKey" />
+            [descriptionKey]="tab.descriptionKey"
+            (itemsLoaded)="onTabItemsLoaded(tab.id, $event)" />
         }
       }
     </div>

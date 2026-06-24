@@ -24,6 +24,9 @@ export class GeneralCodesComponent implements OnInit {
   readonly tabs = GENERAL_CODE_TABS;
   activeTab: GeneralCodeCategoryId = GENERAL_CODE_TABS[0].id;
 
+  /** خريطة: category → عدد العناصر المحملة (تُحدَّث عند تغيير التبويب) */
+  readonly tabCounts = new Map<GeneralCodeCategoryId, number>();
+
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
   }
@@ -32,11 +35,25 @@ export class GeneralCodesComponent implements OnInit {
     return this.ui.screenText('generalCodes', labelKey);
   }
 
+  navTitle(): string {
+    return this.ui.screenText('generalCodes', 'navTitle') || 'الترميزات';
+  }
+
   selectTab(id: GeneralCodeCategoryId): void {
     this.activeTab = id;
   }
 
   activeTabConfig(): GeneralCodeTabConfig | undefined {
     return this.tabs.find((t) => t.id === this.activeTab);
+  }
+
+  /** يُستدعى من GeneralCodePanelComponent عند تحميل عناصر فئة */
+  onTabItemsLoaded(category: GeneralCodeCategoryId, count: number): void {
+    this.tabCounts.set(category, count);
+    this.cdr.markForCheck();
+  }
+
+  tabCount(id: GeneralCodeCategoryId): number | null {
+    return this.tabCounts.has(id) ? (this.tabCounts.get(id) ?? null) : null;
   }
 }

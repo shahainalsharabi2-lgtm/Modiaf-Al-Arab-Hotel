@@ -85,6 +85,15 @@ export const HOTEL_CURRENCY_PRESETS: readonly HotelCurrencyPreset[] = [
     flag: '🇮🇩',
     engraveAr: 'إندونيسيا',
   },
+  {
+    id: 'ETB',
+    code: 'ETB',
+    symbol: 'Br',
+    nameAr: 'بير إثيوبي',
+    nameEn: 'Ethiopian Birr',
+    flag: '🇪🇹',
+    engraveAr: 'إثيوبيا',
+  },
 ] as const;
 
 export const HOTEL_CURRENCY_CUSTOM_ID = 'custom' as const;
@@ -92,7 +101,7 @@ export const HOTEL_CURRENCY_CUSTOM_ID = 'custom' as const;
 export const DEFAULT_HOTEL_CURRENCY_ID = 'YER' as const;
 
 /** لغات عرض الواجهة */
-export type HotelUiLocaleCode = 'ar' | 'en' | 'fr' | 'tr';
+export type HotelUiLocaleCode = 'ar' | 'en' | 'fr' | 'tr' | 'id' | 'am';
 
 /** عملة افتراضية لكل لغة */
 export const LOCALE_DEFAULT_CURRENCY_ID: Record<HotelUiLocaleCode, HotelCurrencyPresetId> = {
@@ -100,6 +109,8 @@ export const LOCALE_DEFAULT_CURRENCY_ID: Record<HotelUiLocaleCode, HotelCurrency
   en: 'USD',
   fr: 'EUR',
   tr: 'TRY',
+  id: 'IDR',
+  am: 'ETB',
 };
 
 export function currencyIdForUiLocale(locale: string): HotelCurrencyPresetId {

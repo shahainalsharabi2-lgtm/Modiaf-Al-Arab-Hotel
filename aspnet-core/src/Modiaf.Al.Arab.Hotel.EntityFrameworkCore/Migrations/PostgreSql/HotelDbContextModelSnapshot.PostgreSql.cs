@@ -504,6 +504,11 @@ namespace Modiaf.Al.Arab.Hotel.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("DenyUserManagement")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("LandingPagePath")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

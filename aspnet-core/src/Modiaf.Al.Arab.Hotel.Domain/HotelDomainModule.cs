@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Modiaf.Al.Arab.Hotel.MultiTenancy;
+using Modiaf.Al.Arab.Hotel.Reservations;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Emailing;
@@ -19,6 +20,7 @@ namespace Modiaf.Al.Arab.Hotel;
 
 [DependsOn(
     typeof(HotelDomainSharedModule),
+    typeof(ReservationsDomainModule),
     typeof(AbpAuditLoggingDomainModule),
     typeof(AbpBackgroundJobsDomainModule),
     typeof(AbpFeatureManagementDomainModule),

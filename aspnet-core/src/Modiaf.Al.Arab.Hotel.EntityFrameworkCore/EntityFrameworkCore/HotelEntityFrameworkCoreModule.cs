@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Modiaf.Al.Arab.Hotel.Reservations.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -13,7 +14,6 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Timing;
-using Modiaf.Al.Arab.Hotel.Bookings;
 using Modiaf.Al.Arab.Hotel.Floors;
 using Modiaf.Al.Arab.Hotel.IdentityTypes;
 using Modiaf.Al.Arab.Hotel.Repository;
@@ -25,6 +25,7 @@ namespace Modiaf.Al.Arab.Hotel.EntityFrameworkCore;
 
 [DependsOn(
     typeof(HotelDomainModule),
+    typeof(ReservationsEntityFrameworkCoreModule),
     typeof(AbpIdentityEntityFrameworkCoreModule),
     typeof(AbpOpenIddictEntityFrameworkCoreModule),
     typeof(AbpPermissionManagementEntityFrameworkCoreModule),
@@ -54,7 +55,6 @@ public class HotelEntityFrameworkCoreModule : AbpModule
                  * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
             options.AddRepository<Room, EfCoreRoomRepository>();
-            options.AddRepository<Booking, EfCoreBookingRepository>();
             options.AddRepository<Floor, EfCoreFloorRepository>();
             options.AddRepository<IdentityType, EfCoreIdentityTypeRepository>();
             options.AddRepository<RoomType, EfCoreRoomTypeRepository>();

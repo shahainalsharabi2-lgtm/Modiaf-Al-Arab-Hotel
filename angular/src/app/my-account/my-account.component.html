@@ -31,6 +31,34 @@
         </h1>
       </header>
 
+      <section class="my-account-hero" *ngIf="activeSection === 'profile'">
+        <div class="my-account-hero__main">
+          <div class="my-account-hero__avatar" aria-hidden="true">{{ initials() }}</div>
+          <div class="my-account-hero__summary">
+            <h2>{{ (profile?.firstName || profile?.userName || 'User') + ' ' + (profile?.lastName || '') }}</h2>
+            <p>{{ profile?.email || '—' }}</p>
+            <div class="my-account-hero__badges">
+              <span class="my-account-hero__badge">{{ roleLabel(profile?.role || '') }}</span>
+              <span class="my-account-hero__badge">{{ ui.displayLocale() }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="my-account-hero__meta">
+          <div class="my-account-hero__meta-item">
+            <span>المستخدم</span>
+            <strong>{{ profile?.userName || '—' }}</strong>
+          </div>
+          <div class="my-account-hero__meta-item">
+            <span>رقم الهاتف</span>
+            <strong>{{ profile?.phoneNumber || '—' }}</strong>
+          </div>
+          <div class="my-account-hero__meta-item">
+            <span>الصفحة الافتراضية</span>
+            <strong>{{ profile?.landingPagePath || '/dashboard' }}</strong>
+          </div>
+        </div>
+      </section>
+
       <form *ngIf="activeSection === 'profile'" class="my-account-form" (ngSubmit)="save()">
         <div class="my-account-layout">
           <div class="my-account-avatar-card">
@@ -94,17 +122,28 @@
               </span>
             </label>
 
-            <div class="my-account-grid">
-              <label class="my-account-field">
-                <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultLanguage" /></span>
-                <span class="my-account-input my-account-input--select">
-                  <select>
-                    <option><ui-inline-text kind="screen" screen="myAccount" key="languageArabic" /></option>
-                  </select>
-                  <i class="fas fa-language" aria-hidden="true"></i>
-                </span>
-              </label>
+            <div class="my-account-field my-account-field--wide">
+              <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultLanguage" /></span>
+              <div
+                class="my-account-lang-picker"
+                role="listbox"
+                [attr.aria-label]="ui.chromeLabel('langPickerAria')">
+                <button
+                  type="button"
+                  class="my-account-lang-item"
+                  *ngFor="let opt of localeOptions"
+                  role="option"
+                  [class.my-account-lang-item--active]="ui.displayLocale() === opt.code"
+                  [attr.aria-selected]="ui.displayLocale() === opt.code"
+                  (click)="selectDefaultLanguage(opt.code)">
+                  <img class="my-account-lang-flag" [src]="localeFlag(opt)" alt="" width="24" height="24" />
+                  <span class="my-account-lang-code">{{ localeShortCode(opt) }}</span>
+                  <span class="my-account-lang-name">{{ localeLabel(opt.labelKey) }}</span>
+                </button>
+              </div>
+            </div>
 
+            <div class="my-account-grid">
               <label class="my-account-field">
                 <span><ui-inline-text kind="screen" screen="myAccount" key="fieldDefaultTheme" /></span>
                 <span class="my-account-input my-account-input--select">

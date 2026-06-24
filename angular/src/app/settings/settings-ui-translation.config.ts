@@ -82,7 +82,8 @@ const SETTINGS_TAB_KEY_FILTERS: Readonly<Record<string, (key: string) => boolean
     key.startsWith('localeFr') ||
     key.startsWith('localeTr') ||
     key.startsWith('localeZh') ||
-    key.startsWith('localeId'),
+    key.startsWith('localeId') ||
+    key.startsWith('localeAm'),
   users: (key) => key.startsWith('users') || key.startsWith('tabUser') || key.startsWith('usrUsers'),
   translations: (key) => key.startsWith('translations') || key === 'tabTranslations',
 };

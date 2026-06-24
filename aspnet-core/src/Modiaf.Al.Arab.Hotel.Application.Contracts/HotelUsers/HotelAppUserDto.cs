@@ -21,4 +21,6 @@ public class HotelAppUserDto : EntityDto<int>
     public bool AllowNavigation { get; set; } = true;
 
     public string LandingPagePath { get; set; } = "/dashboard";
+
+    public bool DenyUserManagement { get; set; } = true;
 }

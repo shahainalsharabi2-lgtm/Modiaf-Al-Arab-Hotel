@@ -54,12 +54,12 @@
 }
 
 .hktr-tool-btn--new {
-  border-color: #2d6a4f;
-  color: #2d6a4f;
+  border-color: var(--app-sidebar-bg, #658aef);
+  color: var(--app-primary, #1e40af);
 }
 
 .hktr-tool-btn--new i {
-  color: #2d6a4f;
+  color: var(--app-primary, #1e40af);
 }
 
 .hktr-section {
@@ -73,8 +73,8 @@
 
 .hktr-section__head {
   padding: 0.65rem 1rem;
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--app-primary, #1e40af) 0%, var(--app-sidebar-bg, #658aef) 100%);
+  color: var(--app-on-primary, #fff);
   font-size: 0.92rem;
   font-weight: 800;
 }

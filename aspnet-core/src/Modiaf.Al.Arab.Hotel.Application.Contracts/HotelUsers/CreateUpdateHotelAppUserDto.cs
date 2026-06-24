@@ -32,4 +32,6 @@ public class CreateUpdateHotelAppUserDto
 
     [StringLength(512)]
     public string LandingPagePath { get; set; } = "/dashboard";
+
+    public bool DenyUserManagement { get; set; } = true;
 }

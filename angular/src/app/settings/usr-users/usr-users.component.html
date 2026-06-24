@@ -208,11 +208,18 @@
 
     <div class="uu-modal__body" *ngIf="activeModalTab === 'groups'">
       <div class="uu-groups-list">
-        <label class="uu-group-item" *ngFor="let group of groups">
-          <input type="checkbox" [checked]="isGroupSelected(group.id)" (change)="toggleGroup(group.id)" />
+        <label class="uu-group-item" *ngFor="let group of groups" [class.uu-group-item--locked]="isDenyGroupLocked(group.id)">
+          <input
+            type="checkbox"
+            [checked]="isGroupSelected(group.id)"
+            [disabled]="!canEdit || isDenyGroupLocked(group.id)"
+            (change)="toggleGroup(group.id)" />
           <span [attr.dir]="isLatinText(group.name) ? 'ltr' : null">{{ group.name }}</span>
         </label>
       </div>
+      <p class="uu-page-access__hint" *ngIf="isDenyGroupLocked(9)">
+        <ui-inline-text kind="screen" screen="settings" key="usrUsersGroupDenyLockedHint" />
+      </p>
 
       <section class="uu-page-access">
         <h4 class="uu-page-access__title">
@@ -230,26 +237,13 @@
           <input
             type="radio"
             name="pageAccessMode"
-            [checked]="form.pageAccessMode === 'specific'"
-            (change)="setPageAccessMode('specific')" />
-          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessSpecific" /></span>
+            [checked]="form.pageAccessMode === 'translator'"
+            (change)="setPageAccessMode('translator')" />
+          <span><ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessTranslator" /></span>
         </label>
-        <div class="uu-page-access__url" *ngIf="form.pageAccessMode === 'specific'">
-          <label class="uu-page-access__field">
-            <span class="uu-page-access__label">
-              <ui-inline-text kind="screen" screen="settings" key="usrUsersLandingPageLabel" />
-            </span>
-            <input
-              type="text"
-              dir="ltr"
-              name="landingPagePath"
-              [(ngModel)]="form.landingPagePath"
-              [placeholder]="ui.screenText('settings', 'usrUsersLandingPagePh')" />
-          </label>
-          <p class="uu-page-access__hint">
-            <ui-inline-text kind="screen" screen="settings" key="usrUsersLandingPageHint" />
-          </p>
-        </div>
+        <p class="uu-page-access__hint" *ngIf="form.pageAccessMode === 'translator'">
+          <ui-inline-text kind="screen" screen="settings" key="usrUsersPageAccessTranslatorHint" />
+        </p>
       </section>
     </div>
 

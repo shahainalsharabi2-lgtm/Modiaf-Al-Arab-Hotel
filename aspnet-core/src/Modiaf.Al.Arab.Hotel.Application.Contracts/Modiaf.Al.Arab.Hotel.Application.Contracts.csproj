@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Modiaf.Al.Arab.Hotel.Domain.Shared\Modiaf.Al.Arab.Hotel.Domain.Shared.csproj" />
+    <ProjectReference Include="..\..\modules\Reservations\Modiaf.Al.Arab.Hotel.Reservations.Application.Contracts\Modiaf.Al.Arab.Hotel.Reservations.Application.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

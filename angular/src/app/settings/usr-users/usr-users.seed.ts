@@ -4,12 +4,18 @@ import {
   type HotelUserRole,
 } from '../../utils/hotel-user-role';
 import {
-  DEFAULT_LANDING_PAGE_PATH,
-  normalizeLandingPagePath,
-} from '../../utils/landing-page-path.util';
+  USR_GROUP_DENY_USER_MGMT_ID,
+  isSystemOwnerUsername,
+} from '../../utils/hotel-system-owner.util';
+import { DEFAULT_LANDING_PAGE_PATH } from '../../utils/landing-page-path.util';
+import {
+  TRANSLATOR_UI_PATH,
+  isTranslatorLandingPath,
+} from '../../utils/landing-page-access.util';
 import type { CreateUpdateHotelAppUserDto, HotelAppUserDto } from '../../services/hotel-app-user.service';
+import type { HotelUserPageAccessEntry } from '../../services/hotel-user-page-access.service';
 
-export type UsrPageAccessMode = 'all' | 'specific';
+export type UsrPageAccessMode = 'all' | 'translator';
 
 export interface UsrUserRowDto {
   id: number;
@@ -120,7 +126,7 @@ export function emptyUsrUserForm(defaultHotelId: number | null = 1): UsrUserForm
     password: '',
     isActive: true,
     defaultHotelId,
-    groupIds: [],
+    groupIds: [USR_GROUP_DENY_USER_MGMT_ID],
     pageAccessMode: 'all',
     landingPagePath: DEFAULT_LANDING_PAGE_PATH,
   };
@@ -147,18 +153,20 @@ export function displayUsrUserName(row: Pick<UsrUserRowDto, 'firstName' | 'surna
   return [row.firstName, row.surname].filter(Boolean).join(' ').trim();
 }
 
-export function roleToGroupIds(role: string | null | undefined): number[] {
+export function roleToGroupIds(role: string | null | undefined, denyUserManagement = true): number[] {
   const normalized = normalizeHotelUserRole(role);
+  const groups: number[] = [];
   if (normalized === HOTEL_USER_ROLE.Manager) {
-    return [1];
+    groups.push(1);
+  } else if (normalized === HOTEL_USER_ROLE.Accountant) {
+    groups.push(2);
+  } else if (normalized === HOTEL_USER_ROLE.Cashier) {
+    groups.push(3, 8);
   }
-  if (normalized === HOTEL_USER_ROLE.Accountant) {
-    return [2];
+  if (denyUserManagement !== false) {
+    groups.push(USR_GROUP_DENY_USER_MGMT_ID);
   }
-  if (normalized === HOTEL_USER_ROLE.Cashier) {
-    return [3, 8];
-  }
-  return [];
+  return groups;
 }
 
 export function groupIdsToRole(groupIds: number[]): HotelUserRole {
@@ -174,8 +182,37 @@ export function groupIdsToRole(groupIds: number[]): HotelUserRole {
   return HOTEL_USER_ROLE.Regular;
 }
 
-export function apiUserToRow(dto: HotelAppUserDto): UsrUserRowDto {
-  const allPages = dto.allowNavigation !== false;
+function resolvePageAccess(
+  allowNavigation: boolean,
+  landingPagePath: string,
+): Pick<UsrUserRowDto, 'pageAccessMode' | 'landingPagePath'> {
+  if (allowNavigation !== false) {
+    return { pageAccessMode: 'all', landingPagePath: DEFAULT_LANDING_PAGE_PATH };
+  }
+  if (isTranslatorLandingPath(landingPagePath)) {
+    return { pageAccessMode: 'translator', landingPagePath: TRANSLATOR_UI_PATH };
+  }
+  return { pageAccessMode: 'all', landingPagePath: DEFAULT_LANDING_PAGE_PATH };
+}
+
+export function apiUserToRow(
+  dto: HotelAppUserDto,
+  storedAccess?: HotelUserPageAccessEntry | null,
+): UsrUserRowDto {
+  const apiHasAccess =
+    Object.prototype.hasOwnProperty.call(dto, 'allowNavigation') ||
+    Object.prototype.hasOwnProperty.call(dto, 'landingPagePath');
+  const allowNavigation = apiHasAccess
+    ? dto.allowNavigation !== false
+    : storedAccess
+      ? storedAccess.allowNavigation !== false
+      : true;
+  const landing = apiHasAccess
+    ? dto.landingPagePath ?? DEFAULT_LANDING_PAGE_PATH
+    : storedAccess
+      ? storedAccess.landingPagePath
+      : DEFAULT_LANDING_PAGE_PATH;
+  const access = resolvePageAccess(allowNavigation, landing);
   return {
     id: dto.id,
     firstName: dto.firstName,
@@ -185,9 +222,8 @@ export function apiUserToRow(dto: HotelAppUserDto): UsrUserRowDto {
     email: dto.email,
     isActive: true,
     defaultHotelId: 1,
-    groupIds: roleToGroupIds(dto.role),
-    pageAccessMode: allPages ? 'all' : 'specific',
-    landingPagePath: normalizeLandingPagePath(dto.landingPagePath),
+    groupIds: roleToGroupIds(dto.role, dto.denyUserManagement !== false),
+    ...access,
   };
 }
 
@@ -197,7 +233,7 @@ export function rowToApiInput(
 ): CreateUpdateHotelAppUserDto {
   const password = form.password.trim();
   const keepPassword = password === '' || password === '********';
-  const allPages = form.pageAccessMode === 'all';
+  const isTranslator = form.pageAccessMode === 'translator';
   const effectivePassword = keepPassword ? retainedPassword : password;
   return {
     firstName: form.firstName.trim(),
@@ -207,9 +243,8 @@ export function rowToApiInput(
     phoneNumber: form.mobile.trim(),
     password: effectivePassword,
     role: groupIdsToRole(form.groupIds),
-    allowNavigation: allPages,
-    landingPagePath: allPages
-      ? DEFAULT_LANDING_PAGE_PATH
-      : normalizeLandingPagePath(form.landingPagePath),
+    allowNavigation: !isTranslator,
+    landingPagePath: isTranslator ? TRANSLATOR_UI_PATH : DEFAULT_LANDING_PAGE_PATH,
+    denyUserManagement: form.groupIds.includes(USR_GROUP_DENY_USER_MGMT_ID),
   };
 }

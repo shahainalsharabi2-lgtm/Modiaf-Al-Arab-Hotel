@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Modiaf.Al.Arab.Hotel.Domain\Modiaf.Al.Arab.Hotel.Domain.csproj" />
     <ProjectReference Include="..\Modiaf.Al.Arab.Hotel.Application.Contracts\Modiaf.Al.Arab.Hotel.Application.Contracts.csproj" />
+    <ProjectReference Include="..\..\modules\Reservations\Modiaf.Al.Arab.Hotel.Reservations.Application\Modiaf.Al.Arab.Hotel.Reservations.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

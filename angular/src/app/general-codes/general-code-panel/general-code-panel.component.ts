@@ -4,10 +4,12 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  EventEmitter,
   HostListener,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
   inject,
 } from '@angular/core';
@@ -81,6 +83,9 @@ export class GeneralCodePanelComponent implements OnInit, OnChanges {
   @Input({ required: true }) category!: GeneralCodeCategoryId;
   @Input({ required: true }) titleKey!: string;
   @Input({ required: true }) descriptionKey!: string;
+
+  /** يُصدر عدد العناصر المحملة للقائمة الجانبية الأم */
+  @Output() readonly itemsLoaded = new EventEmitter<number>();
 
   readonly ui = inject(UiTranslationsService);
   private readonly uiMsg = inject(UiMessageService);
@@ -358,12 +363,14 @@ export class GeneralCodePanelComponent implements OnInit, OnChanges {
           this.items = items;
           this.pageIndex = 1;
           this.syncPrefCategoryViews();
+          this.itemsLoaded.emit(items.length);
         },
         error: () => {
           this.errorMessage = this.ui.screenText('generalCodes', 'loadFailed');
         },
       });
   }
+
 
   languageLabel(code: string): string {
     const hit = SYSTEM_UI_LANGUAGES.find((x) => x.code === code);

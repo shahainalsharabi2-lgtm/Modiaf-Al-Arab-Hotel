@@ -7,7 +7,7 @@ export type UiLocalePickerOption = {
   code: UiLocalePickerCode;
   flagSrc: string;
   shortCode: string;
-  labelKey: 'localeAr' | 'localeEn' | 'localeFr' | 'localeTr';
+  labelKey: 'localeAr' | 'localeEn' | 'localeFr' | 'localeTr' | 'localeId' | 'localeAm';
 };
 
 /** خيارات لغة الواجهة مع العلم — للشريط العلوي والقائمة الجانبية */
@@ -16,6 +16,8 @@ export const UI_LOCALE_PICKER_OPTIONS: readonly UiLocalePickerOption[] = [
   { code: 'en', flagSrc: 'assets/flags/us.svg', shortCode: 'USA', labelKey: 'localeEn' },
   { code: 'fr', flagSrc: 'assets/flags/fr.svg', shortCode: 'FRA', labelKey: 'localeFr' },
   { code: 'tr', flagSrc: 'assets/flags/tr.svg', shortCode: 'TUR', labelKey: 'localeTr' },
+  { code: 'id', flagSrc: 'assets/flags/id.svg', shortCode: 'IDN', labelKey: 'localeId' },
+  { code: 'am', flagSrc: 'assets/flags/et.svg', shortCode: 'ETH', labelKey: 'localeAm' },
 ] as const;
 
 export function uiLocalePickerOption(code: string): UiLocalePickerOption {

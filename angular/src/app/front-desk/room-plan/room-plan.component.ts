@@ -2,21 +2,20 @@ import { CommonModule } from '@angular/common';
 import { UiInlineTextComponent } from '../../shared/ui-inline-text/ui-inline-text.component';
 import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { UiTranslationsService } from '../../services/ui-translations.service';
 import { bindUiTranslationRefresh } from '../../utils/ui-screen-i18n.helper';
 import { LocaleNumberPipe } from '../../shared/pipes/locale-number.pipe';
 import { HotelSymbolPipe } from '../../pipes/hotel-symbol.pipe';
-import {
-  ROOM_PLAN_BUILDINGS,
-  ROOM_PLAN_FLOORS,
-  ROOM_PLAN_FOOTER,
-  ROOM_PLAN_ROOMS,
-  ROOM_PLAN_STAT_ROW_1,
-  ROOM_PLAN_STAT_ROW_2,
-} from './room-plan.static-data';
+import { RoomService } from '../../services/room.service';
+import { BookingService } from '../../services/booking.service';
+import { Room } from '../../models/room.model';
+import { Booking } from '../../models/booking.model';
+import { buildRoomPlanFromApi } from './room-plan-data.util';
 import {
   type RoomPlanBuilding,
+  type RoomPlanFooterSummary,
   type RoomPlanRoom,
   type RoomPlanStatCard,
 } from './room-plan.types';
@@ -32,14 +31,23 @@ export class RoomPlanComponent implements OnInit {
   readonly ui = inject(UiTranslationsService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly roomService = inject(RoomService);
+  private readonly bookingService = inject(BookingService);
 
-  readonly statRow1 = ROOM_PLAN_STAT_ROW_1;
-  readonly statRow2 = ROOM_PLAN_STAT_ROW_2;
-  readonly buildings = ROOM_PLAN_BUILDINGS;
-  readonly floors = ROOM_PLAN_FLOORS;
-  readonly footer = ROOM_PLAN_FOOTER;
-  /** نماذج الغرف الثابتة — 27 غرفة (102–110، 202–210، 302–310) */
-  readonly staticRooms = ROOM_PLAN_ROOMS;
+  statRow1: RoomPlanStatCard[] = [];
+  statRow2: RoomPlanStatCard[] = [];
+  buildings: RoomPlanBuilding[] = [];
+  floors: number[] = [1];
+  footer: RoomPlanFooterSummary = {
+    occupancyRate: 0,
+    totalCredit: 0,
+    totalDebit: 0,
+    totalNet: 0,
+  };
+  rooms: RoomPlanRoom[] = [];
+
+  loading = true;
+  loadError = '';
 
   activeBuildingId: RoomPlanBuilding['id'] = 'main';
   searchQuery = '';
@@ -54,6 +62,7 @@ export class RoomPlanComponent implements OnInit {
 
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
+    this.loadRoomPlan();
   }
 
   label(key: string): string {
@@ -62,7 +71,7 @@ export class RoomPlanComponent implements OnInit {
 
   get filteredRooms(): RoomPlanRoom[] {
     const q = this.searchQuery.trim().toLowerCase();
-    return ROOM_PLAN_ROOMS.filter((room) => {
+    return this.rooms.filter((room) => {
       if (room.buildingId !== this.activeBuildingId) {
         return false;
       }
@@ -161,5 +170,48 @@ export class RoomPlanComponent implements OnInit {
       return `- ${formatted}`;
     }
     return formatted;
+  }
+
+  reload(): void {
+    this.loadRoomPlan();
+  }
+
+  private loadRoomPlan(): void {
+    this.loading = true;
+    this.loadError = '';
+    forkJoin({
+      rooms: this.roomService.getRooms().pipe(
+        catchError((err) => {
+          console.error('room-plan: failed to load rooms', err);
+          return throwError(() => err);
+        }),
+      ),
+      bookings: this.bookingService.getBookings().pipe(
+        catchError((err) => {
+          console.error('room-plan: failed to load bookings', err);
+          return of([] as Booking[]);
+        }),
+      ),
+    }).subscribe({
+      next: ({ rooms, bookings }) => {
+        const payload = buildRoomPlanFromApi(rooms, bookings);
+        this.statRow1 = payload.statsRow1;
+        this.statRow2 = payload.statsRow2;
+        this.buildings = payload.buildings;
+        this.floors = payload.floors;
+        this.footer = payload.footer;
+        this.rooms = payload.rooms;
+        if (!this.floors.includes(this.selectedFloor as number) && this.selectedFloor !== 'all') {
+          this.selectedFloor = 'all';
+        }
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loading = false;
+        this.loadError = this.ui.screenText('roomsRack', 'loadError');
+        this.cdr.markForCheck();
+      },
+    });
   }
 }

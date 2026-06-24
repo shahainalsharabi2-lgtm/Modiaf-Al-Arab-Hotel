@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Modiaf.Al.Arab.Hotel.EntityFrameworkCore;
 using Modiaf.Al.Arab.Hotel.MultiTenancy;
+using Modiaf.Al.Arab.Hotel.Reservations;
 using Modiaf.Al.Arab.Hotel.UiTranslations;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
@@ -85,6 +86,15 @@ public class HotelHttpApiHostModule : AbpModule
         Configure<UiTranslationsOptions>(options =>
         {
             options.RootDirectory = Path.Combine(hostingEnvironment.ContentRootPath, folderName);
+
+            // للتطوير المحلي: اكتب أيضاً إلى Domain.Shared حتى تدخل التغييرات في Git كـ "defaults".
+            // في الإنتاج غالباً لا يوجد هذا المسار أو لا توجد صلاحيات كتابة، لذلك هو اختياري.
+            var sourceFolderName = configuration["UiTranslations:SourceFolderName"] ?? Path.Combine("Localization", "Abp", "Hotel");
+            var domainSharedPath = Path.Combine(
+                hostingEnvironment.ContentRootPath,
+                $"..{Path.DirectorySeparatorChar}Modiaf.Al.Arab.Hotel.Domain.Shared",
+                sourceFolderName);
+            options.SourceDirectory = domainSharedPath;
         });
     }
 
@@ -169,6 +179,7 @@ public class HotelHttpApiHostModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
             options.ConventionalControllers.Create(typeof(HotelApplicationModule).Assembly);
+            options.ConventionalControllers.Create(typeof(ReservationsApplicationModule).Assembly);
         });
     }
 

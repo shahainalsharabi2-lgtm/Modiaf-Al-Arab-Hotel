@@ -19,4 +19,8 @@ public class HotelAppUserPublicDto
     public bool AllowNavigation { get; set; } = true;
 
     public string LandingPagePath { get; set; } = "/dashboard";
+
+    public bool DenyUserManagement { get; set; }
+
+    public bool IsSystemOwner { get; set; }
 }

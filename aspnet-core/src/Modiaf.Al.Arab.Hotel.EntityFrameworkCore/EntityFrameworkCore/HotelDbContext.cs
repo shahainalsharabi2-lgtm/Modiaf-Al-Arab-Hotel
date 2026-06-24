@@ -14,6 +14,8 @@ using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
 using Modiaf.Al.Arab.Hotel.Bookings;
+using Modiaf.Al.Arab.Hotel.Categories;
+using Modiaf.Al.Arab.Hotel.Reservations.EntityFrameworkCore;
 using Modiaf.Al.Arab.Hotel.GuestRegistries;
 using Modiaf.Al.Arab.Hotel.IdentityTypes;
 using Modiaf.Al.Arab.Hotel.Rooms;
@@ -33,11 +35,13 @@ namespace Modiaf.Al.Arab.Hotel.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
+[ReplaceDbContext(typeof(IReservationsDbContext))]
 [ConnectionStringName("Default")]
 public class HotelDbContext(DbContextOptions<HotelDbContext> options) :
     AbpDbContext<HotelDbContext>(options),
     IIdentityDbContext,
-    ITenantManagementDbContext
+    ITenantManagementDbContext,
+    IReservationsDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
@@ -80,6 +84,7 @@ public class HotelDbContext(DbContextOptions<HotelDbContext> options) :
     public DbSet<CreditCardType> CreditCardTypes { get; set; }
     public DbSet<HotelAppUser> HotelAppUsers { get; set; }
     public DbSet<HotelSettingsDocument> HotelSettingsDocuments { get; set; }
+    public DbSet<Category> Categories { get; set; }
 
     #endregion
 
@@ -98,153 +103,21 @@ public class HotelDbContext(DbContextOptions<HotelDbContext> options) :
         builder.ConfigureFeatureManagement();
         builder.ConfigureTenantManagement();
 
-        /* Configure your own tables/entities inside here */
+        builder.ConfigureReservations();
 
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(HotelConsts.DbTablePrefix + "YourEntities", HotelConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
-
-        builder.Entity<Room>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "Rooms", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.RoomNumber).IsRequired().HasMaxLength(50);
-            b.Property(x => x.RoomView).HasMaxLength(256);
-            b.Property(x => x.RoomArchitecture).HasMaxLength(256);
-            b.Property(x => x.RoomLocation).HasMaxLength(256);
-            b.Property(x => x.RoomFeatures).HasMaxLength(2048);
-            b.Property(x => x.MaintenanceReason).HasMaxLength(256);
-            b.Property(x => x.CurrencyCode).HasMaxLength(16).HasDefaultValue("YER");
-            b.Property(x => x.CurrencySymbol).HasMaxLength(16).HasDefaultValue("YR");
-        });
-
-        builder.Entity<Booking>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "Bookings", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.CurrencyCode).HasMaxLength(16).HasDefaultValue("YER");
-            b.Property(x => x.CurrencySymbol).HasMaxLength(16).HasDefaultValue("YR");
-        });
-
-        builder.Entity<IdentityType>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "IdentityTypes", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
-        });
-
-        builder.Entity<GuestRegistry>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "GuestRegistries", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.First_Name).IsRequired().HasMaxLength(128);
-            b.Property(x => x.Middle_Name).HasMaxLength(128);
-            b.Property(x => x.Last_Name).IsRequired().HasMaxLength(128);
-            b.Property(x => x.Phone_Number).HasMaxLength(32);
-            b.Property(x => x.Gender).HasMaxLength(16);
-            b.Property(x => x.Nationality).HasMaxLength(128);
-            b.Property(x => x.Country).HasMaxLength(128);
-            b.Property(x => x.Id_Type).HasMaxLength(64);
-            b.Property(x => x.Id_Issuing_Country).HasMaxLength(128);
-            b.Property(x => x.Id_Number).HasMaxLength(64);
-            b.Property(x => x.Purpose_Of_Stay).HasMaxLength(256);
-            b.Property(x => x.Relationship_Type).HasMaxLength(256);
-            b.Property(x => x.Price_Code).HasMaxLength(256);
-            b.HasIndex(x => x.Id_Number);
-        });
-
-        builder.Entity<Floor>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "Floors", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-        });
-
-        builder.Entity<RoomType>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "RoomTypes", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
-        });
-
-        builder.Entity<UiTranslationsStore>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "UiTranslationsStores", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-        });
-
-        builder.Entity<GeneralCodeItem>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "GeneralCodeItems", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.Category).IsRequired().HasMaxLength(64);
-            b.Property(x => x.Name).IsRequired().HasMaxLength(256);
-            b.Property(x => x.FName).HasMaxLength(256);
-            b.Property(x => x.Description).HasMaxLength(1024);
-            b.Property(x => x.CountryDialCode).HasMaxLength(32);
-            b.Property(x => x.FlagImageName).HasMaxLength(256);
-            b.Property(x => x.FlagImageData).HasColumnType("text");
-            b.Property(x => x.RoomCount);
-            b.Property(x => x.RegularBedCount);
-            b.Property(x => x.FamilyBedCount);
-            b.HasIndex(x => x.Category);
-        });
-
-        builder.Entity<PaymentMethod>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "PaymentMethods", HotelConsts.DbSchema);
-            b.Property(x => x.Name).IsRequired().HasMaxLength(128);
-        });
-
-        builder.Entity<HotelChain>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "HotelChains", HotelConsts.DbSchema);
-            b.Property(x => x.Code).IsRequired().HasMaxLength(32);
-            b.Property(x => x.Name).IsRequired().HasMaxLength(256);
-            b.Property(x => x.ForeignName).HasMaxLength(256);
-            b.Property(x => x.Notes).HasMaxLength(1024);
-            b.HasIndex(x => x.Code).IsUnique();
-        });
-
-        builder.Entity<CreditCardType>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "CreditCardTypes", HotelConsts.DbSchema);
-            b.Property(x => x.Code).IsRequired().HasMaxLength(32);
-            b.Property(x => x.Name).IsRequired().HasMaxLength(256);
-            b.Property(x => x.ForeignName).HasMaxLength(256);
-            b.Property(x => x.Description).HasMaxLength(1024);
-            b.Property(x => x.Bank).HasMaxLength(256);
-            b.HasIndex(x => x.Code).IsUnique();
-        });
-
-        builder.Entity<HotelAppUser>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "HotelAppUsers", HotelConsts.DbSchema);
-            b.ConfigureByConvention();
-            b.Property(x => x.FirstName).IsRequired().HasMaxLength(128);
-            b.Property(x => x.LastName).IsRequired().HasMaxLength(128);
-            b.Property(x => x.UserName).IsRequired().HasMaxLength(64);
-            b.Property(x => x.Email).HasMaxLength(256);
-            b.Property(x => x.PhoneNumber).HasMaxLength(32);
-            b.Property(x => x.Password).IsRequired().HasMaxLength(128);
-            b.Property(x => x.Role).IsRequired().HasMaxLength(32).HasDefaultValue(HotelUserRoles.Default);
-            b.Property(x => x.AllowNavigation).IsRequired().HasDefaultValue(true);
-            b.Property(x => x.LandingPagePath).IsRequired().HasMaxLength(512).HasDefaultValue("/dashboard");
-            b.HasIndex(x => x.UserName).IsUnique();
-        });
-
-        builder.Entity<HotelSettingsDocument>(b =>
-        {
-            b.ToTable(HotelConsts.DbTablePrefix + "HotelSettingsDocuments", HotelConsts.DbSchema);
-            b.Property(x => x.SettingsPassword).IsRequired().HasMaxLength(128);
-            b.Property(x => x.HotelImageDataUrl);
-            b.Property(x => x.ProfileJson).IsRequired();
-            b.Property(x => x.CurrencyId).IsRequired().HasMaxLength(32);
-            b.Property(x => x.CurrencySymbol).HasMaxLength(16);
-            b.Property(x => x.CurrencyCode).HasMaxLength(16);
-        });
+        builder.ApplyConfiguration(new Configurations.RoomEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.IdentityTypeEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.GuestRegistryEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.FloorEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.RoomTypeEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.UiTranslationsStoreEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.GeneralCodeItemEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.PaymentMethodEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.HotelChainEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.CreditCardTypeEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.HotelAppUserEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.HotelSettingsDocumentEntityTypeConfiguration());
+        builder.ApplyConfiguration(new Configurations.CategoryEntityTypeConfiguration());
     }
 }
 

@@ -27,6 +27,24 @@ public static class HotelUserRoles
     public static bool CanManageUsers(string? role) =>
         string.Equals(Normalize(role), Manager, StringComparison.Ordinal);
 
+    public static bool CanManageUsers(string? role, bool denyUserManagement, bool isSystemOwner)
+    {
+        if (isSystemOwner)
+        {
+            return true;
+        }
+
+        if (denyUserManagement)
+        {
+            return false;
+        }
+
+        return CanManageUsers(role);
+    }
+
     public static bool CanManageSettings(string? role) =>
         string.Equals(Normalize(role), Manager, StringComparison.Ordinal);
+
+    public static bool CanManageSettings(string? role, bool isSystemOwner) =>
+        isSystemOwner || CanManageSettings(role);
 }

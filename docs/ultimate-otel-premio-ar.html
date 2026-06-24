@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <title>ملخص UltimateOtelPremio — هيكلية ABP</title>
+  <style>
+    @page { margin: 12mm 11mm; size: A4; }
+    body {
+      font-family: 'Segoe UI', Tahoma, 'Arabic Typesetting', Arial, sans-serif;
+      font-size: 9pt;
+      line-height: 1.42;
+      color: #1a1a1a;
+      direction: rtl;
+      text-align: right;
+    }
+    h1 {
+      color: #1b5e20;
+      font-size: 17pt;
+      border-bottom: 3px solid #2e7d32;
+      padding-bottom: 6px;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      color: #2e7d32;
+      font-size: 12pt;
+      margin-top: 14px;
+      page-break-after: avoid;
+      border-right: 4px solid #43a047;
+      padding-right: 8px;
+    }
+    h3 {
+      color: #37474f;
+      font-size: 10.5pt;
+      page-break-after: avoid;
+      margin-top: 10px;
+    }
+    code {
+      direction: ltr;
+      unicode-bidi: embed;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 7.5pt;
+      background: #e8f5e9;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #1b5e20;
+    }
+    pre {
+      direction: ltr;
+      text-align: left;
+      background: #f5f7fa;
+      border: 1px solid #c8e6c9;
+      padding: 7px 9px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 7pt;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0 10px;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #81c784;
+      padding: 3px 5px;
+      vertical-align: top;
+    }
+    th {
+      background: #2e7d32;
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: #f1f8e9; }
+    ul { margin: 4px 0; padding-right: 16px; }
+    li { margin: 2px 0; }
+    hr { border: none; border-top: 1px solid #a5d6a7; margin: 12px 0; }
+    .meta { color: #546e7a; font-size: 8.5pt; }
+    strong { color: #1b5e20; }
+  </style>
+</head>
+<body>
+<h1>ملخص هيكلية UltimateOtelPremio — ABP + Angular + ASP.NET Core</h1>
+
+<p class="meta"><em>*Ultimate Otel Premio — نظام إدارة فنادق — مرجع بناء Modular Monolith*</em></p>
+
+<hr/>
+
+<h2>1. نظرة عامة</h2>
+
+<p><strong>UltimateOtelPremio</strong> هو مشروع مرجعي لبناء أنظمة الفنادق باستخدام:</p>
+
+<table>
+<tr><th>التقنية</th><th>الدور</th></tr>
+<tr><td><strong>ABP Framework</strong></td><td>إطار DDD + Modular Monolith</td></tr>
+<tr><td><strong>ASP.NET Core</strong></td><td>API وطبقات الباك-اند</td></tr>
+<tr><td><strong>Entity Framework Core</strong></td><td>ORM وقاعدة البيانات</td></tr>
+<tr><td><strong>Angular</strong></td><td>واجهة المستخدم (SPA)</td></tr>
+<tr><td><strong>OpenIddict</strong></td><td>مصادقة OAuth2 / OpenID Connect</td></tr>
+</table>
+
+<p>النمط المعماري: <strong>Modular Monolith</strong> — تطبيق واحد قابل للنشر، لكنه مقسّم إلى <strong>وحدات أعمال مستقلة</strong> (Modules) لكل مجال وظيفي.</p>
+
+<hr/>
+
+<h2>2. هيكل المجلدات الرئيسي</h2>
+
+<pre><code>
+UltimateOtelPremio/
+├── host/                          ← نقاط التشغيل (المضيف)
+│   ├── Ultimate.OtelPremio.HttpApi.Host      ← API الرئيسي
+│   ├── Ultimate.OtelPremio.AuthServer        ← خادم المصادقة
+│   ├── Ultimate.OtelPremio.DbMigrator        ← ترحيل قاعدة البيانات
+│   ├── Ultimate.OtelPremio.Host.Shared       ← إعدادات مشتركة
+│   └── Ultimate.OtelPremio.SaaS.HttpApi.Host ← API للتعددية SaaS
+├── modules/                       ← وحدات الأعمال (14+ مجال)
+│   ├── Reservatios/               ← الحجوزات
+│   ├── FrontDesk/                 ← الاستقبال
+│   ├── RoomsManagement/           ← إدارة الغرف
+│   ├── HouseKeeping/              ← التدبير المنزلي
+│   ├── NightAudit/                ← التدقيق الليلي
+│   ├── RevenueManagement/         ← الإيرادات والمحاسبة
+│   ├── ProfileManagement/         ← ملفات الضيوف / CRM
+│   ├── BackOffice/                ← الإدارة والإعدادات
+│   ├── ChannelManagement/         ← قنوات الحجز
+│   ├── EInvoice / Laundry         ← فواتير إلكترونية / مغسلة
+│   └── SaaS                       ← تعدد الفنادق / المستأجرين
+├── src/                           ← طبقة التطبيق الأساسية (إن وُجدت)
+├── test/                          ← اختبارات
+└── Solution Items/
+</code></pre>
+
+<hr/>
+
+<h2>3. طبقات كل وحدة (Module) — نمط ABP القياسي</h2>
+
+<p>كل وحدة في <code>modules/</code> تتكون من <strong>6 مشاريع</strong> (.csproj):</p>
+
+<table>
+<tr><th>#</th><th>المشروع</th><th>المسؤولية</th></tr>
+<tr><td>1</td><td><code>*.Domain.Shared</code></td><td>ثوابت، أكواد أخطاء، تعدادات، إعدادات مشتركة</td></tr>
+<tr><td>2</td><td><code>*.Domain</code></td><td>Entities، واجهات Repository، منطق المجال</td></tr>
+<tr><td>3</td><td><code>*.Application.Contracts</code></td><td>DTOs، واجهات <code>I*AppService</code>، صلاحيات</td></tr>
+<tr><td>4</td><td><code>*.Application</code></td><td><code>*AppService</code>، AutoMapper، Handlers</td></tr>
+<tr><td>5</td><td><code>*.EntityFrameworkCore</code></td><td>DbContext، Repositories، Migrations</td></tr>
+<tr><td>6</td><td><code>*.HttpApi</code></td><td>Controllers (اختياري — أو Conventional API)</td></tr>
+</table>
+
+<h3>مثال: وحدة Reservatios (الحجوزات)</h3>
+
+<pre><code>
+modules/Reservatios/
+├── Ultimate.OtelPremio.Reservatios.Domain.Shared/
+│   ├── ReservationsErrorCodes.cs
+│   └── ReservationsConsts
+├── Ultimate.OtelPremio.Reservatios.Domain/
+│   ├── Reservations/Reservation.cs
+│   ├── Blocks/Block.cs
+│   └── Repositories/IBlockRepository.cs
+├── Ultimate.OtelPremio.Reservatios.Application.Contracts/
+│   ├── Dtos/BookingTypeDto.cs
+│   ├── Dtos/Blocks/
+│   ├── Dtos/Reservation/
+│   └── Services/IBlockAppService.cs
+├── Ultimate.OtelPremio.Reservatios.Application/
+│   ├── Services/BookingTypeAppService.cs
+│   ├── ReservationsApplicationAutoMapperProfile.cs
+│   └── Handlers/
+├── Ultimate.OtelPremio.Reservatios.EntityFrameworkCore/
+│   ├── EntityFrameworkCore/ReservationsDbContext.cs
+│   └── Repositories/BlockRepository.cs
+└── Ultimate.OtelPremio.Reservatios.HttpApi/
+    └── Controllers/
+</code></pre>
+
+<hr/>
+
+<h2>4. وحدات الأعمال (Business Modules)</h2>
+
+<table>
+<tr><th>الوحدة</th><th>الوظيفة في الفندق</th></tr>
+<tr><td><strong>Reservatios</strong></td><td>حجوزات فردية وجماعية (Blocks)، أنواع الحجز، إلغاء، خطابات تأكيد</td></tr>
+<tr><td><strong>FrontDesk</strong></td><td>استقبال، Check-in/out، خطة الغرف، مفاتيح الضيوف</td></tr>
+<tr><td><strong>RoomsManagement</strong></td><td>الغرف، الأنواع، الطوابق، الحالة، الصيانة</td></tr>
+<tr><td><strong>HouseKeeping</strong></td><td>مهام التنظيف، فحص الغرف، طلبات الصيانة</td></tr>
+<tr><td><strong>NightAudit</strong></td><td>إقفال اليوم، مراجعة الحجوزات، حركة الغرف</td></tr>
+<tr><td><strong>RevenueManagement</strong></td><td>الإيرادات، الفواتير، الحسابات، الترحيل المحاسبي</td></tr>
+<tr><td><strong>ProfileManagement</strong></td><td>أفراد، شركات، وكلاء، ممثلين، القائمة السوداء</td></tr>
+<tr><td><strong>BackOffice</strong></td><td>إعدادات النظام، التقارير، الترميز العام</td></tr>
+<tr><td><strong>ChannelManagement</strong></td><td>ربط قنوات الحجز الإلكترونية (OTA)</td></tr>
+<tr><td><strong>EInvoice</strong></td><td>الفوترة الإلكترونية</td></tr>
+<tr><td><strong>Laundry</strong></td><td>خدمات المغسلة</td></tr>
+<tr><td><strong>SaaS</strong></td><td>إدارة عدة فنادق (Multi-tenancy)</td></tr>
+<tr><td><strong>ExternalService</strong></td><td>تكامل خدمات خارجية</td></tr>
+</table>
+
+<hr/>
+
+<h2>5. طبقة Host (المضيف)</h2>
+
+<h3>5.1 HttpApi.Host — نقطة التشغيل الرئيسية</h3>
+
+<p>المجلد <code>host/Ultimate.OtelPremio.HttpApi.Host/</code> يجمع كل الوحدات ويحتوي:</p>
+
+<table>
+<tr><th>المجلد / الملف</th><th>الدور</th></tr>
+<tr><td><code>Program.cs</code></td><td>نقطة بدء التطبيق</td></tr>
+<tr><td><code>OtelPremioHttpApiHostModule.cs</code></td><td>تسجيل الوحدات والإعدادات</td></tr>
+<tr><td><code>Controllers/</code></td><td>Controllers إضافية</td></tr>
+<tr><td><code>EntityFrameworkCore/</code></td><td>DbContext الموحّد للمضيف</td></tr>
+<tr><td><code>MultiTenancy/</code></td><td>دعم تعدد الفنادق</td></tr>
+<tr><td><code>HotelIdMiddleware</code></td><td>تمرير معرف الفندق في الطلبات</td></tr>
+<tr><td><code>OpenIddict/</code></td><td>إعداد OAuth</td></tr>
+<tr><td><code>Reports/</code></td><td>تقارير</td></tr>
+<tr><td><code>Workers/</code></td><td>مهام خلفية</td></tr>
+<tr><td><code>wwwroot/</code></td><td>ملفات ثابتة</td></tr>
+</table>
+
+<h3>5.2 AuthServer</h3>
+
+<p>خادم مصادقة <strong>منفصل</strong> عن API — نمط ABP الاحترافي لفصل Identity عن Business API.</p>
+
+<h3>5.3 DbMigrator</h3>
+
+<p>تطبيق كونسول لتشغيل Migrations وبذور البيانات عند النشر.</p>
+
+<hr/>
+
+<h2>6. تدفق البيانات (Data Flow)</h2>
+
+<pre><code>
+Angular SPA
+    ↓  HTTPS + Bearer Token
+HttpApi.Host  (CORS + Swagger + Middleware)
+    ↓  Conventional Controllers  /api/app/{service}
+Application Layer  (*AppService)
+    ↓  IRepository / Domain Services
+EntityFrameworkCore  (EfCore*Repository)
+    ↓
+SQL Server / PostgreSQL
+</code></pre>
+
+<h3>تدفق إنشاء حجز (مثال)</h3>
+
+<pre><code>
+1. Angular  →  POST /api/app/block
+2. BlockController  →  BlockAppService.CreateAsync()
+3. BlockAppService  →  IBlockRepository.InsertAsync()
+4. BlockRepository  →  ReservationsDbContext
+5. EF Core  →  جدول Blocks في قاعدة البيانات
+</code></pre>
+
+<hr/>
+
+<h2>7. كيانات مجال الحجوزات (Reservatios Domain)</h2>
+
+<p>وحدة الحجوزات تحتوي كيانات غنية (نموذج فندقي متكامل):</p>
+
+<table>
+<tr><th>الكيان</th><th>الوصف</th></tr>
+<tr><td><code>Reservation</code></td><td>الحجز الرئيسي — رقم الحجز، الضيف، التواريخ، الحالة</td></tr>
+<tr><td><code>Block</code></td><td>حجز جماعي / مجموعة غرف لشركة أو فعالية</td></tr>
+<tr><td><code>ReservationRoomStay</code></td><td>إقامة الغرفة ضمن الحجز</td></tr>
+<tr><td><code>ReservationGuest</code></td><td>بيانات الضيف المرتبط بالحجز</td></tr>
+<tr><td><code>ReservationPayment</code></td><td>مدفوعات الحجز</td></tr>
+<tr><td><code>Cancellation</code></td><td>إلغاء الحجز</td></tr>
+<tr><td><code>ConfirmationLetter</code></td><td>خطاب التأكيد</td></tr>
+<tr><td><code>BookingType</code></td><td>نوع الحجز (مباشر، شركة، وكيل…)</td></tr>
+<tr><td><code>GuaranteeType</code></td><td>نوع الضمان</td></tr>
+<tr><td><code>PurposeOfStay</code></td><td>غرض الإقامة</td></tr>
+<tr><td><code>ReservationPromotion</code></td><td>عروض ترويجية</td></tr>
+<tr><td><code>LinkedReservation</code></td><td>حجوزات مرتبطة</td></tr>
+<tr><td><code>ReservationTransport</code></td><td>ترتيبات النقل</td></tr>
+<tr><td><code>ReservationComment</code></td><td>ملاحظات الحجز</td></tr>
+</table>
+
+<p class="meta"><em><strong>مثال كود — كيان Reservation:</strong></em></p>
+
+<pre><code>
+public class Reservation : AuditedAggregateRoot&lt;Guid&gt;
+{
+    public long ReservationNo { get; set; }  // رقم الحجز
+    // الضيف، الغرفة، التواريخ، المبلغ، الحالة...
+}
+</code></pre>
+
+<hr/>
+
+<h2>8. نمط Repository + AppService</h2>
+
+<h3>واجهة Repository (Domain)</h3>
+
+<pre><code>
+public interface IBlockRepository : IRepository&lt;Block&gt;
+{
+    Task&lt;int&gt; GetMaxId(int hotelId);
+}
+</code></pre>
+
+<h3>تنفيذ EF Core</h3>
+
+<pre><code>
+public class BlockRepository
+    : EfCoreRepository&lt;ReservationsDbContext, Block&gt;, IBlockRepository
+{
+    public BlockRepository(IDbContextProvider&lt;ReservationsDbContext&gt; dbContextProvider)
+        : base(dbContextProvider) { }
+}
+</code></pre>
+
+<h3>AppService (Application.Contracts + Application)</h3>
+
+<pre><code>
+public interface IBlockAppService : IApplicationService
+{
+    Task&lt;BlockDto&gt; CreateAsync(CreateBlockDto input);
+    Task&lt;PagedResultDto&lt;BlockDto&gt;&gt; GetListAsync(int hotelId, PagedInput input);
+}
+</code></pre>
+
+<h3>DTO</h3>
+
+<pre><code>
+public class BookingTypeDto : AuditedEntityDto&lt;int&gt;
+{
+    public string Name { get; set; }
+    public string FName { get; set; }
+    public string Code { get; set; }
+}
+</code></pre>
+
+<h3>AutoMapper Profile</h3>
+
+<pre><code>
+CreateMap&lt;Reservation, ReservationDto&gt;();
+CreateMap&lt;Block, BlockDto&gt;()
+    .ForMember(d =&gt; d.Revenue, opt =&gt; opt.Ignore());
+</code></pre>
+
+<hr/>
+
+<h2>9. دمج DbContext في المضيف</h2>
+
+<p>في ABP Modular، كل وحدة تعرّف <code>IReservationsDbContext</code> والمضيف يدمجه:</p>
+
+<pre><code>
+[ReplaceDbContext(typeof(IReservationsDbContext))]
+public class OtelPremioDbContext : AbpDbContext, IReservationsDbContext, ...
+{
+    public DbSet&lt;Reservation&gt; Reservations { get; set; }
+    public DbSet&lt;Block&gt; Blocks { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.ConfigureReservations();  // من وحدة الحجوزات
+        builder.ConfigureRoomsManagement();
+        // ...
+    }
+}
+</code></pre>
+
+<p>هذا يسمح بـ <strong>JOIN</strong> بين كيانات وحدات مختلفة في استعلام واحد.</p>
+
+<hr/>
+
+<h2>10. مقارنة مع مضياف العرب (Modiaf.Al.Arab.Hotel)</h2>
+
+<table>
+<tr><th>الجانب</th><th>UltimateOtelPremio</th><th>Modiaf.Al.Arab.Hotel</th></tr>
+<tr><td>النمط</td><td>Modular Monolith كامل</td><td>انتقال تدريجي (بدأ بـ Reservations)</td></tr>
+<tr><td>عدد الوحدات</td><td>14+ وحدة</td><td>1 وحدة + monolith</td></tr>
+<tr><td>AuthServer</td><td>منفصل</td><td>داخل HttpApi.Host</td></tr>
+<tr><td>Multi-tenancy</td><td>SaaS module + hotelId</td><td>غير مفعّل بعد</td></tr>
+<tr><td>Angular</td><td>مكتبات لكل module</td><td>مجلدات feature في <code>app/</code></td></tr>
+</table>
+
+<h3>خريطة الربط</h3>
+
+<table>
+<tr><th>UltimateOtelPremio</th><th>مضياف العرب (Angular)</th><th>حالة التطبيق</th></tr>
+<tr><td>Reservatios</td><td><code>bookings/</code></td><td>✅ وحدة ABP</td></tr>
+<tr><td>FrontDesk</td><td><code>front-desk/</code></td><td>⏳ monolith</td></tr>
+<tr><td>RoomsManagement</td><td><code>rooms/</code></td><td>⏳ monolith</td></tr>
+<tr><td>HouseKeeping</td><td><code>housekeeping/</code></td><td>⏳ واجهة فقط</td></tr>
+<tr><td>NightAudit</td><td><code>night-auditor/</code></td><td>⏳ واجهة فقط</td></tr>
+<tr><td>RevenueManagement</td><td><code>cashier/</code>, <code>accounts/</code></td><td>⏳ واجهة فقط</td></tr>
+<tr><td>ProfileManagement</td><td><code>crm/</code></td><td>⏳ جزئي</td></tr>
+<tr><td>BackOffice</td><td><code>settings/</code>, <code>reports/</code></td><td>⏳ monolith</td></tr>
+</table>
+
+<hr/>
+
+<h2>11. خطوات البناء عند إضافة ميزة جديدة</h2>
+
+<p>1. <strong>Domain</strong> — تعريف Entity + <code>IRepository</code></p>
+<p>2. <strong>Application.Contracts</strong> — DTO + <code>IAppService</code></p>
+<p>3. <strong>Application</strong> — تنفيذ AppService + AutoMapper</p>
+<p>4. <strong>EntityFrameworkCore</strong> — Repository + Configuration</p>
+<p>5. <strong>HttpApi</strong> — Controller (أو الاعتماد على Conventional API)</p>
+<p>6. <strong>Host</strong> — <code>DependsOn</code> للوحدة + <code>ReplaceDbContext</code></p>
+<p>7. <strong>Angular</strong> — Service + Component يستدعي <code>/api/app/...</code></p>
+<p>8. <strong>DbMigrator</strong> — Migration جديد</p>
+
+<hr/>
+
+<h2>12. نقاط API (ABP Convention)</h2>
+
+<p>ABP ينشئ REST تلقائياً من App Services:</p>
+
+<table>
+<tr><th>الخدمة</th><th>المسار التقريبي</th></tr>
+<tr><td>Block</td><td><code>/api/app/block</code></td></tr>
+<tr><td>BookingType</td><td><code>/api/app/booking-type</code></td></tr>
+<tr><td>Reservation</td><td><code>/api/app/reservation</code></td></tr>
+</table>
+
+<p>الصيغة العامة: <code>GET/POST/PUT/DELETE</code> → <code>/api/app/{kebab-case-service}/{action}</code></p>
+
+<hr/>
+
+<h2>13. ملاحظات للمطور</h2>
+
+<ul>
+<li><strong>hotelId</strong> يُمرَّر عبر Middleware في كل طلب — أساس Multi-hotel</li>
+<li><strong>Permissions</strong> معرّفة في <code>Application.Contracts/Permissions/</code></li>
+<li><strong>Etos</strong> (Event Transfer Objects) للتواصل بين الوحدات عبر Domain Events</li>
+<li><strong>Handlers</strong> في Application لمعالجة الأحداث</li>
+<li><strong>AiAssistant</strong> مجلد موجود في بعض الوحدات — تكامل ذكاء اصطناعي</li>
+<li><strong>intercepters</strong> في EF Core — اعتراض استعلامات (فلترة حسب الفندق)</li>
+</ul>
+
+<hr/>
+
+<h2>14. التشغيل (مرجعي)</h2>
+
+<pre><code>
+# ترحيل قاعدة البيانات
+cd host/Ultimate.OtelPremio.DbMigrator
+dotnet run
+
+# API
+cd host/Ultimate.OtelPremio.HttpApi.Host
+dotnet run
+
+# Angular (حسب إعداد المشروع)
+cd angular
+yarn start
+</code></pre>
+
+<hr/>
+
+<p class="meta"><em>*نهاية الملخص — UltimateOtelPremio — هيكلية ABP Modular لأنظمة الفنادق*</em></p>
+<p class="meta"><em>*يُستخدم كمرجع لبناء Modiaf.Al.Arab.Hotel*</em></p>
+
+</body>
+</html>

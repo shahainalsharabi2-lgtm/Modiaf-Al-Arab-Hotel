@@ -2,11 +2,19 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { HotelAuthService } from '../services/hotel-auth.service';
 import { normalizeLandingPagePath } from '../utils/landing-page-path.util';
+import { isAppPathAllowedForSession } from '../utils/landing-page-access.util';
 
 /** يقيّد المستخدمين على صفحة محددة فقط (بدون شريط جانبي) */
 export const navigationGuard: CanActivateFn = (_route, state) => {
   const auth = inject(HotelAuthService);
   const router = inject(Router);
+  const session = auth.currentUser();
+
+  if (auth.isAuthenticated() && !isAppPathAllowedForSession(state.url, session)) {
+    const fallback = auth.isTranslatorUser() ? auth.lockedHomePath() : '/dashboard';
+    return router.parseUrl(fallback);
+  }
+
   if (!auth.isAuthenticated() || auth.canNavigateApp()) {
     return true;
   }

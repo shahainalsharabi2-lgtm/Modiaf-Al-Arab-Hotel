@@ -8,8 +8,15 @@
 }
 
 .ui-tr-editor .settings-tab-head {
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-bottom: 20px;
+}
+
+.ui-tr-head-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .ui-tr-editor .settings-tab-head h2 {
@@ -158,7 +165,7 @@
   border: 1px solid rgba(226, 232, 240, 0.95);
   border-radius: 14px;
   background: #ffffff;
-  padding: 0 18px 0 48px;
+  padding: 0 48px 0 18px;
   color: #1f2937;
   font-family: inherit;
   font-size: 1rem;
@@ -173,8 +180,10 @@
 
 .ui-tr-flat-search i {
   position: absolute;
-  inset-inline-end: auto;
-  left: 18px;
+  inset-inline-end: 18px;
+  inset-inline-start: auto;
+  left: auto;
+  right: 18px;
   top: 50%;
   transform: translateY(-50%);
   color: #9ca3af;
@@ -419,37 +428,39 @@
 
 .settings-tab-head--with-actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .ui-tr-export-actions {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
 }
 
-.ui-tr-export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid rgba(25, 118, 210, 0.28);
-  background: rgba(25, 118, 210, 0.08);
-  color: var(--app-primary-mid, #1976d2);
-  font-weight: 800;
-  font-size: 0.84rem;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+.ui-tr-import-input {
+  display: none;
 }
 
-.ui-tr-export-btn:hover {
-  background: rgba(25, 118, 210, 0.14);
-  border-color: rgba(25, 118, 210, 0.45);
+.ui-tr-export-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--app-text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.ui-tr-toolbar-btn--excel {
+  color: #1d6f42;
+  border-color: rgba(29, 111, 66, 0.35);
+}
+
+.ui-tr-toolbar-btn--excel:hover {
+  color: #145a32;
+  border-color: rgba(20, 90, 50, 0.45);
+  background: rgba(29, 111, 66, 0.06);
 }
 
 .ui-tr-sticky-toolbar {

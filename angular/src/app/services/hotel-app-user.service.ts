@@ -15,6 +15,7 @@ export interface HotelAppUserDto {
   role: string;
   allowNavigation: boolean;
   landingPagePath: string;
+  denyUserManagement?: boolean;
 }
 
 export interface CreateUpdateHotelAppUserDto {
@@ -27,6 +28,7 @@ export interface CreateUpdateHotelAppUserDto {
   role: string;
   allowNavigation: boolean;
   landingPagePath: string;
+  denyUserManagement?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,7 +48,12 @@ export class HotelAppUserService {
       .get<PagedResultDto<HotelAppUserDto>>(this.apiUrl, {
         params: { skipCount: '0', maxResultCount: '1000' },
       })
-      .pipe(map((r) => r.items ?? []));
+      .pipe(
+        map((r) => {
+          const raw = r as PagedResultDto<HotelAppUserDto> & { Items?: HotelAppUserDto[] };
+          return raw.items ?? raw.Items ?? [];
+        }),
+      );
   }
 
   create(input: CreateUpdateHotelAppUserDto): Observable<HotelAppUserDto> {

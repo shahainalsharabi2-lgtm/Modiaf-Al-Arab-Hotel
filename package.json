@@ -86,6 +86,10 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "yarn --cwd angular start",
+    "start:angular": "yarn --cwd angular start",
+    "start:api": "dotnet run --project aspnet-core/src/Modiaf.Al.Arab.Hotel.HttpApi.Host/Modiaf.Al.Arab.Hotel.HttpApi.Host.csproj",
+    "docs:ultimate-pdf": "node docs/generate-ultimate-otel-premio-pdf.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

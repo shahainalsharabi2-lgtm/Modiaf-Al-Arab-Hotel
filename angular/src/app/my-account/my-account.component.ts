@@ -9,6 +9,14 @@ import { UiMessageService } from '../services/ui-message.service';
 import { UiTranslationsService } from '../services/ui-translations.service';
 import { bindUiTranslationRefresh } from '../utils/ui-screen-i18n.helper';
 import { HOTEL_USER_ROLE_OPTIONS, normalizeHotelUserRole } from '../utils/hotel-user-role';
+import {
+  UI_LOCALE_PICKER_OPTIONS,
+  type UiLocalePickerCode,
+  type UiLocalePickerOption,
+} from '../utils/ui-locale-picker.util';
+import { formatLocalePickerLabel } from '../utils/locale-picker-label';
+import { ArabicCategoryPickerService } from '../services/arabic-category-picker.service';
+import { ArabicPreferenceCategoryService } from '../services/arabic-preference-category.service';
 
 @Component({
   selector: 'app-my-account',
@@ -22,8 +30,12 @@ export class MyAccountComponent implements OnInit {
   private readonly auth = inject(HotelAuthService);
   private readonly userService = inject(HotelAppUserService);
   private readonly uiMsg = inject(UiMessageService);
+  private readonly arabicCategoryPicker = inject(ArabicCategoryPickerService);
+  private readonly arabicPref = inject(ArabicPreferenceCategoryService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly localeOptions = UI_LOCALE_PICKER_OPTIONS;
 
   loading = true;
   saving = false;
@@ -35,6 +47,10 @@ export class MyAccountComponent implements OnInit {
 
   ngOnInit(): void {
     bindUiTranslationRefresh(this.cdr, this.destroyRef);
+    const onLocaleChanged = () => this.cdr.markForCheck();
+    window.addEventListener('hotelUiLocaleChanged', onLocaleChanged);
+    this.destroyRef.onDestroy(() => window.removeEventListener('hotelUiLocaleChanged', onLocaleChanged));
+
     const session = this.auth.currentUser();
     if (!session?.id) {
       this.loading = false;
@@ -59,6 +75,39 @@ export class MyAccountComponent implements OnInit {
       (o) => o.value === normalizeHotelUserRole(role),
     )?.labelKey;
     return key ? this.ui.screenText('settings', key) : '';
+  }
+
+  localeLabel(labelKey: UiLocalePickerOption['labelKey']): string {
+    const raw = this.ui.screenText('settings', labelKey);
+    return formatLocalePickerLabel(raw, this.ui.displayLocale());
+  }
+
+  localeFlag(opt: UiLocalePickerOption): string {
+    if (opt.code === 'ar' && this.ui.displayLocale() === 'ar') {
+      return this.arabicPref.activeFlagSrc();
+    }
+    return opt.flagSrc;
+  }
+
+  localeShortCode(opt: UiLocalePickerOption): string {
+    if (opt.code === 'ar' && this.ui.displayLocale() === 'ar') {
+      return this.arabicPref.activeShortCode();
+    }
+    return opt.shortCode;
+  }
+
+  selectDefaultLanguage(code: UiLocalePickerCode): void {
+    if (this.ui.displayLocale() === code) {
+      return;
+    }
+    if (code === 'ar') {
+      this.arabicCategoryPicker.requestArabicLocaleSwitch(() =>
+        this.ui.reloadFromBackend(() => this.cdr.markForCheck()),
+      );
+      return;
+    }
+    this.ui.setDisplayLocale(code);
+    this.ui.reloadFromBackend(() => this.cdr.markForCheck());
   }
 
   setActiveSection(section: 'profile' | 'password'): void {

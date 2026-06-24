@@ -36,13 +36,107 @@
 }
 
 .my-account-tab--active {
-  background: #123f33;
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(18, 63, 51, 0.16);
+  background: #1e40af !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(30, 64, 175, 0.18);
 }
 
 .my-account-content {
   min-width: 0;
+}
+
+.my-account-hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(30, 64, 175, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
+}
+
+.my-account-hero__main {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.my-account-hero__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.my-account-hero__summary h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.my-account-hero__summary p {
+  margin: 0 0 0.45rem;
+  color: #475569;
+  font-size: 0.86rem;
+}
+
+.my-account-hero__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.my-account-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.24rem 0.55rem;
+  background: rgba(30, 64, 175, 0.1);
+  color: #1e40af;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.my-account-hero__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  gap: 0.6rem;
+  min-width: 320px;
+}
+
+.my-account-hero__meta-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(30, 64, 175, 0.08);
+}
+
+.my-account-hero__meta-item span {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.my-account-hero__meta-item strong {
+  font-size: 0.8rem;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .my-account-title {
@@ -145,14 +239,14 @@
 }
 
 .my-account-input {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 36px;
+  display: flex;
   align-items: center;
   min-height: 38px;
   border: 1px solid #dfe4ea;
   border-radius: 4px;
   background: #fff;
   overflow: hidden;
+  position: relative;
 }
 
 .my-account-input:focus-within {
@@ -162,6 +256,7 @@
 
 .my-account-input input,
 .my-account-input select {
+  flex: 1 1 auto;
   min-width: 0;
   width: 100%;
   height: 100%;
@@ -173,6 +268,7 @@
   font: inherit;
   font-size: 0.8rem;
   padding: 0 0.75rem;
+  box-sizing: border-box;
   direction: ltr;
 }
 
@@ -185,14 +281,73 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  min-width: 36px;
   height: 100%;
+  min-height: 36px;
   color: #6d7781;
-  border-right: 1px solid #edf0f3;
+  border-inline-start: 1px solid #edf0f3;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .my-account-input--readonly,
 .my-account-input--select {
   background: #fbfcfd;
+}
+
+.my-account-lang-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.my-account-lang-item {
+  display: grid;
+  grid-template-columns: 28px 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #dfe4ea;
+  border-radius: 6px;
+  background: #fbfcfd;
+  color: #2f3b47;
+  font: inherit;
+  font-size: 0.78rem;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.my-account-lang-item:hover {
+  border-color: #9db6cc;
+  background: #fff;
+}
+
+.my-account-lang-item--active {
+  border-color: #1e40af !important;
+  background: #eff6ff !important;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.14);
+}
+
+.my-account-lang-flag {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.my-account-lang-code {
+  font-weight: 700;
+  color: #53606c;
+}
+
+.my-account-lang-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .my-account-save {
@@ -206,11 +361,15 @@
   padding: 0.35rem 1rem;
   border: none;
   border-radius: 5px;
-  background: #123f33;
-  color: #fff;
+  background: #1e40af !important;
+  color: #ffffff !important;
   font: inherit;
   font-size: 0.82rem;
   cursor: pointer;
+}
+
+.my-account-save:hover {
+  background: #2563eb !important;
 }
 
 .my-account-save:disabled {
@@ -243,5 +402,18 @@
 
   .my-account-grid {
     grid-template-columns: 1fr;
+  }
+
+  .my-account-lang-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-account-hero {
+    flex-direction: column;
+  }
+
+  .my-account-hero__meta {
+    grid-template-columns: 1fr;
+    min-width: 0;
   }
 }

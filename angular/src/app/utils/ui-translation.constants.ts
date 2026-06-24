@@ -3,13 +3,15 @@ export const UI_EXTRA_LOCALES = [
   { code: 'en', label: 'English (إنجليزية)' },
   { code: 'fr', label: 'Français (فرنسية)' },
   { code: 'tr', label: 'Türkçe (تركية)' },
+  { code: 'id', label: 'Bahasa Indonesia (إندونيسية)' },
+  { code: 'am', label: 'አማርኛ (إثيوبية)' },
 ] as const;
 
 export type UiExtraLocaleCode = (typeof UI_EXTRA_LOCALES)[number]['code'];
 
 export const HOTEL_UI_LOCALE_STORAGE_KEY = 'hotelUiLocale';
 
-/** لغة محرّر ترجمة الواجهة في الإعدادات (ar / en / fr / tr) */
+/** لغة محرّر ترجمة الواجهة في الإعدادات (ar / en / fr / tr / id / am) */
 export const HOTEL_UI_TRANSLATIONS_EDITOR_LOCALE_KEY = 'hotelUiTranslationsEditorLocale';
 
 /** وصف الشعار ثابت — لا يُعدَّل من محرر ترجمة الواجهة */

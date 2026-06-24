@@ -36,7 +36,7 @@ export interface HotelBrandingView {
   imageSrc: string;
 }
 
-const LOCALES: HotelProfileLocale[] = ['ar', 'en', 'fr', 'tr'];
+const LOCALES: HotelProfileLocale[] = ['ar', 'en', 'fr', 'tr', 'id', 'am'];
 
 function emptyFields(): HotelProfileFields {
   return {
@@ -54,6 +54,8 @@ function emptyByLocale(): Record<HotelProfileLocale, HotelProfileFields> {
     en: emptyFields(),
     fr: emptyFields(),
     tr: emptyFields(),
+    id: emptyFields(),
+    am: emptyFields(),
   };
 }
 

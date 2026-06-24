@@ -33,6 +33,7 @@ import {
   serializeRoomFeatures,
 } from '../utils/room-features.util';
 import { formatLocalePickerLabel } from '../utils/locale-picker-label';
+import { uiLocalePickerOption, type UiLocalePickerCode } from '../utils/ui-locale-picker.util';
 import { resolveHotelImageSrc } from '../utils/hotel-branding.constants';
 import { UiMessageService } from '../services/ui-message.service';
 import { GeneralCodesComponent } from '../general-codes/general-codes.component';
@@ -70,7 +71,6 @@ import {
   uiTranslationScreenNavPathKeys,
 } from '../utils/ui-translation-screen-labels.config';
 import { ArabicPreferenceCategoryService } from '../services/arabic-preference-category.service';
-import { uiLocalePickerOption } from '../utils/ui-locale-picker.util';
 import { CreditCardTypesComponent } from './credit-card-types/credit-card-types.component';
 import { HotelChainsComponent } from './hotel-chains/hotel-chains.component';
 import { HotelsComponent } from './hotels/hotels.component';
@@ -171,6 +171,7 @@ import {
   type UiTranslationExportFormat,
   type UiTranslationExportRow,
 } from '../utils/ui-translation-export.util';
+import { importUiTranslationsFromCsv } from '../utils/ui-translation-import.util';
 import {
   pushUntranslatedFlatRow,
   type UiTranslationUntranslatedFlatRow,
@@ -200,6 +201,7 @@ interface UiTranslationFlatEditorRow {
 }
 
 type UiTranslationSystemToolId =
+  | 'all'
   | 'texts'
   | 'buttons'
   | 'inputs'
@@ -439,9 +441,9 @@ export class SettingsComponent implements OnInit {
   readonly auth = inject(HotelAuthService);
   readonly userRoleOptions = HOTEL_USER_ROLE_OPTIONS;
 
-  /** إضافة / تعديل / حذف في الإعدادات — للمدير فقط */
+  /** إضافة / تعديل / حذف في الإعدادات — للمدير أو المترجم على صفحة الترجمة */
   get settingsEditable(): boolean {
-    return this.auth.canManageSettings();
+    return this.auth.canManageSettings() || this.auth.isTranslatorUser();
   }
 
   private readonly settingsTabKeys = new Set([
@@ -477,8 +479,9 @@ export class SettingsComponent implements OnInit {
   uiTranslationsFormEpoch = 0;
   uiTranslationsPage = 1;
   readonly uiTranslationsPageSize = 10;
-  activeUiTranslationSystemTool: UiTranslationSystemToolId = 'texts';
+  activeUiTranslationSystemTool: UiTranslationSystemToolId = 'all';
   readonly uiTranslationSystemTools: readonly UiTranslationSystemTool[] = [
+    { id: 'all', label: 'عرض الكل', englishLabel: 'Show All', icon: 'fa-eye' },
     { id: 'texts', label: 'النصوص', englishLabel: 'Texts', icon: 'fa-file-lines' },
     { id: 'buttons', label: 'الأزرار', englishLabel: 'Buttons', icon: 'fa-wand-magic-sparkles' },
     { id: 'inputs', label: 'حقول الإدخال', englishLabel: 'Input Fields', icon: 'fa-keyboard' },
@@ -1126,7 +1129,7 @@ export class SettingsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.isAuthorized = this.auth.canManageSettings();
+    this.isAuthorized = this.auth.canAccessUiTranslations();
     this.applyTabFromRoute();
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.applyTabFromRoute();
@@ -1323,13 +1326,29 @@ export class SettingsComponent implements OnInit {
       tab = 'translations';
     }
 
+    if (this.auth.isTranslatorUser()) {
+      const onTranslationPage =
+        tab === 'uiTranslations' && (!navId || navId === 'uiTranslation');
+      if (!onTranslationPage) {
+        this.activeTab = 'uiTranslations';
+        this.activeSettingsNavId = 'uiTranslation';
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { tab: 'uiTranslations', nav: 'uiTranslation' },
+          replaceUrl: true,
+        });
+        this.openUiTranslationsEditor();
+        return;
+      }
+    }
+
     const navLeaf = findSettingsNavLeaf(navId);
     if (navLeaf) {
       if (navLeaf.requiresUsers && !this.auth.canManageUsers()) {
         this.redirectSettingsFallback();
         return;
       }
-      if (navLeaf.requiresSettings && !this.auth.canManageSettings()) {
+      if (navLeaf.requiresSettings && !this.auth.canAccessUiTranslations()) {
         this.redirectSettingsFallback();
         return;
       }
@@ -1351,7 +1370,7 @@ export class SettingsComponent implements OnInit {
       this.redirectSettingsFallback();
       return;
     }
-    if (tab === 'uiTranslations' && !this.auth.canManageSettings()) {
+    if (tab === 'uiTranslations' && !this.auth.canAccessUiTranslations()) {
       this.redirectSettingsFallback();
       return;
     }
@@ -1361,8 +1380,8 @@ export class SettingsComponent implements OnInit {
       this.afterActiveTabChanged();
       return;
     }
-    this.activeTab = this.auth.canManageSettings() ? 'uiTranslations' : 'general';
-    this.activeSettingsNavId = this.auth.canManageSettings() ? 'uiTranslation' : 'sys-hotels';
+    this.activeTab = this.auth.canAccessUiTranslations() ? 'uiTranslations' : 'general';
+    this.activeSettingsNavId = this.auth.canAccessUiTranslations() ? 'uiTranslation' : 'sys-hotels';
     if (!tab) {
       void this.router.navigate([], {
         relativeTo: this.route,
@@ -1379,6 +1398,14 @@ export class SettingsComponent implements OnInit {
   }
 
   private redirectSettingsFallback(): void {
+    if (!this.auth.canNavigateApp()) {
+      void this.router.navigateByUrl(this.router.parseUrl(this.auth.lockedHomePath()));
+      return;
+    }
+    if (this.auth.isTranslatorUser()) {
+      void this.router.navigateByUrl(this.router.parseUrl(this.auth.lockedHomePath()));
+      return;
+    }
     this.activeTab = 'general';
     this.activeSettingsNavId = 'sys-hotels';
     void this.router.navigate([], {
@@ -1489,8 +1516,12 @@ export class SettingsComponent implements OnInit {
     if (tab === 'users' && !this.auth.canManageUsers()) {
       tab = 'general';
     }
-    if (tab === 'uiTranslations' && !this.auth.canManageSettings()) {
+    if (tab === 'uiTranslations' && !this.auth.canAccessUiTranslations()) {
       tab = 'general';
+    }
+    if (this.auth.isTranslatorUser()) {
+      tab = 'uiTranslations';
+      navId = 'uiTranslation';
     }
     this.activeTab = tab;
     if (navId) {
@@ -1582,7 +1613,7 @@ export class SettingsComponent implements OnInit {
   }
 
   private isUiTranslationEditorLocale(value: string): value is UiExtraLocaleCode | 'ar' {
-    return value === 'ar' || value === 'en' || value === 'fr' || value === 'tr';
+    return value === 'ar' || value === 'en' || value === 'fr' || value === 'tr' || value === 'id' || value === 'am';
   }
 
   /** لغة ملف JSON قيد التحرير — مستقلة عن شريط لغة الواجهة العلوي */
@@ -1692,7 +1723,7 @@ export class SettingsComponent implements OnInit {
   }
 
   navigateToUiTranslationScreen(screenId: string, settingsNavId?: string): void {
-    if (!this.auth.canManageSettings()) {
+    if (!this.auth.canAccessUiTranslations()) {
       return;
     }
     const target = uiTranslationScreenNavigateTarget(screenId, settingsNavId);
@@ -1714,7 +1745,7 @@ export class SettingsComponent implements OnInit {
     screenId?: string,
     settingsNavId?: string,
   ): void {
-    if (!this.auth.canManageSettings()) {
+    if (!this.auth.canAccessUiTranslations()) {
       return;
     }
     const target = uiTranslationFieldNavigateTarget({
@@ -1975,6 +2006,8 @@ export class SettingsComponent implements OnInit {
       en: 'uiTranslationsColEditableEn',
       fr: 'uiTranslationsColEditableFr',
       tr: 'uiTranslationsColEditableTr',
+      id: 'uiTranslationsColEditableId',
+      am: 'uiTranslationsColEditableAm',
     };
     return this.uiTranslationsEditorChromeText(keyByLocale[this.uiTranslationsLocale]);
   }
@@ -2009,6 +2042,7 @@ export class SettingsComponent implements OnInit {
 
   uiTranslationSystemToolLabel(toolId: UiTranslationSystemToolId): string {
     const keyByTool: Record<UiTranslationSystemToolId, string> = {
+      all: 'uiTranslationsToolAll',
       texts: 'uiTranslationsToolTexts',
       buttons: 'uiTranslationsToolButtons',
       inputs: 'uiTranslationsToolInputs',
@@ -2022,7 +2056,7 @@ export class SettingsComponent implements OnInit {
   }
 
   uiTranslationEditorLocales(): readonly (UiExtraLocaleCode | 'ar')[] {
-    return ['ar', 'en', 'fr', 'tr'];
+    return ['ar', 'en', 'fr', 'tr', 'id', 'am'];
   }
 
   uiTranslationEditorLocaleLabel(locale: UiExtraLocaleCode | 'ar'): string {
@@ -2031,6 +2065,8 @@ export class SettingsComponent implements OnInit {
       en: 'localeEn',
       fr: 'localeFr',
       tr: 'localeTr',
+      id: 'localeId',
+      am: 'localeAm',
     };
     const localized = this.uiTranslationsEditorChromeText(keyByLocale[locale]);
     const chromeLocale = this.uiTranslationsEditorChromeLocale();
@@ -2041,12 +2077,16 @@ export class SettingsComponent implements OnInit {
             en: 'الإنجليزية',
             fr: 'الفرنسية',
             tr: 'التركية',
+            id: 'الإندونيسية',
+            am: 'الإثيوبية',
           }
         : {
             ar: 'Arabic',
             en: 'English',
             fr: 'French',
             tr: 'Turkish',
+            id: 'Indonesian',
+            am: 'Ethiopian',
           };
     if (/^\d+$/.test(localized.trim())) {
       return fallback[locale];
@@ -2751,6 +2791,9 @@ export class SettingsComponent implements OnInit {
     row: UiTranslationFlatEditorRow,
     toolId: UiTranslationSystemToolId,
   ): boolean {
+    if (toolId === 'all') {
+      return true;
+    }
     switch (toolId) {
       case 'texts':
         return this.uiTranslationKeyLooksPlainText(row);
@@ -3193,6 +3236,62 @@ export class SettingsComponent implements OnInit {
       default:
         break;
     }
+  }
+
+  onUiTranslationsImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+    input.value = '';
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.applyUiTranslationsCsvImport(String(reader.result ?? ''));
+    };
+    reader.onerror = () => {
+      this.uiMsg.show(this.uiTranslations.screenText('settings', 'uiTranslationsImportEmpty'));
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  applyUiTranslationsCsvImport(csvText: string): void {
+    if (
+      !this.ensureSettingsEditable() ||
+      !this.uiTranslationsForm ||
+      !this.uiTranslationsReferenceAr ||
+      !this.uiTranslationsReferenceEn
+    ) {
+      return;
+    }
+
+    const result = importUiTranslationsFromCsv(
+      csvText,
+      this.uiTranslationsReferenceAr,
+      this.uiTranslationsReferenceEn,
+      this.uiTranslationsForm,
+    );
+
+    if (result.applied === 0) {
+      this.uiMsg.show(this.uiTranslations.screenText('settings', 'uiTranslationsImportEmpty'));
+      return;
+    }
+
+    this.invalidateUiTranslationsFlatRowsCache();
+    this.rebuildUiTranslationEditorGroupsCache();
+    this.cdr.markForCheck();
+    this.saveUiTranslationsForm({
+      silent: true,
+      onComplete: () => {
+        this.uiMsg.show(
+          this.uiTranslations
+            .screenText('settings', 'uiTranslationsImportOk')
+            .replace('{0}', String(result.applied))
+            .replace('{1}', String(result.unmatched)),
+        );
+      },
+    });
   }
 
   private collectUiTranslationsExportRows(): UiTranslationExportRow[] {
@@ -4986,21 +5085,10 @@ export class SettingsComponent implements OnInit {
     return this.uiLocaleLabel(this.uiTranslations.displayLocale());
   }
 
-  private uiLocaleLabel(locale: 'ar' | 'en' | 'fr' | 'tr'): string {
+  private uiLocaleLabel(locale: UiLocalePickerCode): string {
     const display = this.uiTranslations.displayLocale();
-    let key: 'localeAr' | 'localeEn' | 'localeFr' | 'localeTr' = 'localeAr';
-    switch (locale) {
-      case 'en':
-        key = 'localeEn';
-        break;
-      case 'fr':
-        key = 'localeFr';
-        break;
-      case 'tr':
-        key = 'localeTr';
-        break;
-    }
-    const raw = this.uiTranslations.screenText('settings', key);
+    const opt = uiLocalePickerOption(locale);
+    const raw = this.uiTranslations.screenText('settings', opt.labelKey);
     return formatLocalePickerLabel(raw, display);
   }
 }

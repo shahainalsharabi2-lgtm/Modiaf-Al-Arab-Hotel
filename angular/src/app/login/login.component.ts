@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HotelAuthService } from '../services/hotel-auth.service';
+import { normalizeLandingPagePath } from '../utils/landing-page-path.util';
 import { HotelSystemSettingsLoader } from '../services/hotel-system-settings.loader';
 import { UiTranslationsService } from '../services/ui-translations.service';
 import { UiInlineTextComponent } from '../shared/ui-inline-text/ui-inline-text.component';
@@ -65,10 +66,15 @@ export class LoginComponent implements OnInit {
       next: (result) => {
         this.submitting = false;
         if (result.success) {
-          const fallback = this.auth.canNavigateApp()
+          const rawTarget = this.auth.canNavigateApp()
             ? this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard'
             : this.auth.lockedHomePath();
-          void this.router.navigateByUrl(fallback);
+          const target = normalizeLandingPagePath(rawTarget);
+          void this.router.navigateByUrl(this.router.parseUrl(target)).then((ok) => {
+            if (!ok) {
+              void this.router.navigateByUrl('/dashboard');
+            }
+          });
           return;
         }
         this.errorMessage =

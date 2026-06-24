@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   canManageHotelUsers,
@@ -12,6 +12,9 @@ import {
   DEFAULT_LANDING_PAGE_PATH,
   normalizeLandingPagePath,
 } from '../utils/landing-page-path.util';
+import { sanitizeLandingPageForRole, isTranslatorSession, canAccessUiTranslations } from '../utils/landing-page-access.util';
+import { isSystemOwnerSession } from '../utils/hotel-system-owner.util';
+import { HotelUserPageAccessService } from './hotel-user-page-access.service';
 
 export interface HotelAppUserSession {
   id: number;
@@ -23,12 +26,14 @@ export interface HotelAppUserSession {
   role: HotelUserRole;
   allowNavigation: boolean;
   landingPagePath: string;
+  denyUserManagement?: boolean;
+  isSystemOwner?: boolean;
 }
 
 export interface HotelLoginResult {
   success: boolean;
   message?: string;
-  user?: HotelAppUserSession;
+  user?: HotelAppUserSession & { denyUserManagement?: boolean; isSystemOwner?: boolean };
 }
 
 const SESSION_STORAGE_KEY = 'hotelAppUserSession';
@@ -37,10 +42,23 @@ export const LOCKED_HOME_PATH = DEFAULT_LANDING_PAGE_PATH;
 @Injectable({ providedIn: 'root' })
 export class HotelAuthService {
   private readonly http = inject(HttpClient);
+  private readonly pageAccess = inject(HotelUserPageAccessService);
   private session: HotelAppUserSession | null = null;
 
   constructor() {
     this.restoreSession();
+    this.pageAccess.ensureLoaded().subscribe(() => {
+      if (!this.session) {
+        return;
+      }
+      const merged = this.pageAccess.mergeIntoSessionUser(this.session);
+      if (
+        merged.allowNavigation !== this.session.allowNavigation ||
+        merged.landingPagePath !== this.session.landingPagePath
+      ) {
+        this.persistSession(merged);
+      }
+    });
   }
 
   private get apiUrl(): string {
@@ -48,7 +66,7 @@ export class HotelAuthService {
   }
 
   isAuthenticated(): boolean {
-    return (this.session?.id ?? 0) > 0;
+    return isSystemOwnerSession(this.session) || (this.session?.id ?? 0) > 0;
   }
 
   isLoggedIn(): boolean {
@@ -64,15 +82,35 @@ export class HotelAuthService {
   }
 
   canManageUsers(): boolean {
-    return canManageHotelUsers(this.session?.role);
+    return canManageHotelUsers(this.session?.role, {
+      denyUserManagement: this.session?.denyUserManagement,
+      isSystemOwner: this.session?.isSystemOwner,
+    });
   }
 
   canManageSettings(): boolean {
-    return canManageSettings(this.session?.role);
+    return canManageSettings(this.session?.role, {
+      isSystemOwner: this.session?.isSystemOwner,
+    });
+  }
+
+  isSystemOwner(): boolean {
+    return isSystemOwnerSession(this.session);
+  }
+
+  isTranslatorUser(): boolean {
+    return isTranslatorSession(this.session);
+  }
+
+  canAccessUiTranslations(): boolean {
+    return canAccessUiTranslations(this.session);
   }
 
   canNavigateApp(): boolean {
-    if (canManageSettings(this.session?.role)) {
+    if (isSystemOwnerSession(this.session)) {
+      return true;
+    }
+    if (canManageSettings(this.session?.role, { isSystemOwner: this.session?.isSystemOwner })) {
       return true;
     }
     return this.session?.allowNavigation !== false;
@@ -82,7 +120,8 @@ export class HotelAuthService {
     if (this.session?.allowNavigation !== false) {
       return DEFAULT_LANDING_PAGE_PATH;
     }
-    return normalizeLandingPagePath(this.session?.landingPagePath);
+    const raw = normalizeLandingPagePath(this.session?.landingPagePath);
+    return sanitizeLandingPageForRole(raw, this.session?.role);
   }
 
   login(userName: string, password: string): Observable<HotelLoginResult> {
@@ -92,6 +131,23 @@ export class HotelAuthService {
         password,
       })
       .pipe(
+        switchMap((result) => {
+          if (!result.success || !result.user) {
+            return of(result);
+          }
+          return this.pageAccess.ensureLoaded().pipe(
+            map(() => ({
+              ...result,
+              user: this.pageAccess.mergeIntoSessionUser(result.user!),
+            })),
+            catchError(() =>
+              of({
+                ...result,
+                user: result.user!,
+              }),
+            ),
+          );
+        }),
         tap((result) => {
           if (result.success && result.user) {
             this.persistSession(result.user);
@@ -114,11 +170,18 @@ export class HotelAuthService {
   }
 
   private persistSession(user: HotelAppUserSession): void {
+    const role = normalizeHotelUserRole(user.role);
+    const allowNavigation = user.allowNavigation !== false;
+    const landingPagePath = allowNavigation
+      ? DEFAULT_LANDING_PAGE_PATH
+      : sanitizeLandingPageForRole(user.landingPagePath, role);
     this.session = {
       ...user,
-      role: normalizeHotelUserRole(user.role),
-      allowNavigation: user.allowNavigation !== false,
-      landingPagePath: normalizeLandingPagePath(user.landingPagePath),
+      role,
+      allowNavigation,
+      landingPagePath,
+      denyUserManagement: user.isSystemOwner ? false : user.denyUserManagement !== false,
+      isSystemOwner: user.isSystemOwner === true,
     };
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.session));
@@ -139,7 +202,20 @@ export class HotelAuthService {
           ...parsed,
           role: normalizeHotelUserRole(parsed.role),
           allowNavigation: parsed.allowNavigation !== false,
-          landingPagePath: normalizeLandingPagePath(parsed.landingPagePath),
+          landingPagePath: parsed.allowNavigation === false
+            ? sanitizeLandingPageForRole(parsed.landingPagePath, parsed.role)
+            : DEFAULT_LANDING_PAGE_PATH,
+          denyUserManagement: parsed.isSystemOwner ? false : parsed.denyUserManagement !== false,
+          isSystemOwner: parsed.isSystemOwner === true,
+        };
+      } else if (isSystemOwnerSession(parsed)) {
+        this.session = {
+          ...parsed,
+          role: normalizeHotelUserRole(parsed.role),
+          allowNavigation: true,
+          landingPagePath: DEFAULT_LANDING_PAGE_PATH,
+          denyUserManagement: false,
+          isSystemOwner: true,
         };
       }
     } catch {

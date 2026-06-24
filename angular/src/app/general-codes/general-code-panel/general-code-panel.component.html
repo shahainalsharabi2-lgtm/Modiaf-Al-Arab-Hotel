@@ -1,5 +1,7 @@
 <section class="hc-page gc-panel" dir="rtl">
   <div class="hc-page__panel">
+
+    <!-- ══════ HERO HEADER ══════ -->
     <header class="gc-panel__hero">
       <div class="gc-panel__hero-text">
         <h2 class="gc-panel__title"><ui-inline-text kind="screen" screen="generalCodes" [key]="titleKey" /></h2>
@@ -13,6 +15,7 @@
       </button>
     </header>
 
+    <!-- ══════ TOOLBAR ══════ -->
     <div class="hc-page__toolbar">
       <div class="hc-page__filters">
         <div class="hc-page__search">
@@ -24,30 +27,55 @@
             [placeholder]="ui.screenText('generalCodes', 'searchPh')" />
         </div>
       </div>
+      <div class="gc-toolbar__right">
+        <span class="gc-count-badge">
+          <i class="fas fa-database" aria-hidden="true"></i>
+          {{ totalItems() }} <ui-inline-text kind="screen" screen="generalCodes" key="catalogItemsCount" />
+        </span>
+        <div class="gc-page-size-inline">
+          <button type="button" class="hc-page__size-btn" [class.hc-page__size-btn--active]="pageSize === 5"  (click)="setPageSize(5)">5</button>
+          <button type="button" class="hc-page__size-btn" [class.hc-page__size-btn--active]="pageSize === 10" (click)="setPageSize(10)">10</button>
+          <button type="button" class="hc-page__size-btn" [class.hc-page__size-btn--active]="pageSize === 25" (click)="setPageSize(25)">25</button>
+          <button type="button" class="hc-page__size-btn" [class.hc-page__size-btn--active]="pageSize === 'all'" (click)="setPageSize('all')">
+            <ui-inline-text kind="screen" screen="generalCodes" key="catalogPageSizeAll" />
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- ══════ ERROR ══════ -->
     @if (errorMessage) {
-      <div class="hc-page__alert">{{ errorMessage }}</div>
+      <div class="hc-page__alert"><i class="fas fa-exclamation-circle"></i> {{ errorMessage }}</div>
     }
 
+    <!-- ══════ LOADING ══════ -->
     @if (loading) {
       <div class="hc-page__loading">
         <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
         <ui-inline-text kind="screen" screen="generalCodes" key="loading" />
       </div>
+
+    <!-- ══════ EMPTY ══════ -->
     } @else if (!filteredItems().length) {
       <div class="hc-page__empty">
         <i class="bi bi-inbox" aria-hidden="true"></i>
         <p><ui-inline-text kind="screen" screen="generalCodes" key="emptyList" /></p>
         <button type="button" class="hc-page__add-btn hc-page__add-btn--ghost" *ngIf="canEdit" (click)="openCreate()">
+          <i class="fas fa-plus" aria-hidden="true"></i>
           <ui-inline-text kind="screen" screen="generalCodes" key="addFirst" />
         </button>
       </div>
+
+    <!-- ══════ TABLE ══════ -->
     } @else {
       <div class="hc-page__table-wrap">
         <table class="hc-page__table">
           <thead>
             <tr>
+              <!-- رقم الصف -->
+              <th class="gc-col-row-num">#</th>
+
+              <!-- رأس الجدول حسب نوع الفئة -->
               @if (isPrefCategory) {
                 <th><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColName" /></th>
                 <th><ui-inline-text kind="screen" screen="generalCodes" key="prefCatColRegion" /></th>
@@ -69,79 +97,95 @@
               } @else {
                 <th dir="ltr"><ui-inline-text kind="screen" screen="generalCodes" key="colCode" /></th>
                 <th><ui-inline-text kind="screen" screen="generalCodes" key="colName" /></th>
-                @if (showDescription) {
-                  <th><ui-inline-text kind="screen" screen="generalCodes" key="colDescription" /></th>
-                }
                 @if (showForeignName) {
                   <th><ui-inline-text kind="screen" screen="generalCodes" key="colFName" /></th>
                 }
+                @if (showDescription) {
+                  <th><ui-inline-text kind="screen" screen="generalCodes" key="colDescription" /></th>
+                }
                 <th class="hc-page__col-order"><ui-inline-text kind="screen" screen="generalCodes" key="colDisplayOrder" /></th>
-                <th><ui-inline-text kind="screen" screen="generalCodes" key="colHotel" /></th>
               }
+
+              <!-- عمود الإجراءات -->
               <th class="hc-page__col-actions" *ngIf="canEdit" aria-hidden="true"></th>
             </tr>
           </thead>
           <tbody>
-            @for (item of pagedItems(); track item.id) {
-              <tr>
+            @for (item of pagedItems(); track item.id; let rowIdx = $index) {
+              <tr class="gc-table-row">
+                <!-- رقم الصف -->
+                <td class="gc-col-row-num">{{ (pageIndex - 1) * (pageSize === 'all' ? 0 : pageSize) + rowIdx + 1 }}</td>
+
                 @if (isPrefCategory) {
-                  <td>{{ languageLabel(item.name) }}</td>
+                  <td class="gc-cell-lang">
+                    <span class="gc-lang-badge">{{ languageLabel(item.name) }}</span>
+                  </td>
                   <td>{{ item.fName || '—' }}</td>
-                  <td dir="ltr">{{ itemPrefCurrencyCode(item) }}</td>
-                  <td dir="ltr">{{ itemDialCode(item) }}</td>
+                  <td dir="ltr">
+                    <span class="gc-currency-badge">{{ itemPrefCurrencyCode(item) }}</span>
+                  </td>
+                  <td dir="ltr" class="gc-dial-code">{{ itemDialCode(item) }}</td>
                   <td class="hc-page__col-order">
                     <img class="gc-flag-thumb" [src]="itemFlagSrc(item)" alt="" width="32" height="24" />
                   </td>
+
                 } @else if (isRoomClasses) {
-                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td class="hc-page__code gc-code-chip" dir="ltr">
+                    <span class="gc-code-tag">{{ itemCode(item) }}</span>
+                  </td>
                   <td>
                     <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
                   </td>
-                  <td class="hc-page__col-order">{{ formatCount(item.roomCount) }}</td>
-                  <td class="hc-page__col-order">{{ formatCount(item.regularBedCount) }}</td>
-                  <td class="hc-page__col-order">{{ formatCount(item.familyBedCount) }}</td>
-                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
+                  <td class="hc-page__col-order gc-num-cell">{{ formatCount(item.roomCount) }}</td>
+                  <td class="hc-page__col-order gc-num-cell">{{ formatCount(item.regularBedCount) }}</td>
+                  <td class="hc-page__col-order gc-num-cell">{{ formatCount(item.familyBedCount) }}</td>
+                  <td class="hc-page__col-order gc-num-cell">{{ item.displayOrder }}</td>
+
                 } @else if (isPriceCodeType) {
-                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td class="hc-page__code gc-code-chip" dir="ltr">
+                    <span class="gc-code-tag">{{ itemCode(item) }}</span>
+                  </td>
                   <td>
                     <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
                   </td>
-                  <td class="hc-page__col-order" dir="ltr">{{ itemFinancialValue(item) }}</td>
-                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
+                  <td class="hc-page__col-order gc-num-cell" dir="ltr">{{ itemFinancialValue(item) }}</td>
+                  <td class="hc-page__col-order gc-num-cell">{{ item.displayOrder }}</td>
+
                 } @else {
-                  <td class="hc-page__code" dir="ltr">{{ itemCode(item) }}</td>
+                  <td class="hc-page__code gc-code-chip" dir="ltr">
+                    <span class="gc-code-tag">{{ itemCode(item) }}</span>
+                  </td>
                   <td>
                     <button type="button" class="gc-name-link" (click)="openEdit(item)">{{ item.name }}</button>
                   </td>
-                  @if (showDescription) {
-                    <td>{{ item.description || '—' }}</td>
-                  }
                   @if (showForeignName) {
-                    <td>{{ item.fName || '—' }}</td>
+                    <td class="gc-fname-cell">{{ item.fName || '—' }}</td>
                   }
-                  <td class="hc-page__col-order">{{ item.displayOrder }}</td>
-                  <td>—</td>
+                  @if (showDescription) {
+                    <td class="gc-desc-cell">{{ item.description || '—' }}</td>
+                  }
+                  <td class="hc-page__col-order gc-num-cell">{{ item.displayOrder }}</td>
                 }
+
+                <!-- أزرار الإجراءات -->
                 <td class="hc-page__col-actions" *ngIf="canEdit">
-                  <div class="hc-page__actions">
+                  <div class="gc-row-actions">
                     <button
                       type="button"
-                      class="hc-page__actions-btn"
-                      (click)="toggleActionsMenu(item.id, $event)"
-                      [attr.aria-expanded]="openActionsId === item.id"
-                      [attr.aria-label]="ui.screenText('generalCodes', 'colActions')">
-                      <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                      class="gc-action-btn gc-action-btn--edit"
+                      (click)="openEdit(item)"
+                      [attr.aria-label]="ui.screenText('generalCodes', 'actionEdit')"
+                      [title]="ui.screenText('generalCodes', 'actionEdit')">
+                      <i class="fas fa-pen" aria-hidden="true"></i>
                     </button>
-                    <div class="hc-page__menu" *ngIf="openActionsId === item.id" (click)="$event.stopPropagation()">
-                      <button type="button" (click)="openEdit(item)">
-                        <i class="fas fa-pen" aria-hidden="true"></i>
-                        <ui-inline-text kind="screen" screen="generalCodes" key="actionEdit" />
-                      </button>
-                      <button type="button" class="hc-page__menu-danger" (click)="deleteItem(item)">
-                        <i class="fas fa-trash" aria-hidden="true"></i>
-                        <ui-inline-text kind="screen" screen="generalCodes" key="actionDelete" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      class="gc-action-btn gc-action-btn--delete"
+                      (click)="deleteItem(item)"
+                      [attr.aria-label]="ui.screenText('generalCodes', 'actionDelete')"
+                      [title]="ui.screenText('generalCodes', 'actionDelete')">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -150,6 +194,7 @@
         </table>
       </div>
 
+      <!-- ══════ FOOTER / PAGINATION ══════ -->
       <footer class="hc-page__footer" *ngIf="totalItems()">
         <div class="hc-page__footer-info">
           <ui-inline-text kind="screen" screen="generalCodes" key="catalogPage" />
@@ -164,36 +209,17 @@
           <button type="button" class="hc-page__page-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 1">
             <i class="fas fa-angle-right" aria-hidden="true"></i>
           </button>
-          <button
-            type="button"
-            class="hc-page__page-btn"
-            *ngFor="let page of pageNumbers()"
-            [class.hc-page__page-btn--active]="pageIndex === page"
-            (click)="setPage(page)">
-            {{ page }}
-          </button>
+          @for (page of pageNumbers(); track page) {
+            <button
+              type="button"
+              class="hc-page__page-btn"
+              [class.hc-page__page-btn--active]="pageIndex === page"
+              (click)="setPage(page)">
+              {{ page }}
+            </button>
+          }
           <button type="button" class="hc-page__page-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex === totalPages()">
             <i class="fas fa-angle-left" aria-hidden="true"></i>
-          </button>
-        </div>
-
-        <div class="hc-page__footer-size">
-          <button
-            type="button"
-            class="hc-page__size-btn"
-            [class.hc-page__size-btn--active]="pageSize === 5"
-            (click)="setPageSize(5)">5</button>
-          <button
-            type="button"
-            class="hc-page__size-btn"
-            [class.hc-page__size-btn--active]="pageSize === 10"
-            (click)="setPageSize(10)">10</button>
-          <button
-            type="button"
-            class="hc-page__size-btn"
-            [class.hc-page__size-btn--active]="pageSize === 'all'"
-            (click)="setPageSize('all')">
-            <ui-inline-text kind="screen" screen="generalCodes" key="catalogPageSizeAll" />
           </button>
         </div>
       </footer>
@@ -202,6 +228,9 @@
 
 </section>
 
+<!-- ══════════════════════════════════════════
+     MODAL — إضافة / تعديل
+══════════════════════════════════════════ -->
 @if (modalOpen) {
   <div class="gc-modal" role="dialog" aria-modal="true">
     <div class="gc-modal__backdrop" (click)="closeModal()"></div>
@@ -211,14 +240,22 @@
       class="gc-modal__card"
       [class.gc-modal__card--pref]="isPrefCategory"
       (click)="$event.stopPropagation()">
+
       <header class="gc-modal__header">
-        <h3>{{ modalTitle() }}</h3>
+        <div class="gc-modal__header-inner">
+          <div class="gc-modal__header-icon" aria-hidden="true">
+            <i class="fas" [class.fa-plus]="!editingId" [class.fa-pen]="editingId"></i>
+          </div>
+          <h3>{{ modalTitle() }}</h3>
+        </div>
         <button type="button" class="gc-modal__close" (click)="closeModal()" [attr.aria-label]="ui.screenText('generalCodes', 'cancel')">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </header>
+
       <div class="gc-modal__body">
         @if (isPrefCategory) {
+          <!-- فئة التفضيلات -->
           <div class="gc-pref-form">
             <div class="gc-pref-form__grid">
               <div class="gc-field gc-field--compact">
@@ -332,7 +369,9 @@
               </div>
             </div>
           </div>
+
         } @else {
+          <!-- الفئات العامة -->
           @if (usesCodeField) {
             <div class="gc-field">
               <label class="gc-field__label">
@@ -452,13 +491,17 @@
           }
         }
       </div>
+
       <footer class="gc-modal__footer">
         <button type="button" class="gc-btn gc-btn--ghost" (click)="closeModal()">
+          <i class="fas fa-times" aria-hidden="true"></i>
           <ui-inline-text kind="screen" screen="generalCodes" key="cancel" />
         </button>
         <button type="submit" class="gc-btn gc-btn--primary" [disabled]="!canSaveForm">
           @if (saving) {
             <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          } @else {
+            <i class="fas fa-check" aria-hidden="true"></i>
           }
           <ui-inline-text kind="screen" screen="generalCodes" key="save" />
         </button>

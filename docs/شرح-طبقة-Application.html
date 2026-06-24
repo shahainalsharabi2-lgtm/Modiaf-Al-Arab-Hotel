@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شرح طبقة Application — مضياف العرب للفنادق</title>
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --accent: #2563eb;
+      --bg: #f8fafc;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #475569;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--bg);
+      margin: 0;
+      padding: 2rem;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 3rem;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    }
+    h1 {
+      color: var(--primary);
+      font-size: 1.85rem;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+    h2 {
+      color: var(--primary);
+      font-size: 1.25rem;
+      margin-top: 2rem;
+      page-break-after: avoid;
+    }
+    h3 {
+      color: var(--accent);
+      font-size: 1.05rem;
+      margin-top: 1.25rem;
+    }
+    p, li { color: var(--text); }
+    .meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 1.5rem;
+    }
+    .box {
+      background: #eff6ff;
+      border-right: 4px solid var(--accent);
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+      direction: ltr;
+      text-align: left;
+    }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    code {
+      background: #f1f5f9;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.75rem;
+      text-align: right;
+    }
+    th {
+      background: var(--primary);
+      color: #fff;
+    }
+    tr:nth-child(even) { background: #f8fafc; }
+    ul { padding-right: 1.25rem; }
+    .print-hint {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page { box-shadow: none; border: none; padding: 1.5rem; }
+      .print-hint { display: none; }
+      h2 { page-break-before: auto; }
+      table, pre { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="print-hint">
+      لحفظ PDF: من المتصفح اضغط <strong>Ctrl+P</strong> ← اختر <strong>Microsoft Print to PDF</strong> أو <strong>Save as PDF</strong>.
+    </div>
+
+    <h1>شرح طبقة Application</h1>
+    <p class="meta">
+      مشروع: <strong>Modiaf.Al.Arab.Hotel</strong> · إطار: ABP 10.3 + .NET 10<br />
+      المسار: <code>aspnet-core/src/Modiaf.Al.Arab.Hotel.Application</code>
+    </p>
+
+    <h2>1. ما هي طبقة Application؟</h2>
+    <p>
+      طبقة <strong>Application</strong> هي طبقة <strong>منطق التطبيق (Use Cases)</strong>.
+      تجمع بين واجهات المستخدم (Angular) وطبقة Domain (الكيانات وقاعدة البيانات).
+      كل عملية يطلبها المستخدم — تسجيل دخول، CRUD غرفة، حفظ ترجمة — تُنفَّذ هنا عبر
+      <strong>App Service</strong>.
+    </p>
+    <div class="box">
+      <strong>قاعدة مهمة:</strong> Application <em>لا</em> تتحدث مع قاعدة البيانات مباشرةً دائماً،
+      بل عبر <code>IRepository</code> من Domain أو عبر <code>Store</code> مخصّص.
+      ولا تعرّف Controllers يدوياً — ABP ينشئ REST API تلقائياً.
+    </div>
+
+    <h2>2. مكانها في المعمارية</h2>
+    <pre>
+Angular (واجهة)
+      │  HTTP
+      ▼
+HttpApi.Host ──► HttpApi
+                      │
+                      ▼
+              Application  ◄── أنت هنا
+                      │
+         ┌────────────┼────────────┐
+         ▼            ▼            ▼
+  Application.Contracts   Domain   (Mapperly)
+         │                  │
+         │                  ▼
+         │         EntityFrameworkCore
+         │                  │
+         └──────────────────┴──► PostgreSQL / SQL Server
+    </pre>
+
+    <h2>3. التبعيات (Dependencies)</h2>
+    <table>
+      <tr><th>يعتمد على</th><th>الغرض</th></tr>
+      <tr><td><code>Application.Contracts</code></td><td>واجهات <code>I*AppService</code> و DTOs</td></tr>
+      <tr><td><code>Domain</code></td><td>الكيانات، <code>IRepository</code>، Domain Services</td></tr>
+      <tr><td>ABP Modules</td><td>Identity, Account, Permissions, Settings…</td></tr>
+    </table>
+    <p><strong>لا يعتمد على:</strong> EntityFrameworkCore، HttpApi، Angular.</p>
+
+    <h2>4. هيكل المجلدات</h2>
+    <pre>
+Modiaf.Al.Arab.Hotel.Application/
+├── HotelApplicationModule.cs      ← نقطة دخول الطبقة
+├── HotelAppService.cs             ← Class أساسي لكل الخدمات
+├── HotelApplicationMappers.cs     ← Mapperly (Entity ↔ DTO)
+│
+├── Entities/                      ← نمط قديم: CRUD كيانات الفندق
+│   ├── Rooms.cs                   → RoomAppService
+│   ├── Bookings.cs                → BookingAppService
+│   ├── Floors.cs
+│   ├── GuestRegistries.cs
+│   ├── IdentityTypes.cs
+│   └── RoomTypes.cs
+│
+├── GeneralCodes/                  ← نمط جديد: Feature folder
+│   ├── GeneralCodesAppService.cs  ← واجهة رفيعة
+│   └── GeneralCodesStore.cs       ← منطق + Mapping
+│
+├── HotelAuth/                     → LoginAsync
+├── HotelUsers/                    → CRUD مستخدمي الفندق
+├── HotelSettings/                 → إعدادات النظام
+├── PaymentMethods/
+├── CreditCardTypes/
+├── HotelChains/
+├── UiTranslations/
+│   ├── UiTranslationsBlobAppService.cs
+│   └── UiTranslationsFileStore.cs
+└── DatabaseAdmin/                 → Backup + Migrate
+    </pre>
+
+    <h2>5. أنماط التصميم المستخدمة</h2>
+
+    <h3>5.1 App Service + CrudAppService (الكيانات القديمة)</h3>
+    <p>مثل <code>RoomAppService</code> — يرث من <code>CrudAppService</code> ويوفر Get/List/Create/Update/Delete جاهزة.</p>
+    <pre>
+[AllowAnonymous]
+public class RoomAppService(IRepository&lt;Room, int&gt; repository)
+    : CrudAppService&lt;Room, RoomDto, int, ...&gt;(repository),
+      IRoomAppService
+{
+    protected override RoomDto MapToGetOutputDto(Room entity) { ... }
+}
+    </pre>
+
+    <h3>5.2 App Service + Store (الميزات الجديدة)</h3>
+    <p>مثل <code>GeneralCodes</code> — App Service رفيع، والمنطق في <code>GeneralCodesStore</code>.</p>
+    <table>
+      <tr><th>الطبقة</th><th>الملف</th><th>الدور</th></tr>
+      <tr><td>Contracts</td><td><code>IGeneralCodesAppService</code></td><td>عقد API للواجهة</td></tr>
+      <tr><td>Contracts</td><td><code>IGeneralCodesStore</code></td><td>عقد التخزين</td></tr>
+      <tr><td>Application</td><td><code>GeneralCodesAppService</code></td><td>يمرّر الطلبات للـ Store</td></tr>
+      <tr><td>Application</td><td><code>GeneralCodesStore</code></td><td>Repository + Validation + DTO Mapping</td></tr>
+    </table>
+
+    <h3>5.3 File Store (الترجمات)</h3>
+    <p><code>UiTranslationsFileStore</code> يقرأ/يكتب ملفات JSON على القرص — لا قاعدة بيانات.</p>
+
+    <h3>5.4 Mapperly</h3>
+    <p>ملف <code>HotelApplicationMappers.cs</code> يحوّل Entity ↔ DTO تلقائياً لبعض الكيانات (Room, Booking, Floor…).</p>
+
+    <h2>6. جدول App Services في المشروع</h2>
+    <table>
+      <tr>
+        <th>الخدمة</th>
+        <th>المجلد</th>
+        <th>العمليات الرئيسية</th>
+        <th>API (تقريبي)</th>
+      </tr>
+      <tr>
+        <td>RoomAppService</td>
+        <td>Entities/Rooms.cs</td>
+        <td>CRUD + ResetAllStatusesAsync</td>
+        <td>/api/app/room</td>
+      </tr>
+      <tr>
+        <td>BookingAppService</td>
+        <td>Entities/Bookings.cs</td>
+        <td>CRUD حجوزات</td>
+        <td>/api/app/booking</td>
+      </tr>
+      <tr>
+        <td>FloorAppService</td>
+        <td>Entities/Floors.cs</td>
+        <td>CRUD طوابق</td>
+        <td>/api/app/floor</td>
+      </tr>
+      <tr>
+        <td>GuestRegistryAppService</td>
+        <td>Entities/GuestRegistries.cs</td>
+        <td>CRUD + SaveProfileAsync</td>
+        <td>/api/app/guest-registry</td>
+      </tr>
+      <tr>
+        <td>HotelAuthAppService</td>
+        <td>HotelAuth/</td>
+        <td>LoginAsync</td>
+        <td>/api/app/hotel-auth/login</td>
+      </tr>
+      <tr>
+        <td>HotelAppUserAppService</td>
+        <td>HotelUsers/</td>
+        <td>CRUD مستخدمين</td>
+        <td>/api/app/hotel-app-user</td>
+      </tr>
+      <tr>
+        <td>HotelSettingsAppService</td>
+        <td>HotelSettings/</td>
+        <td>Get/Update إعدادات</td>
+        <td>/api/app/hotel-settings</td>
+      </tr>
+      <tr>
+        <td>GeneralCodesAppService</td>
+        <td>GeneralCodes/</td>
+        <td>CRUD أكواد عامة حسب Category</td>
+        <td>/api/app/general-codes</td>
+      </tr>
+      <tr>
+        <td>PaymentMethodAppService</td>
+        <td>PaymentMethods/</td>
+        <td>CRUD</td>
+        <td>/api/app/payment-method</td>
+      </tr>
+      <tr>
+        <td>CreditCardTypeAppService</td>
+        <td>CreditCardTypes/</td>
+        <td>CRUD</td>
+        <td>/api/app/credit-card-type</td>
+      </tr>
+      <tr>
+        <td>HotelChainAppService</td>
+        <td>HotelChains/</td>
+        <td>CRUD</td>
+        <td>/api/app/hotel-chain</td>
+      </tr>
+      <tr>
+        <td>UiTranslationsBlobAppService</td>
+        <td>UiTranslations/</td>
+        <td>Get/Update JSON ترجمات</td>
+        <td>/api/app/ui-translations-blob</td>
+      </tr>
+      <tr>
+        <td>HotelDatabaseAdminAppService</td>
+        <td>DatabaseAdmin/</td>
+        <td>Backup + UpdateDatabase</td>
+        <td>/api/app/hotel-database-admin</td>
+      </tr>
+    </table>
+
+    <h2>7. تدفق طلب typical (مثال: GeneralCodes)</h2>
+    <pre>
+1. Angular  →  GET /api/app/general-codes?category=nationalities
+2. ABP      →  GeneralCodesAppService.GetListAsync()
+3. App Svc  →  store.GetByCategoryAsync("nationalities")
+4. Store    →  repository.GetListAsync(x => x.Category == ...)
+5. EF Core  →  SELECT * FROM AppGeneralCodeItems WHERE Category = ...
+6. Store    →  Map Entity → GeneralCodeItemDto
+7. JSON     →  [{ id, name, category, ... }]  →  Angular
+    </pre>
+
+    <h2>8. HotelAppService — Class الأساسي</h2>
+    <pre>
+public abstract class HotelAppService : ApplicationService
+{
+    protected HotelAppService()
+    {
+        LocalizationResource = typeof(HotelResource);
+    }
+}
+    </pre>
+    <p>يوفر: <code>CurrentUser</code>, <code>GuidGenerator</code>, <code>ObjectMapper</code>, التوطين، وغيرها من خدمات ABP.</p>
+
+    <h2>9. Application.Contracts vs Application</h2>
+    <table>
+      <tr><th>Application.Contracts</th><th>Application</th></tr>
+      <tr><td>واجهات <code>I*AppService</code></td><td>تطبيق الواجهات <code>*AppService</code></td></tr>
+      <tr><td>DTOs (Input/Output)</td><td>Mapping + Validation + استدعاء Repository</td></tr>
+      <tr><td>Permissions</td><td><code>[Authorize]</code> أو <code>[AllowAnonymous]</code></td></tr>
+      <tr><td>يُشار إليه من Angular + HttpApi.Client</td><td>لا يُستورد من Angular مباشرة</td></tr>
+    </table>
+
+    <h2>10. كيف يصل Angular للـ Application؟</h2>
+    <ol>
+      <li>ABP في <code>HttpApi.Host</code> يفعّل <strong>Conventional Controllers</strong>.</li>
+      <li>كل <code>IApplicationService</code> في Assembly الـ Application يصبح REST API.</li>
+      <li>Angular يستدعي <code>/api/app/...</code> (أو عبر Cloudflare Worker proxy).</li>
+      <li>لا حاجة لكتابة Controller يدوي لكل Feature.</li>
+    </ol>
+
+    <h2>11. أمثلة مهمة بالتفصيل</h2>
+
+    <h3>HotelAuthAppService — تسجيل الدخول</h3>
+    <ul>
+      <li>يقرأ <code>HotelAppUser</code> من Repository.</li>
+      <li>يقارن UserName/Password (نصّي حالياً).</li>
+      <li>يرجع <code>HotelLoginResultDto</code> مع Role و LandingPagePath.</li>
+      <li><code>[AllowAnonymous]</code> — متاح بدون Token.</li>
+    </ul>
+
+    <h3>UiTranslationsBlobAppService — ترجمات الواجهة</h3>
+    <ul>
+      <li><code>GetAsync</code> — يجمع 6 ملفات JSON (ar, en, fr, id, tr, am) في payload واحد.</li>
+      <li><code>UpdateAsync</code> — يكتب على <code>HttpApi.Host/UiTranslations/*.json</code>.</li>
+      <li>المصدر الافتراضي: <code>Domain.Shared/Localization/*.json</code> (مضمّن).</li>
+    </ul>
+
+    <h3>GeneralCodesStore — الأكواد العامة</h3>
+    <ul>
+      <li>جدول واحد <code>AppGeneralCodeItems</code> مفتاحه <code>Category</code>.</li>
+      <li>17 فئة: nationalities, room-views, hotel-currency…</li>
+      <li>Validation: Category يجب أن يكون من <code>GeneralCodesCategories.All</code>.</li>
+    </ul>
+
+    <h2>12. HotelApplicationModule</h2>
+    <pre>
+[DependsOn(
+    typeof(HotelDomainModule),
+    typeof(HotelApplicationContractsModule),
+    typeof(AbpIdentityApplicationModule),
+    ...)]
+public class HotelApplicationModule : AbpModule
+{
+    public override void ConfigureServices(...)
+    {
+        context.Services.AddMapperlyObjectMapper&lt;HotelApplicationModule&gt;();
+    }
+}
+    </pre>
+
+    <h2>13. ملخص سريع</h2>
+    <table>
+      <tr><th>السؤال</th><th>الجواب</th></tr>
+      <tr><td>أين منطق الأعمال؟</td><td>Application (App Services + Stores)</td></tr>
+      <tr><td>أين DTOs؟</td><td>Application.Contracts</td></tr>
+      <tr><td>أين Entities؟</td><td>Domain</td></tr>
+      <tr><td>أين SQL؟</td><td>EntityFrameworkCore</td></tr>
+      <tr><td>أين REST API؟</td><td>يُنشأ تلقائياً من Application</td></tr>
+      <tr><td>كيف أضيف Feature؟</td><td>Contracts (DTO+Interface) → Application (Service) → Domain (Entity) → EF</td></tr>
+    </table>
+
+    <p class="meta" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+      Modiaf.Al.Arab.Hotel · طبقة Application · تم الإنشاء: يونيو 2026
+    </p>
+  </div>
+</body>
+</html>

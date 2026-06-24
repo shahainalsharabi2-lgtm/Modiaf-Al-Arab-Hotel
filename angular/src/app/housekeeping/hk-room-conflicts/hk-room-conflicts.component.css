@@ -28,8 +28,8 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #2d6a4f;
-  color: #fff;
+  background: var(--app-sidebar-bg, #658aef);
+  color: var(--app-on-primary, #fff);
   font-size: 1rem;
   flex-shrink: 0;
 }
@@ -75,10 +75,10 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #52b788 0%, #2d6a4f 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--app-primary-light, #3b82f6) 0%, var(--app-sidebar-bg, #658aef) 100%);
+  color: var(--app-on-primary, #fff);
   font-size: 2rem;
-  box-shadow: 0 8px 24px rgba(45, 106, 79, 0.28);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.24);
 }
 
 .hkrc-empty__text {

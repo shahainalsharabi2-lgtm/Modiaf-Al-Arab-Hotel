@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, from, map, mergeMap, of, switchMap, tap, toArray } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Room } from '../models/room.model';
-import { PagedResultDto } from '../models/paged-result-dto.model';
+import { PagedResultDto, extractPagedItems } from '../models/paged-result-dto.model';
+import { mapRoomFromApi } from '../utils/room-api-map.util';
 import { HotelCurrencyService } from './hotel-currency.service';
 import { UiTranslationsService } from './ui-translations.service';
 import { withRoomCurrencyForSave } from '../utils/room-currency';
@@ -31,7 +32,7 @@ export class RoomService {
       .get<PagedResultDto<Room>>(this.apiUrl, {
         params: { skipCount: '0', maxResultCount: '1000' },
       })
-      .pipe(map((r) => r.items ?? []));
+      .pipe(map((r) => extractPagedItems(r).map((item) => mapRoomFromApi(item))));
   }
 
   getRoomById(id: number): Observable<Room> {

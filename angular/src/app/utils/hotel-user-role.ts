@@ -1,3 +1,5 @@
+import { isSystemOwnerSession } from './hotel-system-owner.util';
+
 export const HOTEL_USER_ROLE = {
   Manager: 'manager',
   Accountant: 'accountant',
@@ -25,11 +27,26 @@ export function normalizeHotelUserRole(role: string | null | undefined): HotelUs
   return HOTEL_USER_ROLE.Regular;
 }
 
-export function canManageHotelUsers(role: string | null | undefined): boolean {
+export function canManageHotelUsers(
+  role: string | null | undefined,
+  options?: { denyUserManagement?: boolean; isSystemOwner?: boolean } | null,
+): boolean {
+  if (isSystemOwnerSession(options ?? null)) {
+    return true;
+  }
+  if (options?.denyUserManagement === true) {
+    return false;
+  }
   return normalizeHotelUserRole(role) === HOTEL_USER_ROLE.Manager;
 }
 
 /** إضافة / تعديل / حذف في واجهة الإعدادات — للمدير فقط */
-export function canManageSettings(role: string | null | undefined): boolean {
+export function canManageSettings(
+  role: string | null | undefined,
+  options?: { isSystemOwner?: boolean } | null,
+): boolean {
+  if (options?.isSystemOwner === true) {
+    return true;
+  }
   return normalizeHotelUserRole(role) === HOTEL_USER_ROLE.Manager;
 }

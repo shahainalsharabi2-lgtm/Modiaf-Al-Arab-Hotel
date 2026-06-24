@@ -4,13 +4,17 @@ import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { appRoutes } from './app.routes';
+import { apiRetryInterceptor } from './interceptors/api-retry.interceptor';
 import { apiTimeoutInterceptor } from './interceptors/api-timeout.interceptor';
 import { loadingInterceptor } from './interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(appRoutes),
-    provideHttpClient(withInterceptors([loadingInterceptor, apiTimeoutInterceptor]), withNoXsrfProtection()),
+    provideHttpClient(
+      withInterceptors([loadingInterceptor, apiRetryInterceptor, apiTimeoutInterceptor]),
+      withNoXsrfProtection(),
+    ),
     provideAnimations(),
   ],
 };

@@ -320,3 +320,41 @@ export function trendGridLineTopPct(tick: number, yMax: number): number {
   }
   return 100 - (tick / yMax) * 100;
 }
+
+export interface DashboardWeeklyRoomStatusDay {
+  label: string;
+  occupied: number;
+  vacant: number;
+}
+
+export interface DashboardWeeklyRoomStatusChart {
+  days: DashboardWeeklyRoomStatusDay[];
+  yMax: number;
+  yTicks: number[];
+}
+
+export function buildWeeklyRoomStatusChart(
+  bookings: Booking[],
+  totalRooms: number,
+): DashboardWeeklyRoomStatusChart {
+  const days = localDaysBack(7);
+  const rows = days.map((day) => {
+    const occupied = occupiedRoomsOnDay(bookings, day);
+    const vacant = Math.max(0, totalRooms - occupied);
+    return {
+      label: formatDayLabel(day),
+      occupied,
+      vacant,
+    };
+  });
+  const peak = Math.max(totalRooms, ...rows.map((row) => row.occupied + row.vacant), 0);
+  const { yMax, yTicks } = chartYTicks(peak);
+  return { days: rows, yMax, yTicks };
+}
+
+export function weeklyBarHeightPct(value: number, yMax: number): number {
+  if (yMax <= 0 || value <= 0) {
+    return 0;
+  }
+  return (value / yMax) * 100;
+}

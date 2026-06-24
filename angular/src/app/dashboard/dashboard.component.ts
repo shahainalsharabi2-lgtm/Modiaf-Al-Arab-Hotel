@@ -54,10 +54,13 @@ import type {
 import {
   buildOccupiedRoomsTrendChart,
   buildReservationsTrendChart,
+  buildWeeklyRoomStatusChart,
   DashboardOccupiedTrendChart,
   DashboardReservationsTrendChart,
   DashboardTrendPeriod,
+  DashboardWeeklyRoomStatusChart,
   trendGridLineTopPct,
+  weeklyBarHeightPct,
 } from './dashboard-trend-charts.util';
 
 @Component({
@@ -116,6 +119,8 @@ export class DashboardComponent implements OnInit {
   occupiedTrendPeriod: DashboardTrendPeriod = 'monthly';
   reservationsTrendChart: DashboardReservationsTrendChart | null = null;
   occupiedTrendChart: DashboardOccupiedTrendChart | null = null;
+  weeklyRoomStatusChart: DashboardWeeklyRoomStatusChart | null = null;
+  chartsAnimated = false;
   private cachedBookings: Booking[] = [];
 
   constructor(
@@ -214,6 +219,7 @@ export class DashboardComponent implements OnInit {
         this.cachedBookings = bookings;
         this.applyFeedData(bookings);
         this.rebuildTrendCharts();
+        this.triggerChartsAnimation();
         this.feedRefreshing = false;
         this.cdr.markForCheck();
       },
@@ -262,6 +268,10 @@ export class DashboardComponent implements OnInit {
 
   trendGridTop(tick: number, yMax: number): number {
     return trendGridLineTopPct(tick, yMax);
+  }
+
+  weeklyBarPct(value: number): number {
+    return weeklyBarHeightPct(value, this.weeklyRoomStatusChart?.yMax ?? 0);
   }
 
   bookingViewQuery(booking: Booking): Record<string, string> {
@@ -322,6 +332,7 @@ export class DashboardComponent implements OnInit {
       next: ({ rooms, bookings }) => {
         this.updateStats(rooms, bookings);
         this.loading = false;
+        this.triggerChartsAnimation();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -403,6 +414,18 @@ export class DashboardComponent implements OnInit {
       this.cachedBookings,
       this.occupiedTrendPeriod,
     );
+    this.weeklyRoomStatusChart = buildWeeklyRoomStatusChart(
+      this.cachedBookings,
+      this.totalRoomsCount,
+    );
+  }
+
+  private triggerChartsAnimation(): void {
+    this.chartsAnimated = false;
+    requestAnimationFrame(() => {
+      this.chartsAnimated = true;
+      this.cdr.markForCheck();
+    });
   }
 
   private buildFrontDeskSparklines(bookings: Booking[]): {

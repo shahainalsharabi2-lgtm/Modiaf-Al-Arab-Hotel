@@ -22,6 +22,7 @@ export const USR_GROUPS_SEED: UsrGroupRowDto[] = [
   { id: 6, name: 'Reservation', isDefault: false, isGeneral: false },
   { id: 7, name: 'Staff Application', isDefault: false, isGeneral: false },
   { id: 8, name: 'الاستقبال', isDefault: false, isGeneral: true },
+  { id: 9, name: 'منع إدارة المستخدمين', isDefault: true, isGeneral: true },
 ];
 
 export function emptyUsrGroupForm(): UsrGroupFormDto {

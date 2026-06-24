@@ -13,6 +13,36 @@
   box-sizing: border-box;
 }
 
+.rp-loading,
+.rp-error {
+  margin: 2rem auto;
+  max-width: 36rem;
+  text-align: center;
+  color: #334155;
+}
+
+.rp-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.rp-retry {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  background: #166534;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .rp-panel {
   background: var(--app-surface);
   border: var(--app-card-border);
@@ -368,6 +398,13 @@
   transform: scale(calc(var(--rp-zoom, 100%) / 100));
   transform-origin: top center;
   min-width: 880px;
+}
+
+.rp-grid-empty {
+  margin: 2rem 0;
+  text-align: center;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .rp-room-card {

@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import {
   DASHBOARD_VIEW_MODE_CHANGED_EVENT,
@@ -18,6 +19,10 @@ import { HotelSystemSettingsLoader } from './services/hotel-system-settings.load
 import { ArabicPreferenceCategoryService } from './services/arabic-preference-category.service';
 import { ArabicCategoryPickerService } from './services/arabic-category-picker.service';
 import { HotelAuthService } from './services/hotel-auth.service';
+import {
+  ApiAvailabilityService,
+  HOTEL_API_BECAME_READY_EVENT,
+} from './services/api-availability.service';
 import type { UiExtraLocaleCode } from './utils/ui-translation.constants';
 import { AccountLocaleEditorComponent } from './shared/account-locale-editor/account-locale-editor.component';
 import { AppTopBarComponent } from './shared/app-top-bar/app-top-bar.component';
@@ -44,6 +49,7 @@ import {
   type PmsSidebarSection,
   type SidebarMainSection,
   sidebarSectionFromNavPath,
+  type SidebarNavItem,
 } from './navigation/sidebar-nav.config';
 import {
   settingsNavSectionForTab,
@@ -70,10 +76,11 @@ interface AppSearchEntry {
       [class.app-shell--lang-rail-open]="false"
       [class.app-shell--inline-translating]="ui.inlineTranslationMode()"
       [class.app-shell--login]="!showMainChrome"
-      [style.--nav-rail-width.px]="navRailCollapsed ? 76 : 260"
+      [style.--nav-rail-width.px]="auth.canNavigateApp() ? (navRailCollapsed ? 76 : 260) : 0"
       [style.--lang-rail-width.px]="0">
       <ng-container *ngIf="showMainChrome">
       <aside
+        *ngIf="auth.canNavigateApp()"
         class="app-sidebar"
         [class.app-sidebar--advanced-nav]="dashboardPenMotion && isDashboardUrl"
         [class.app-sidebar--collapsed]="navRailCollapsed">
@@ -3162,8 +3169,12 @@ interface AppSearchEntry {
   ],
 })
 export class AppComponent implements OnInit {
+  private static readonly DEFAULT_DOCUMENT_TITLE = 'Hotel';
+  private static readonly UI_TRANSLATIONS_DOCUMENT_TITLE = 'TranslateLang';
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly title = inject(Title);
   private readonly cdr = inject(ChangeDetectorRef);
   readonly ui = inject(UiTranslationsService);
   private readonly arabicPref = inject(ArabicPreferenceCategoryService);
@@ -3171,6 +3182,7 @@ export class AppComponent implements OnInit {
   readonly notifications = inject(SystemNotificationsService);
   private readonly hotelBranding = inject(HotelBrandingStoreService);
   private readonly hotelSystemSettings = inject(HotelSystemSettingsLoader);
+  private readonly apiAvailability = inject(ApiAvailabilityService);
   readonly auth = inject(HotelAuthService);
 
   readonly localeOptions = UI_LOCALE_PICKER_OPTIONS;
@@ -3286,10 +3298,14 @@ export class AppComponent implements OnInit {
   }
 
   isUiTranslationsSettingsPage(): boolean {
+    return AppComponent.isUiTranslationsSettingsUrl(this.router.url);
+  }
+
+  private static isUiTranslationsSettingsUrl(url: string): boolean {
     try {
-      const url = new URL(this.router.url, 'http://localhost');
-      const path = (url.pathname || '').replace(/\/$/, '') || '/';
-      return path === '/settings' && url.searchParams.get('tab') === 'uiTranslations';
+      const parsed = new URL(url, 'http://localhost');
+      const path = (parsed.pathname || '').replace(/\/$/, '') || '/';
+      return path === '/settings' && parsed.searchParams.get('tab') === 'uiTranslations';
     } catch {
       return false;
     }
@@ -3362,6 +3378,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.syncMainChromeForUrl(this.router.url);
+    this.syncDocumentTitleForUrl(this.router.url);
     this.disableInlineTranslationOnUiTranslationsPage();
     this.router.events
       .pipe(
@@ -3370,6 +3387,7 @@ export class AppComponent implements OnInit {
       )
       .subscribe((e) => {
         this.syncMainChromeForUrl(e.urlAfterRedirects);
+        this.syncDocumentTitleForUrl(e.urlAfterRedirects);
         this.disableInlineTranslationOnUiTranslationsPage();
       });
     this.restoreNavRail();
@@ -3377,6 +3395,15 @@ export class AppComponent implements OnInit {
     this.loadHotelBranding();
     this.syncDashboardPenMotion();
     this.ui.fetchFromBackend();
+    this.apiAvailability.startMonitoring();
+
+    fromEvent(window, HOTEL_API_BECAME_READY_EVENT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadHotelBranding();
+        this.ui.reloadFromBackend();
+        this.cdr.markForCheck();
+      });
 
     // الشريط الجانبي خارج signal()-linked template؛ نفرض إعادة الرسم بعد تبديل اللغة/الترجمات.
     fromEvent(window, 'hotelUiLocaleChanged')
@@ -4332,6 +4359,119 @@ export class AppComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  private getPageTitle(url: string): string | null {
+    let parsed: URL;
+    try {
+      parsed = new URL(url, 'http://localhost');
+    } catch {
+      return null;
+    }
+    const path = (parsed.pathname || '').replace(/\/$/, '') || '/';
+
+    // 1. التحقق من مسارات الصفحات الخاصة
+    if (path === '/dashboard' || path === '/') {
+      return this.ui.sidebarLabel('dashboard');
+    }
+    if (path === '/login') {
+      return this.ui.chromeLabel('loginTitle') || (this.ui.displayLocale() === 'ar' ? 'تسجيل الدخول' : 'Login');
+    }
+    if (path === '/welcome') {
+      return this.ui.displayLocale() === 'ar' ? 'دليل الترجمة' : 'Translation Guide';
+    }
+    if (path === '/my-account' || path === '/account/manage') {
+      return this.ui.chromeLabel('accountMenuTitle') || (this.ui.displayLocale() === 'ar' ? 'حسابي' : 'My Account');
+    }
+
+    // صفحات تفاصيل الغرف
+    if (path === '/rooms') {
+      return this.ui.sidebarLabel('rooms');
+    }
+    if (path === '/rooms/add') {
+      const parent = this.ui.sidebarLabel('rooms');
+      const sub = this.ui.displayLocale() === 'ar' ? 'إضافة غرفة' : 'Add Room';
+      return `${parent} - ${sub}`;
+    }
+    if (path.startsWith('/rooms/edit/')) {
+      const parent = this.ui.sidebarLabel('rooms');
+      const sub = this.ui.displayLocale() === 'ar' ? 'تعديل غرفة' : 'Edit Room';
+      return `${parent} - ${sub}`;
+    }
+    if (path.startsWith('/rooms/details/')) {
+      const parent = this.ui.sidebarLabel('rooms');
+      const sub = this.ui.displayLocale() === 'ar' ? 'تفاصيل الغرفة' : 'Room Details';
+      return `${parent} - ${sub}`;
+    }
+
+    // 2. البحث في عناصر الإعدادات
+    if (path === '/settings' || path.startsWith('/settings/')) {
+      const navId = parsed.searchParams.get('nav');
+      const tab = parsed.searchParams.get('tab');
+      
+      const allSettingsItems = this.settingsSidebarNavItems || [];
+      const matchSettings = allSettingsItems.find(item => {
+        if (item.queryParams) {
+          const itemNav = item.queryParams['nav'];
+          const itemTab = item.queryParams['tab'];
+          if (itemNav === navId && itemTab === tab) {
+            return true;
+          }
+        }
+        return false;
+      });
+      if (matchSettings) {
+        return this.ui.sidebarLabel(matchSettings.labelKey);
+      }
+      
+      if (tab) {
+        const matchingLeaf = allSettingsItems.find(item => item.queryParams?.['tab'] === tab);
+        if (matchingLeaf) {
+          return this.ui.sidebarLabel(matchingLeaf.labelKey);
+        }
+      }
+      return this.ui.sidebarLabel('settings');
+    }
+
+    // 3. البحث في عناصر القائمة الجانبية العامة
+    const allNavItems: SidebarNavItem[] = [
+      ...this.bookingsNavItems,
+      ...this.frontDeskNavItems,
+      ...this.reportsNavItems,
+      ...this.pmsSidebarGroups.flatMap((g) => g.items),
+    ];
+
+    const match = allNavItems.find((item) => {
+      if (item.path !== path) {
+        return false;
+      }
+      if (item.queryParams) {
+        for (const [key, val] of Object.entries(item.queryParams)) {
+          if (parsed.searchParams.get(key) !== val) {
+            return false;
+          }
+        }
+      }
+      return true;
+    });
+
+    if (match) {
+      return this.ui.sidebarLabel(match.labelKey);
+    }
+
+    const matchPathOnly = allNavItems.find((item) => item.path === path);
+    if (matchPathOnly) {
+      return this.ui.sidebarLabel(matchPathOnly.labelKey);
+    }
+
+    return null;
+  }
+
+  private syncDocumentTitleForUrl(url: string): void {
+    const pageTitle = this.getPageTitle(url);
+    const hotelName = this.hotelDisplayName || 'Hotel';
+    const nextTitle = pageTitle ? `${pageTitle} | ${hotelName}` : hotelName;
+    this.title.setTitle(nextTitle);
+  }
+
   private loadHotelBranding(): void {
     const fallbackName = 'Hotel Premio';
     this.hotelSystemSettings.load().subscribe({
@@ -4339,12 +4479,14 @@ export class AppComponent implements OnInit {
         const view = this.hotelBranding.brandingView();
         this.hotelDisplayName = view.name || fallbackName;
         this.hotelImageSrc = view.imageSrc || null;
+        this.syncDocumentTitleForUrl(this.router.url);
         this.cdr.markForCheck();
       },
       error: () => {
         const view = this.hotelBranding.brandingView();
         this.hotelDisplayName = view.name || fallbackName;
         this.hotelImageSrc = view.imageSrc || null;
+        this.syncDocumentTitleForUrl(this.router.url);
         this.cdr.markForCheck();
       },
     });

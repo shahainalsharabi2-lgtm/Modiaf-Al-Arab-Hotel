@@ -28,8 +28,8 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #2d6a4f;
-  color: #fff;
+  background: var(--app-sidebar-bg, #658aef);
+  color: var(--app-on-primary, #fff);
   font-size: 1rem;
   flex-shrink: 0;
 }
@@ -89,8 +89,8 @@
 }
 
 .hkmr-view-btn--active {
-  background: #2d6a4f;
-  color: #fff;
+  background: var(--app-sidebar-bg, #658aef);
+  color: var(--app-on-primary, #fff);
 }
 
 .hkmr-toolbar__actions {
@@ -223,7 +223,7 @@
 }
 
 .hkmr-complete-btn i {
-  color: #2d6a4f;
+  color: var(--app-primary, #1e40af);
   font-size: 0.75rem;
 }
 

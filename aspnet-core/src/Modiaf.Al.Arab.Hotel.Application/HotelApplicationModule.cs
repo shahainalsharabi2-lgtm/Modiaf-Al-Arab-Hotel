@@ -1,3 +1,4 @@
+using Modiaf.Al.Arab.Hotel.Reservations;
 using Volo.Abp.Account;
 using Volo.Abp.Mapperly;
 using Volo.Abp.FeatureManagement;
@@ -12,6 +13,7 @@ namespace Modiaf.Al.Arab.Hotel;
 
 [DependsOn(
     typeof(HotelDomainModule),
+    typeof(ReservationsApplicationModule),
     typeof(AbpAccountApplicationModule),
     typeof(HotelApplicationContractsModule),
     typeof(AbpIdentityApplicationModule),

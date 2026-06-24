@@ -1,4 +1,3 @@
-using Modiaf.Al.Arab.Hotel.Bookings;
 using Modiaf.Al.Arab.Hotel.Floors;
 using Modiaf.Al.Arab.Hotel.IdentityTypes;
 using Modiaf.Al.Arab.Hotel.Rooms;
@@ -29,24 +28,6 @@ public partial class HotelApplicationMappers
     [MapperIgnoreTarget(nameof(Room.CreationTime))]
     [MapperIgnoreTarget(nameof(Room.CreatorId))]
     public partial Room MapToEntity(CreateUpdateRoomDto dto);
-
-    /* Bookings — LastModificationTime يُعرض في BookingDto */
-    [MapperIgnoreSource(nameof(Booking.IsDeleted))]
-    [MapperIgnoreSource(nameof(Booking.DeleterId))]
-    [MapperIgnoreSource(nameof(Booking.DeletionTime))]
-    [MapperIgnoreSource(nameof(Booking.LastModifierId))]
-    [MapperIgnoreSource(nameof(Booking.CreationTime))]
-    [MapperIgnoreSource(nameof(Booking.CreatorId))]
-    public partial BookingDto MapToDto(Booking booking);
-
-    [MapperIgnoreTarget(nameof(Booking.IsDeleted))]
-    [MapperIgnoreTarget(nameof(Booking.DeleterId))]
-    [MapperIgnoreTarget(nameof(Booking.DeletionTime))]
-    [MapperIgnoreTarget(nameof(Booking.LastModificationTime))]
-    [MapperIgnoreTarget(nameof(Booking.LastModifierId))]
-    [MapperIgnoreTarget(nameof(Booking.CreationTime))]
-    [MapperIgnoreTarget(nameof(Booking.CreatorId))]
-    public partial Booking MapToEntity(CreateUpdateBookingDto dto);
 
     /* Floors — FloorDto يرث FullAuditedEntityDto */
     public partial FloorDto MapToDto(Floor floor);

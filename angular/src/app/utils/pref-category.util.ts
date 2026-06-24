@@ -1,20 +1,22 @@
 import type { GeneralCodeItem } from '../general-codes/general-codes.service';
 import { resolveArabicRegionProfile, type ArabicRegionProfile } from './arabic-region-profile.util';
 
-export type SystemUiLanguageCode = 'ar' | 'en' | 'fr' | 'tr';
+export type SystemUiLanguageCode = 'ar' | 'en' | 'fr' | 'tr' | 'id' | 'am';
 
 export const SYSTEM_UI_LANGUAGES: ReadonlyArray<{
   code: SystemUiLanguageCode;
-  labelKey: 'localeAr' | 'localeEn' | 'localeFr' | 'localeTr';
+  labelKey: 'localeAr' | 'localeEn' | 'localeFr' | 'localeTr' | 'localeId' | 'localeAm';
   defaultFlag: string;
 }> = [
   { code: 'ar', labelKey: 'localeAr', defaultFlag: 'sa.svg' },
   { code: 'en', labelKey: 'localeEn', defaultFlag: 'us.svg' },
   { code: 'fr', labelKey: 'localeFr', defaultFlag: 'fr.svg' },
   { code: 'tr', labelKey: 'localeTr', defaultFlag: 'tr.svg' },
+  { code: 'id', labelKey: 'localeId', defaultFlag: 'id.svg' },
+  { code: 'am', labelKey: 'localeAm', defaultFlag: 'et.svg' },
 ];
 
-export const PRESET_FLAG_FILES = ['sa.svg', 'ye.svg', 'eg.svg', 'iq.svg', 'us.svg', 'fr.svg', 'tr.svg'] as const;
+export const PRESET_FLAG_FILES = ['sa.svg', 'ye.svg', 'eg.svg', 'iq.svg', 'us.svg', 'fr.svg', 'tr.svg', 'id.svg', 'et.svg'] as const;
 
 export function normalizeFlagFile(name: string | null | undefined): string {
   return (name ?? '')

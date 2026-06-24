@@ -4,7 +4,7 @@ import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Booking } from '../models/booking.model';
 import { Room } from '../models/room.model';
-import { PagedResultDto } from '../models/paged-result-dto.model';
+import { PagedResultDto, extractPagedItems } from '../models/paged-result-dto.model';
 import { HotelCurrencyService } from './hotel-currency.service';
 import { UiTranslationsService } from './ui-translations.service';
 import { withBookingCurrencyForSave } from '../utils/booking-currency';
@@ -38,7 +38,7 @@ export class BookingService {
       .get<PagedResultDto<Booking>>(this.apiUrl, {
         params: { skipCount: '0', maxResultCount: '1000' },
       })
-      .pipe(map((r) => (r.items ?? []).map((item) => mapBookingFromApi(item as Booking))));
+      .pipe(map((r) => extractPagedItems(r).map((item) => mapBookingFromApi(item as Booking))));
   }
 
   saveBooking(

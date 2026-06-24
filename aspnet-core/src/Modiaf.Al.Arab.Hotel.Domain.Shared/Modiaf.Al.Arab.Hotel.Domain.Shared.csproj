@@ -23,18 +23,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Localization\Abp\Hotel\*.json" />
     <Content Remove="Localization\Abp\Hotel\*.json" />
-    <EmbeddedResource Include="Localization\ar.json" />
-    <EmbeddedResource Include="Localization\en.json" />
-    <EmbeddedResource Include="Localization\fr.json" />
-    <EmbeddedResource Include="Localization\id.json" />
-    <EmbeddedResource Include="Localization\tr.json" />
-    <EmbeddedResource Include="Localization\am.json" />
-    <Content Remove="Localization\ar.json" />
-    <Content Remove="Localization\en.json" />
-    <Content Remove="Localization\fr.json" />
-    <Content Remove="Localization\id.json" />
-    <Content Remove="Localization\tr.json" />
-    <Content Remove="Localization\am.json" />
   </ItemGroup>
 
   <ItemGroup>

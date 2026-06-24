@@ -10,6 +10,9 @@ export const welcomeEntryGuard: CanActivateFn = () => {
   if (!auth.isAuthenticated()) {
     return router.createUrlTree(['/login']);
   }
+  if (auth.isTranslatorUser()) {
+    return router.parseUrl(auth.lockedHomePath());
+  }
   try {
     if (localStorage.getItem(WELCOME_GUIDE_STORAGE_KEY) === '1') {
       if (auth.canManageSettings()) {

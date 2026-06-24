@@ -14,6 +14,8 @@ const LOCALE_PHONE: Record<HotelUiLocaleCode, LocalePhoneDisplay> = {
   en: { flagEmoji: '🇺🇸', flagSrc: 'assets/flags/us.svg', dialCode: '+1', maxLength: 10 },
   fr: { flagEmoji: '🇫🇷', flagSrc: 'assets/flags/fr.svg', dialCode: '+33', maxLength: 9 },
   tr: { flagEmoji: '🇹🇷', flagSrc: 'assets/flags/tr.svg', dialCode: '+90', maxLength: 10 },
+  id: { flagEmoji: '🇮🇩', flagSrc: 'assets/flags/id.svg', dialCode: '+62', maxLength: 11 },
+  am: { flagEmoji: '🇪🇹', flagSrc: 'assets/flags/et.svg', dialCode: '+251', maxLength: 9 },
 };
 
 export function localePhoneDisplay(

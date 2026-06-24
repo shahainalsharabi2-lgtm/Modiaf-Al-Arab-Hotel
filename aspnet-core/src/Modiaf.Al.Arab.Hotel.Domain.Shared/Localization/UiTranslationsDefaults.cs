@@ -111,10 +111,22 @@ public static class UiTranslationsDefaults
 
     private static string? ResolveResourceName(string locale)
     {
-        var suffix = $".Localization.{locale}.json";
+        // UI Translations are embedded under Localization/Abp/Hotel/{locale}.json
+        // Resource names use dots as folder separators.
+        var suffixPrimary = $".Localization.Abp.Hotel.{locale}.json";
+        var suffixFallback = $".Localization.{locale}.json";
+
         foreach (var name in typeof(UiTranslationsDefaults).Assembly.GetManifestResourceNames())
         {
-            if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            if (name.EndsWith(suffixPrimary, StringComparison.OrdinalIgnoreCase))
+            {
+                return name;
+            }
+        }
+
+        foreach (var name in typeof(UiTranslationsDefaults).Assembly.GetManifestResourceNames())
+        {
+            if (name.EndsWith(suffixFallback, StringComparison.OrdinalIgnoreCase))
             {
                 return name;
             }

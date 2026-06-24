@@ -107,7 +107,7 @@
     </div>
   </div>
 
-  <div class="settings-main" [class.settings-readonly]="!settingsEditable">
+  <div class="settings-main" [class.settings-readonly]="!settingsEditable" [class.settings-main--translator]="auth.isTranslatorUser()">
       <div class="settings-content">
       <div class="settings-permission-banner" *ngIf="!settingsEditable" role="status">
         <i class="fas fa-lock" aria-hidden="true"></i>
@@ -1100,13 +1100,14 @@
           [canEdit]="settingsEditable" />
       </div>
 
-      <div class="tab-content" *ngIf="activeTab === 'uiTranslations' && auth.canManageSettings()">
+      <div class="tab-content" *ngIf="activeTab === 'uiTranslations' && auth.canAccessUiTranslations()">
         <div class="settings-frame full-width ui-tr-editor">
-          <div class="settings-tab-head settings-tab-head--with-actions">
-            <h2>
-              {{ uiTranslationsEditorChromeText('uiTranslationsTitle') }}
-            </h2>
-
+          <div class="settings-tab-head settings-tab-head--with-actions ui-tr-tab-head">
+            <div class="ui-tr-head-cluster">
+              <h2>
+                {{ uiTranslationsEditorChromeText('uiTranslationsTitle') }}
+              </h2>
+            </div>
           </div>
           <div class="ui-tr-system-tools-shell">
             <div class="ui-tr-system-section-row">
@@ -1159,7 +1160,6 @@
                   {{ uiTranslationsEditorChromeText('uiTranslationsSearchLabel') }}
                 </label>
                 <div class="ui-tr-control">
-                  <i class="fas fa-search" aria-hidden="true"></i>
                   <input
                     id="ui-tr-search"
                     class="ui-tr-toolbar-input"
@@ -1167,6 +1167,7 @@
                     [(ngModel)]="uiTranslationsSearch"
                     (ngModelChange)="onUiTranslationsSearchChange()"
                     [placeholder]="uiTranslationsEditorChromeText('uiTranslationsSearchPh')" />
+                  <i class="fas fa-search" aria-hidden="true"></i>
                 </div>
               </div>
 

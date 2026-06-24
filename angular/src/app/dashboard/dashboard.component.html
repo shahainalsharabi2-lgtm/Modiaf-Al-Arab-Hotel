@@ -1,28 +1,28 @@
 <div class="dashboard-container">
   <p class="dashboard-loading" *ngIf="loading"><ui-inline-text kind="screen" screen="bookings" key="loading" /></p>
 
-  <div class="pms-dashboard" *ngIf="!loading">
+  <div class="pms-dashboard" [class.pms-dashboard--animated]="chartsAnimated" *ngIf="!loading">
     <div class="pms-dashboard-grid">
       <a
-        class="pms-card pms-card--residents"
+        class="pms-card pms-card--arriving pms-card--delay-1"
         routerLink="/front-desk"
-        [queryParams]="{ pmsTab: 'staying' }">
-        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardResidents" /></span>
-        <strong class="pms-card__value">{{ residentsCount | localeNumber }}</strong>
+        [queryParams]="{ pmsTab: 'arriving' }">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardArriving" /></span>
+        <strong class="pms-card__value">{{ arrivingCount | localeNumber }}</strong>
         <svg class="pms-card__chart" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <linearGradient id="pms-grad-residents" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45" />
-              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.04" />
+            <linearGradient id="pms-grad-arriving" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.04" />
             </linearGradient>
           </defs>
-          <path class="pms-card__area" [attr.d]="sparkArea(residentsSpark).area" fill="url(#pms-grad-residents)" />
-          <polyline class="pms-card__line pms-card__line--residents" [attr.points]="sparkArea(residentsSpark).line" />
+          <path class="pms-card__area" [attr.d]="sparkArea(arrivingSpark).area" fill="url(#pms-grad-arriving)" />
+          <polyline class="pms-card__line pms-card__line--arriving" [attr.points]="sparkArea(arrivingSpark).line" />
         </svg>
       </a>
 
       <a
-        class="pms-card pms-card--departing"
+        class="pms-card pms-card--departing pms-card--delay-2"
         routerLink="/front-desk"
         [queryParams]="{ pmsTab: 'departing' }">
         <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardDeparting" /></span>
@@ -40,24 +40,58 @@
       </a>
 
       <a
-        class="pms-card pms-card--arriving"
+        class="pms-card pms-card--residents pms-card--delay-3"
         routerLink="/front-desk"
-        [queryParams]="{ pmsTab: 'arriving' }">
-        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardArriving" /></span>
-        <strong class="pms-card__value">{{ arrivingCount | localeNumber }}</strong>
+        [queryParams]="{ pmsTab: 'staying' }">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardResidents" /></span>
+        <strong class="pms-card__value">{{ residentsCount | localeNumber }}</strong>
         <svg class="pms-card__chart" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <linearGradient id="pms-grad-arriving" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45" />
-              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.04" />
+            <linearGradient id="pms-grad-residents" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.04" />
             </linearGradient>
           </defs>
-          <path class="pms-card__area" [attr.d]="sparkArea(arrivingSpark).area" fill="url(#pms-grad-arriving)" />
-          <polyline class="pms-card__line pms-card__line--arriving" [attr.points]="sparkArea(arrivingSpark).line" />
+          <path class="pms-card__area" [attr.d]="sparkArea(residentsSpark).area" fill="url(#pms-grad-residents)" />
+          <polyline class="pms-card__line pms-card__line--residents" [attr.points]="sparkArea(residentsSpark).line" />
         </svg>
       </a>
 
-      <div class="pms-card pms-card--occupancy-rate">
+      <div class="pms-card pms-card--total-occupancy pms-card--delay-4">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardTotalOccupancy" /></span>
+        <div class="pms-donut" [style.--occupied-pct]="occupancyRateDetailed">
+          <div class="pms-donut__ring" aria-hidden="true"></div>
+          <div class="pms-donut__center">
+            <small><ui-inline-text kind="screen" screen="dashboard" key="labelTotalRooms" /></small>
+            <strong>{{ totalRoomsCount | localeNumber }}</strong>
+            <em>{{ availabilityRateDetailed }}%</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="pms-card pms-card--room-status pms-card--delay-5">
+        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardRoomStatus" /></span>
+        <div class="pms-room-bar">
+          <div class="pms-room-bar__track">
+            <span class="pms-room-bar__dirty" [style.width.%]="dirtyBarPct"></span>
+            <span class="pms-room-bar__clean" [style.width.%]="cleanBarPct"></span>
+          </div>
+        </div>
+        <div class="pms-room-legend">
+          <div class="pms-room-legend__item">
+            <i class="pms-room-legend__mark pms-room-legend__mark--clean"></i>
+            <span><ui-inline-text kind="screen" screen="dashboard" key="labelClean" /></span>
+            <strong>{{ cleanRoomsCount | localeNumber }}</strong>
+          </div>
+          <div class="pms-room-legend__item">
+            <i class="pms-room-legend__mark pms-room-legend__mark--dirty"></i>
+            <span><ui-inline-text kind="screen" screen="dashboard" key="labelDirty" /></span>
+            <strong>{{ dirtyRoomsCount | localeNumber }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="pms-card pms-card--occupancy-rate pms-card--delay-6">
         <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardOccupancyRate" /></span>
         <div class="pms-gauge" [style.--gauge-pct]="occupancyRateDetailed">
           <svg class="pms-gauge__svg" viewBox="0 0 200 112" aria-hidden="true">
@@ -83,46 +117,49 @@
           <span><ui-inline-text kind="screen" screen="dashboard" key="labelTotalRooms" /></span>
         </div>
       </div>
-
-      <div class="pms-card pms-card--room-status">
-        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardRoomStatus" /></span>
-        <div class="pms-room-bar">
-          <div class="pms-room-bar__track">
-            <span class="pms-room-bar__dirty" [style.width.%]="dirtyBarPct"></span>
-            <span class="pms-room-bar__clean" [style.width.%]="cleanBarPct"></span>
-          </div>
-        </div>
-        <div class="pms-room-legend">
-          <div class="pms-room-legend__item">
-            <i class="pms-room-legend__mark pms-room-legend__mark--clean"></i>
-            <span><ui-inline-text kind="screen" screen="dashboard" key="labelClean" /></span>
-            <strong>{{ cleanRoomsCount | localeNumber }}</strong>
-          </div>
-          <div class="pms-room-legend__item">
-            <i class="pms-room-legend__mark pms-room-legend__mark--dirty"></i>
-            <span><ui-inline-text kind="screen" screen="dashboard" key="labelDirty" /></span>
-            <strong>{{ dirtyRoomsCount | localeNumber }}</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="pms-card pms-card--total-occupancy">
-        <span class="pms-card__label"><ui-inline-text kind="screen" screen="dashboard" key="cardTotalOccupancy" /></span>
-        <div class="pms-donut" [style.--occupied-pct]="occupancyRateDetailed">
-          <div class="pms-donut__ring" aria-hidden="true"></div>
-          <div class="pms-donut__center">
-            <small><ui-inline-text kind="screen" screen="dashboard" key="labelTotalRooms" /></small>
-            <strong>{{ totalRoomsCount | localeNumber }}</strong>
-            <em>{{ availabilityRateDetailed }}%</em>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="pms-charts-row">
       <section class="pms-chart-panel pms-chart-panel--weekly">
         <h2 class="pms-chart-panel__title"><ui-inline-text kind="screen" screen="dashboard" key="cardWeeklyRoomStatus" /></h2>
-        <div class="pms-chart-panel__body pms-chart-panel__body--placeholder" aria-hidden="true"></div>
+        <div class="pms-weekly-chart" *ngIf="weeklyRoomStatusChart as weekly">
+          <div class="pms-weekly-chart__y-axis" aria-hidden="true">
+            <span *ngFor="let tick of weekly.yTicks">{{ tick | localeNumber }}</span>
+          </div>
+          <div class="pms-weekly-chart__plot">
+            <div class="pms-weekly-chart__grid" aria-hidden="true">
+              <span
+                class="pms-weekly-chart__grid-line"
+                *ngFor="let tick of weekly.yTicks"
+                [style.top.%]="trendGridTop(tick, weekly.yMax)"></span>
+            </div>
+            <div class="pms-weekly-chart__bars">
+              <div class="pms-weekly-chart__col" *ngFor="let day of weekly.days; let i = index">
+                <div class="pms-weekly-chart__stack">
+                  <span
+                    class="pms-weekly-chart__seg pms-weekly-chart__seg--occupied"
+                    [style.height.%]="weeklyBarPct(day.occupied)"
+                    [style.animation-delay.ms]="120 + i * 70"></span>
+                  <span
+                    class="pms-weekly-chart__seg pms-weekly-chart__seg--vacant"
+                    [style.height.%]="weeklyBarPct(day.vacant)"
+                    [style.animation-delay.ms]="180 + i * 70"></span>
+                </div>
+                <span class="pms-weekly-chart__label">{{ day.label }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="pms-weekly-chart__legend">
+            <span class="pms-weekly-chart__legend-item">
+              <i class="pms-weekly-chart__legend-mark pms-weekly-chart__legend-mark--occupied"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="legendOccupied" />
+            </span>
+            <span class="pms-weekly-chart__legend-item">
+              <i class="pms-weekly-chart__legend-mark pms-weekly-chart__legend-mark--vacant"></i>
+              <ui-inline-text kind="screen" screen="dashboard" key="legendVacant" />
+            </span>
+          </div>
+        </div>
       </section>
 
       <section class="pms-chart-panel pms-chart-panel--room-types">

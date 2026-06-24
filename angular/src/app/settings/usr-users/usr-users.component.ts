@@ -13,7 +13,6 @@ import { UiMessageService } from '../../services/ui-message.service';
 import { UiTranslationsService } from '../../services/ui-translations.service';
 import { UiInlineTextComponent } from '../../shared/ui-inline-text/ui-inline-text.component';
 import { bindUiTranslationRefresh } from '../../utils/ui-screen-i18n.helper';
-import { normalizeLandingPagePath } from '../../utils/landing-page-path.util';
 import { HOTELS_SEED } from '../hotels/hotels.seed';
 import { USR_GROUPS_SEED } from '../usr-groups/usr-groups.seed';
 import {
@@ -26,6 +25,12 @@ import {
   HotelAppUserDto,
   HotelAppUserService,
 } from '../../services/hotel-app-user.service';
+import { HotelUserPageAccessService } from '../../services/hotel-user-page-access.service';
+import { HotelAuthService } from '../../services/hotel-auth.service';
+import {
+  USR_GROUP_DENY_USER_MGMT_ID,
+  isSystemOwnerUsername,
+} from '../../utils/hotel-system-owner.util';
 import {
   UsrPageAccessMode,
   UsrUserFormDto,
@@ -33,6 +38,7 @@ import {
   apiUserToRow,
   displayUsrUserName,
   emptyUsrUserForm,
+  groupIdsToRole,
   rowToApiInput,
   usrUserRowToForm,
 } from './usr-users.seed';
@@ -54,8 +60,10 @@ type SortDir = 'asc' | 'desc';
 })
 export class UsrUsersComponent implements OnInit {
   readonly ui = inject(UiTranslationsService);
+  readonly auth = inject(HotelAuthService);
   private readonly uiMsg = inject(UiMessageService);
   private readonly userService = inject(HotelAppUserService);
+  private readonly pageAccess = inject(HotelUserPageAccessService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -85,16 +93,43 @@ export class UsrUsersComponent implements OnInit {
 
   private loadRows(): void {
     this.loading = true;
-    this.userService.getAll().subscribe({
-      next: (users) => {
-        this.rows = users.map((user) => apiUserToRow(user));
-        this.loading = false;
-        this.cdr.markForCheck();
+    const applyUsers = (users: HotelAppUserDto[]) => {
+      this.rows = users
+        .filter((user) => !isSystemOwnerUsername(user.userName))
+        .map((user) =>
+          apiUserToRow(user, this.pageAccess.getForUser(user.id, user.userName)),
+        );
+      this.loading = false;
+      this.cdr.markForCheck();
+    };
+    const onLoadError = (err?: unknown) => {
+      this.loading = false;
+      this.rows = [];
+      const message =
+        (err as { error?: { error?: { message?: string } } })?.error?.error?.message ||
+        this.ui.screenText('settings', 'usersLoadFail');
+      this.uiMsg.show(message);
+      this.cdr.markForCheck();
+    };
+
+    this.pageAccess.ensureLoaded().subscribe({
+      next: () => {
+        this.userService.getAll().subscribe({
+          next: (users) => applyUsers(users),
+          error: (err) => onLoadError(err),
+        });
       },
       error: () => {
-        this.loading = false;
-        this.rows = [];
-        this.cdr.markForCheck();
+        this.userService.getAll().subscribe({
+          next: (users) => {
+            this.rows = users
+              .filter((user) => !isSystemOwnerUsername(user.userName))
+              .map((user) => apiUserToRow(user));
+            this.loading = false;
+            this.cdr.markForCheck();
+          },
+          error: (err) => onLoadError(err),
+        });
       },
     });
   }
@@ -210,8 +245,12 @@ export class UsrUsersComponent implements OnInit {
     return this.form.groupIds.includes(groupId);
   }
 
+  isDenyGroupLocked(groupId: number): boolean {
+    return groupId === USR_GROUP_DENY_USER_MGMT_ID && !this.auth.isSystemOwner();
+  }
+
   toggleGroup(groupId: number): void {
-    if (!this.canEdit) {
+    if (!this.canEdit || this.isDenyGroupLocked(groupId)) {
       return;
     }
     if (this.form.groupIds.includes(groupId)) {
@@ -222,14 +261,21 @@ export class UsrUsersComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  private enforceDenyUserManagementGroup(): void {
+    if (this.auth.isSystemOwner()) {
+      return;
+    }
+    if (!this.form.groupIds.includes(USR_GROUP_DENY_USER_MGMT_ID)) {
+      this.form.groupIds = [...this.form.groupIds, USR_GROUP_DENY_USER_MGMT_ID];
+    }
+  }
+
   setPageAccessMode(mode: UsrPageAccessMode): void {
     if (!this.canEdit) {
       return;
     }
     this.form.pageAccessMode = mode;
-    if (mode === 'all') {
-      this.form.landingPagePath = '/dashboard';
-    }
+    this.form.landingPagePath = mode === 'translator' ? '/settings?tab=uiTranslations&nav=uiTranslation' : '/dashboard';
     this.cdr.markForCheck();
   }
 
@@ -239,6 +285,7 @@ export class UsrUsersComponent implements OnInit {
     }
     this.editingId = null;
     this.form = emptyUsrUserForm(1);
+    this.enforceDenyUserManagementGroup();
     this.activeModalTab = 'info';
     this.showPassword = false;
     this.modalOpen = true;
@@ -246,7 +293,7 @@ export class UsrUsersComponent implements OnInit {
   }
 
   openEdit(row: UsrUserRowDto): void {
-    if (!this.canEdit) {
+    if (!this.canEdit || isSystemOwnerUsername(row.userName)) {
       return;
     }
     this.openActionsId = null;
@@ -258,7 +305,9 @@ export class UsrUsersComponent implements OnInit {
     this.userService.get(row.id).subscribe({
       next: (user) => {
         this.retainedPassword = (user.password ?? '').trim();
-        this.form = usrUserRowToForm(apiUserToRow(user));
+        this.form = usrUserRowToForm(
+          apiUserToRow(user, this.pageAccess.getForUser(user.id, user.userName)),
+        );
         this.cdr.markForCheck();
       },
       error: () => {
@@ -284,7 +333,7 @@ export class UsrUsersComponent implements OnInit {
       return;
     }
     const userName = this.form.userName.trim();
-    if (!userName || !this.form.firstName.trim()) {
+    if (!userName || !this.form.firstName.trim() || isSystemOwnerUsername(userName)) {
       this.uiMsg.show(this.ui.screenText('settings', 'usersRequiredFields'));
       return;
     }
@@ -294,14 +343,8 @@ export class UsrUsersComponent implements OnInit {
       this.uiMsg.show(this.ui.screenText('settings', 'usersRequiredFields'));
       return;
     }
-    if (this.form.pageAccessMode === 'specific' && !this.form.landingPagePath.trim()) {
-      this.uiMsg.show(this.ui.screenText('settings', 'usrUsersLandingPageRequired'));
-      return;
-    }
-    if (this.form.pageAccessMode === 'specific') {
-      this.form.landingPagePath = normalizeLandingPagePath(this.form.landingPagePath);
-    }
 
+    this.enforceDenyUserManagementGroup();
     const input = rowToApiInput(this.form, this.retainedPassword);
     this.saving = true;
     const request$ = isEdit
@@ -310,7 +353,20 @@ export class UsrUsersComponent implements OnInit {
 
     request$.subscribe({
       next: (saved) => {
-        const row = apiUserToRow(saved);
+        const row = apiUserToRow(saved, {
+          allowNavigation: input.allowNavigation,
+          landingPagePath: input.landingPagePath,
+        });
+        this.pageAccess
+          .saveForUser(saved.id, saved.userName, {
+            allowNavigation: input.allowNavigation,
+            landingPagePath: input.landingPagePath,
+          }, input.role)
+          .subscribe({
+            error: () => {
+              /* user saved; page access sync can retry on next edit */
+            },
+          });
         if (isEdit) {
           this.rows = this.rows.map((r) => (r.id === row.id ? row : r));
         } else {
@@ -320,9 +376,12 @@ export class UsrUsersComponent implements OnInit {
         this.closeModal();
         this.cdr.markForCheck();
       },
-      error: () => {
+      error: (err) => {
         this.saving = false;
-        this.uiMsg.show(this.ui.screenText('settings', 'usersSaveFail'));
+        const message =
+          err?.error?.error?.message ||
+          this.ui.screenText('settings', 'usersSaveFail');
+        this.uiMsg.show(message);
         this.cdr.markForCheck();
       },
     });

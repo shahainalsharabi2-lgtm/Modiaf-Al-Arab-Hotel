@@ -21,6 +21,33 @@ public class HotelAuthAppService(IRepository<HotelUsers.HotelAppUser, int> repos
             return Fail("أدخل اسم المستخدم وكلمة المرور.");
         }
 
+        if (HotelUsers.HotelSystemOwner.IsUserName(userName))
+        {
+            if (!string.Equals(password, HotelUsers.HotelSystemOwner.Password, StringComparison.Ordinal))
+            {
+                return Fail("اسم المستخدم أو كلمة المرور غير صحيحة.");
+            }
+
+            return new HotelLoginResultDto
+            {
+                Success = true,
+                User = new HotelAppUserPublicDto
+                {
+                    Id = HotelUsers.HotelSystemOwner.SessionId,
+                    FirstName = "صاحب",
+                    LastName = "النظام",
+                    UserName = HotelUsers.HotelSystemOwner.UserName,
+                    Email = string.Empty,
+                    PhoneNumber = string.Empty,
+                    Role = HotelUsers.HotelUserRoles.Manager,
+                    AllowNavigation = true,
+                    LandingPagePath = "/dashboard",
+                    DenyUserManagement = false,
+                    IsSystemOwner = true,
+                },
+            };
+        }
+
         var normalizedUserName = userName.ToLowerInvariant();
         var matches = await repository.GetListAsync(
             x => x.UserName.ToLower() == normalizedUserName);
@@ -45,6 +72,8 @@ public class HotelAuthAppService(IRepository<HotelUsers.HotelAppUser, int> repos
                 Role = user.Role,
                 AllowNavigation = user.AllowNavigation,
                 LandingPagePath = user.LandingPagePath,
+                DenyUserManagement = user.DenyUserManagement,
+                IsSystemOwner = false,
             },
         };
     }

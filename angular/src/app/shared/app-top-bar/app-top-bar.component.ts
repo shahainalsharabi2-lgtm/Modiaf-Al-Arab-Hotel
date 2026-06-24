@@ -487,6 +487,10 @@ export class AppTopBarComponent implements OnInit {
         this.breadcrumb = `${settingsTitle} / ${this.ui.screenText('settings', 'tabGeneralCodings')}`;
         return;
       }
+      if (tab === 'uiTranslations') {
+        this.breadcrumb = `${settingsTitle} / ${this.ui.screenText('settings', 'tabUiTranslations')}`;
+        return;
+      }
       if (tab === 'arabicLocale') {
         this.breadcrumb = `${settingsTitle} / ${this.ui.screenText('settings', 'tabArabicLocalePick')}`;
         return;

@@ -28,8 +28,8 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #2d6a4f;
-  color: #fff;
+  background: var(--app-sidebar-bg, #658aef);
+  color: var(--app-on-primary, #fff);
   font-size: 1rem;
   flex-shrink: 0;
 }
@@ -104,15 +104,15 @@
 }
 
 .hkrio-btn--new {
-  border: 1px solid #2d6a4f;
-  background: #2d6a4f;
-  color: #fff;
+  border: 1px solid var(--app-sidebar-bg, #658aef);
+  background: var(--app-sidebar-bg, #658aef);
+  color: var(--app-on-primary, #fff);
   flex-shrink: 0;
 }
 
 .hkrio-btn--new:hover {
-  background: #1b4332;
-  border-color: #1b4332;
+  background: var(--app-primary-mid, #2563eb);
+  border-color: var(--app-primary-mid, #2563eb);
 }
 
 .hkrio-table-card {

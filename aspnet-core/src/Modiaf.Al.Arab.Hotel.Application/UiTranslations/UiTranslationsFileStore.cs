@@ -87,6 +87,7 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
         var root = doc.RootElement;
 
         Directory.CreateDirectory(GetRootDirectory());
+        EnsureSourceDirectoryIfConfigured();
 
         foreach (var locale in SupportedLocales)
         {
@@ -98,6 +99,7 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
 
             var localeDto = ExtractLocaleFromCombined(root, locale);
             await WriteLocaleFileAsync(locale, localeDto, cancellationToken).ConfigureAwait(false);
+            await WriteLocaleFileToSourceIfConfiguredAsync(locale, localeDto, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -177,6 +179,31 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
     private string GetLocaleFilePath(string locale) =>
         Path.Combine(GetRootDirectory(), $"{locale}.json");
 
+    private string? GetSourceDirectory()
+    {
+        var value = options.Value.SourceDirectory;
+        return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
+    private void EnsureSourceDirectoryIfConfigured()
+    {
+        var dir = GetSourceDirectory();
+        if (dir is null)
+        {
+            return;
+        }
+
+        // best-effort: لا نريد أن يفشل الحفظ إذا كان المجلد غير قابل للكتابة
+        try
+        {
+            Directory.CreateDirectory(dir);
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
     private async Task<UiTranslationsLocaleFileDto> ReadLocaleFileAsync(
         string locale,
         CancellationToken cancellationToken)
@@ -202,6 +229,29 @@ public class UiTranslationsFileStore(IOptions<UiTranslationsOptions> options)
         var path = GetLocaleFilePath(locale);
         await using var stream = File.Create(path);
         await JsonSerializer.SerializeAsync(stream, dto, JsonOptions, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task WriteLocaleFileToSourceIfConfiguredAsync(
+        string locale,
+        UiTranslationsLocaleFileDto dto,
+        CancellationToken cancellationToken)
+    {
+        var dir = GetSourceDirectory();
+        if (dir is null)
+        {
+            return;
+        }
+
+        var path = Path.Combine(dir, $"{locale}.json");
+        try
+        {
+            await using var stream = File.Create(path);
+            await JsonSerializer.SerializeAsync(stream, dto, JsonOptions, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            // ignore: المصدر قد لا يكون متاح/قابل للكتابة في الإنتاج
+        }
     }
 
     private static UiTranslationsLocaleFileDto ExtractLocaleFromCombined(JsonElement root, string locale)

@@ -1,4 +1,16 @@
 <div class="rp-page">
+  <p class="rp-loading" *ngIf="loading">
+    <ui-inline-text kind="screen" screen="bookings" key="loading" />
+  </p>
+
+  <p class="rp-error" *ngIf="!loading && loadError">
+    {{ loadError }}
+    <button type="button" class="rp-retry" (click)="reload()">
+      <ui-inline-text kind="screen" screen="roomsRack" key="retryLoad" />
+    </button>
+  </p>
+
+  <ng-container *ngIf="!loading && !loadError">
   <section class="rp-stats">
     <div class="rp-stats__row rp-stats__row--primary">
       <article
@@ -112,7 +124,7 @@
     </header>
 
     <div class="rp-grid-wrap" [style.--rp-zoom]="zoomLevel + '%'">
-      <div class="rp-grid">
+      <div class="rp-grid" *ngIf="filteredRooms.length; else emptyRooms">
         <article *ngFor="let room of filteredRooms; trackBy: trackRoom" class="rp-room-card" [ngClass]="roomCardClass(room)">
           <div class="rp-room-card__top">
             <button type="button" class="rp-room-card__menu" [attr.aria-label]="label('roomMenuAria')">
@@ -137,6 +149,11 @@
           </footer>
         </article>
       </div>
+      <ng-template #emptyRooms>
+        <p class="rp-grid-empty">
+          <ui-inline-text kind="screen" screen="roomsRack" key="emptyRooms" />
+        </p>
+      </ng-template>
     </div>
   </section>
 
@@ -168,4 +185,5 @@
   <button type="button" class="rp-fab" [attr.aria-label]="label('chatFab')">
     <i class="fas fa-comment-dots" aria-hidden="true"></i>
   </button>
+  </ng-container>
 </div>
